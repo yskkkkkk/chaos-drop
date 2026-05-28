@@ -428,6 +428,8 @@
     const GOAL_Y = 3120;        // 최종 센서 골인선 Y축
 
     let cameraY = 0;            // 뷰포트 종스크롤 카메라 Y좌표
+    let cameraZoom = 1.0;       // 현재 줌 배율 (damped)
+    let cameraZoomTarget = 1.0; // 목표 줌 배율
 
     let pinballCanvas, pinballCtx;
     let pinballAnimId = null;
@@ -1464,6 +1466,8 @@
       stopPinballConfetti();
 
       cameraY = 0;
+      cameraZoom = 1.0;
+      cameraZoomTarget = 1.0;
 
       const spacing = GAME_VWIDTH / (members.length + 1);
       const colorSpectrum = [
@@ -1582,14 +1586,27 @@
         const targetCY = focusBall.y - CH / 2;
         cameraY += (targetCY - cameraY) * _lerp;
         cameraY = Math.max(0, Math.min(cameraY, VH - CH));
+
+        // ⑥ Funnel Zoom: 깔때기 진입 시 1.10 줌, 평상시 1.0
+        cameraZoomTarget = _anyInFunnel ? 1.10 : 1.0;
+        cameraZoom += (cameraZoomTarget - cameraZoom) * 0.04;
+      } else {
+        // 공이 없을 때 zoom 복원
+        cameraZoomTarget = 1.0;
+        cameraZoom += (cameraZoomTarget - cameraZoom) * 0.04;
       }
 
       // B. 배경
       ctx.fillStyle = '#06070d';
       ctx.fillRect(0, 0, pinballCanvas.width, pinballCanvas.height);
 
-      // C. 게임 영역 카메라 변환 적용
+      // C. 게임 영역 카메라 변환 적용 (zoom은 화면 중앙 기준 확대)
       ctx.save();
+      const _zoomCX = pinballCanvas.width / 2;
+      const _zoomCY = CH / 2;
+      ctx.translate(_zoomCX, _zoomCY);
+      ctx.scale(cameraZoom, cameraZoom);
+      ctx.translate(-_zoomCX, -_zoomCY);
       ctx.translate(GAME_X_OFFSET, -cameraY);
 
       const visY0 = cameraY;
@@ -2162,6 +2179,8 @@
       camDramaTarget = null;
       camFocusBall = null;
       camFocusCooldown = 0;
+      cameraZoom = 1.0;
+      cameraZoomTarget = 1.0;
       prevRankOrder = [];
       overtakeParticles = [];
       pinballNearMissSparks = [];
