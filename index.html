@@ -20,16 +20,16 @@
 
   <!-- 홀로그램 제어 패널 카드 (UI) -->
   <div class="pinball-control-panel">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <div class="panel-section-title" style="margin:0;">🎯 NEON PINBALL RIVAL</div>
-      <span class="badge orange" style="font-size:0.68rem; padding: 2px 8px;">60FPS ENGINE</span>
+    <div class="panel-row">
+      <div class="panel-section-title panel-title-flush">🎯 NEON PINBALL RIVAL</div>
+      <span class="badge orange badge-sm">60FPS ENGINE</span>
     </div>
 
     <!-- 팀원 명단 입력 -->
     <div>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2px;">
-        <div class="panel-section-title" style="margin:0;">👥 참전 팀원 명단</div>
-        <button id="btn-shuffle-members" class="badge orange" style="font-size:0.65rem; border:none; cursor:pointer;">순서섞기 (0명)</button>
+      <div class="panel-row panel-row--mb2">
+        <div class="panel-section-title panel-title-flush">👥 참전 팀원 명단</div>
+        <button id="btn-shuffle-members" class="badge orange badge-btn">순서섞기 (0명)</button>
       </div>
       <textarea id="pinball-members" class="panel-textarea" placeholder="쉼표로 구분하여 입력"></textarea>
     </div>
@@ -54,23 +54,23 @@
     </div>
 
     <!-- 가변 인풋 셋 (당첨 인원 / 특정 순번) -->
-    <div style="display: grid; grid-template-columns: 1fr 1.1fr; gap: 10px; align-items: center;">
+    <div class="panel-grid-2">
       <div>
         <div class="panel-section-title" id="lbl-win-count">🎁 당첨 인원수</div>
-        <input type="number" id="pinball-win-count" min="1" max="11" value="2" style="width:100%; padding:6px 10px; background:rgba(0,0,0,0.45); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:#fff; font-size:0.85rem; box-sizing:border-box; outline:none;">
+        <input type="number" id="pinball-win-count" min="1" max="11" value="2" class="panel-input">
       </div>
       <div>
-        <div class="panel-section-title" id="lbl-specific-rank" style="color: rgba(255,255,255,0.25);">🎯 당첨 골인 순번</div>
-        <select id="pinball-specific-rank" disabled style="width:100%; padding:6px 10px; background:rgba(0,0,0,0.45); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:#fff; font-size:0.85rem; box-sizing:border-box; outline:none; cursor:not-allowed;">
+        <div class="panel-section-title panel-title-dim" id="lbl-specific-rank">🎯 당첨 골인 순번</div>
+        <select id="pinball-specific-rank" disabled class="panel-input">
           <!-- 구슬 숫자에 맞춰 스크립트에서 동적 생성 -->
         </select>
       </div>
     </div>
 
     <!-- ❄️ Freeze Mode 토글 -->
-    <div style="display:flex; align-items:center; gap:8px; padding:8px 10px; background:rgba(0,240,255,0.05); border:1px solid rgba(0,240,255,0.12); border-radius:8px;">
-      <input type="checkbox" id="freeze-mode-toggle" checked style="accent-color:#00f0ff; width:15px; height:15px; cursor:pointer; flex-shrink:0;">
-      <label for="freeze-mode-toggle" style="font-size:0.82rem; font-weight:700; color:#00f0ff; cursor:pointer; letter-spacing:0.5px; flex:1;">❄️ FREEZE MODE</label>
+    <div class="panel-toggle-row">
+      <input type="checkbox" id="freeze-mode-toggle" checked class="panel-toggle-checkbox">
+      <label for="freeze-mode-toggle" class="panel-toggle-label">❄️ FREEZE MODE</label>
       <span class="freeze-hint">?
         <div class="freeze-toast">하단 30% 구간에서 확률적으로 공이 정지됩니다.</div>
       </span>
@@ -80,25 +80,25 @@
     <div id="pinball-terminal">> Pinball System initialized. Awaiting Launch...</div>
 
     <!-- 조작 버튼들 -->
-    <div style="display: grid; grid-template-columns: 1.8fr 1fr; gap: 10px;">
+    <div class="panel-grid-buttons">
       <button id="btn-pinball-launch" class="panel-btn btn-orange">⚡ LAUNCH RACING (시작)</button>
       <button id="btn-pinball-reset" class="panel-btn btn-reset">다시 세팅</button>
     </div>
 
     <!-- 실시간 리더보드 테이블 -->
     <div class="leaderboard-container">
-      <div class="panel-section-title" style="margin-bottom:6px; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom:3px;">📊 REALTIME RACE RANK</div>
+      <div class="panel-section-title leaderboard-title">📊 REALTIME RACE RANK</div>
       <table class="leaderboard-table">
         <thead>
           <tr>
             <th class="leaderboard-rank">순위</th>
             <th>팀원 이름</th>
-            <th style="text-align:right;">기록(초)</th>
+            <th class="col-time">기록(초)</th>
           </tr>
         </thead>
         <tbody id="leaderboard-body">
           <tr>
-            <td colspan="3" style="text-align:center; color:rgba(255,255,255,0.2); padding: 20px 0;">구슬 경주 대기 중...</td>
+            <td colspan="3" class="leaderboard-empty">구슬 경주 대기 중...</td>
           </tr>
         </tbody>
       </table>
@@ -107,18 +107,24 @@
 
   <!-- 공중 플로팅 당첨 팝업 모달 -->
   <div id="pinball-result-modal" class="pinball-modal">
-    <div style="font-size: 2.5rem; margin-bottom: 6px;">🏆☕🎉</div>
+    <div class="modal-icon">🏆☕🎉</div>
     <div class="modal-winner-badge" id="modal-rule-title">Synapse Attention Winner</div>
     <h2 class="modal-winner-names" id="pinball-winner-text">홍길동, 김철수</h2>
-    <p style="font-size: 0.95rem; color: #cbd5e1; margin-bottom: 24px; line-height: 1.45;">축하합니다!</p>
-    <button id="btn-modal-close" class="panel-btn btn-reset" style="padding: 8px 30px; font-size: 0.85rem;">확인 및 닫기</button>
+    <p class="modal-subtext">축하합니다!</p>
+    <button id="btn-modal-close" class="panel-btn btn-reset btn-modal-close">확인 및 닫기</button>
   </div>
 
   <!-- ── 스크립트 파일 로드 ───────────────────────────────── -->
-  <!-- 1) 정적 물리 수치 및 상수 로드 -->
-  <script src="constants.js?v=1.0.2"></script>
-  <!-- 2) 물리 코어 및 드로잉 애니메이션 로드 -->
-  <script src="game.js?v=1.0.2"></script>
+  <script src="constants.js?v=1.1.0"></script>
+  <script src="entities.js?v=1.1.0"></script>
+  <script src="ball.js?v=1.1.0"></script>
+  <script src="collision.js?v=1.1.0"></script>
+  <script src="camera.js?v=1.1.0"></script>
+  <script src="effects.js?v=1.1.0"></script>
+  <script src="race.js?v=1.1.0"></script>
+  <script src="maps/classic-chaos.js?v=1.1.0"></script>
+  <script src="ui.js?v=1.1.0"></script>
+  <script src="game.js?v=1.1.0"></script>
 
 </body>
 </html>
