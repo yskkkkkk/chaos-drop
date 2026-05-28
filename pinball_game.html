@@ -428,6 +428,8 @@
     const GOAL_Y = 3120;        // 최종 센서 골인선 Y축
 
     let cameraY = 0;            // 뷰포트 종스크롤 카메라 Y좌표
+    let cameraZoom = 1.0;       // 현재 줌 배율 (damped)
+    let cameraZoomTarget = 1.0; // 목표 줌 배율
 
     let pinballCanvas, pinballCtx;
     let pinballAnimId = null;
@@ -456,6 +458,8 @@
     let hasAnnouncedWinners = false;
     let camDramaTimer = 0;      // 드라마 컷 잔여 프레임
     let camDramaTarget = null;  // 드라마 컷 포커스 구슬
+    let camFocusBall = null;    // Focus Lock: 현재 고정된 포커스 볼
+    let camFocusCooldown = 0;   // Focus Lock: 전환 쿨다운 (30프레임)
     let decisiveMomentActive = false; // 결승 순간 진입 여부 (첫 프레임 스냅용)
     let freezeModeEnabled = true; // ❄️ Freeze Mode 활성화 여부
     let prevRankOrder = [];     // 역전 감지용 이전 프레임 순위 배열
@@ -1462,6 +1466,8 @@
       stopPinballConfetti();
 
       cameraY = 0;
+      cameraZoom = 1.0;
+      cameraZoomTarget = 1.0;
 
       const spacing = GAME_VWIDTH / (members.length + 1);
       const colorSpectrum = [
@@ -1551,33 +1557,61 @@
         const _anyInFunnel = activeBalls.some(b => b.y > FUNNEL_TOP_Y);
         if (_anyInFunnel) { camDramaTimer = 0; camDramaTarget = null; }
 
-        // ⑤ 포커스 볼 결정
-        const _finCnt = pinballFinishedBalls.length;
-        let focusBall;
+        // ⑤ Multi-target framing: 모드별 카메라 철학으로 대상 공 배열 선택
+        let _camTargets;
         if (camDramaTarget) {
-          focusBall = camDramaTarget;
+          _camTargets = [camDramaTarget];               // 드라마 컷: 단일 공 집중
+        } else if (_anyInFunnel) {
+          _camTargets = [_camSorted[0]];                // 깔때기: 선두 단일 집중
         } else if (currentRule === 'first') {
-          focusBall = activeBalls.reduce((a, b) => b.y > a.y ? b : a);
+          _camTargets = _camSorted.slice(0, Math.min(3, _camSorted.length)); // 상위 3명 경쟁
         } else if (currentRule === 'last') {
-          focusBall = activeBalls.reduce((a, b) => b.y > a.y ? b : a); // 탈락 위험 선두 추적
+          // 탈락 위험권: 생존선(winCount) 주변 하위권 공 집중
+          const _keepCount = winCount + 2;
+          _camTargets = _camSorted.slice(Math.max(0, _camSorted.length - _keepCount));
+          if (_camTargets.length === 0) _camTargets = [_camSorted[_camSorted.length - 1]];
         } else {
-          const _s = [...activeBalls].sort((a, b) => b.y - a.y);
-          focusBall = _s[Math.min(specificRank - 1, _s.length - 1)];
+          // specific rank: 목표 순위 ±2 범위 공 집중
+          const _tIdx = Math.min(specificRank - 1, _camSorted.length - 1);
+          _camTargets = _camSorted.slice(Math.max(0, _tIdx - 2), Math.min(_camSorted.length, _tIdx + 3));
         }
+
+        const _tMinY = Math.min(..._camTargets.map(b => b.y));
+        const _tMaxY = Math.max(..._camTargets.map(b => b.y));
+        const _tCenterY = (_tMinY + _tMaxY) / 2;
+        const _spreadY = _tMaxY - _tMinY;
 
         // 파이널 존·드라마 컷에서는 고속 lerp 적용
         const _lerp = (_anyInFunnel || camDramaTarget) ? 0.12 : 0.05;
-        const targetCY = focusBall.y - CH / 2;
+        const targetCY = _tCenterY - CH / 2;
         cameraY += (targetCY - cameraY) * _lerp;
         cameraY = Math.max(0, Math.min(cameraY, VH - CH));
+
+        // ⑥ Zoom: funnel 1.10 우선, 그 외 spread 기반 미세 줌
+        // spread 0(단일/접전) → 1.08, spread 400 → 1.00, 그 사이 선형 감소
+        if (_anyInFunnel) {
+          cameraZoomTarget = 1.10;
+        } else {
+          cameraZoomTarget = Math.max(1.0, Math.min(1.08, 1.08 - _spreadY * 0.0002));
+        }
+        cameraZoom += (cameraZoomTarget - cameraZoom) * 0.04;
+      } else {
+        // 공이 없을 때 zoom 복원
+        cameraZoomTarget = 1.0;
+        cameraZoom += (cameraZoomTarget - cameraZoom) * 0.04;
       }
 
       // B. 배경
       ctx.fillStyle = '#06070d';
       ctx.fillRect(0, 0, pinballCanvas.width, pinballCanvas.height);
 
-      // C. 게임 영역 카메라 변환 적용
+      // C. 게임 영역 카메라 변환 적용 (zoom은 화면 중앙 기준 확대)
       ctx.save();
+      const _zoomCX = pinballCanvas.width / 2;
+      const _zoomCY = CH / 2;
+      ctx.translate(_zoomCX, _zoomCY);
+      ctx.scale(cameraZoom, cameraZoom);
+      ctx.translate(-_zoomCX, -_zoomCY);
       ctx.translate(GAME_X_OFFSET, -cameraY);
 
       const visY0 = cameraY;
@@ -2148,6 +2182,10 @@
       pinballGameRunning = false;
       camDramaTimer = 0;
       camDramaTarget = null;
+      camFocusBall = null;
+      camFocusCooldown = 0;
+      cameraZoom = 1.0;
+      cameraZoomTarget = 1.0;
       prevRankOrder = [];
       overtakeParticles = [];
       pinballNearMissSparks = [];
