@@ -232,6 +232,22 @@ window.addEventListener('DOMContentLoaded', () => {
     if (pinballAnimId === null) animatePinball();
   });
 
+  const btnSwitchMap = document.getElementById('btn-switch-map');
+  if (btnSwitchMap) {
+    const _updateMapBtn = () => {
+      btnSwitchMap.textContent = `🗺 맵 전환 → ${MAPS[currentMapId === 'classic-chaos' ? 'zigzag-canyon' : 'classic-chaos']?.label || ''}`;
+    };
+    _updateMapBtn();
+    btnSwitchMap.addEventListener('click', () => {
+      const nextId = currentMapId === 'classic-chaos' ? 'zigzag-canyon' : 'classic-chaos';
+      switchMap(nextId);
+      resetPinball();
+      if (pinballAnimId === null) animatePinball();
+      _updateMapBtn();
+      pinballLog(`🗺 맵 전환 → ${MAPS[currentMapId]?.label}`);
+    });
+  }
+
   const btnModalClose = document.getElementById('btn-modal-close');
   if (btnModalClose) {
     btnModalClose.addEventListener('click', () => {

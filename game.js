@@ -45,10 +45,24 @@ let overtakeParticles = [];
 let currentLeaderId = -1;
 let crownFlashTimer = 0;
 
-// ── 맵 브리지 ────────────────────────────────────────────────
-// 현재 활성 맵(classic-chaos.js)의 init을 호출합니다.
-// 맵이 추가될 때 이 함수만 교체하면 됩니다.
-function initPinballMap() { classicChaos_init(); }
+// ── 맵 레지스트리 딜리게이터 ──────────────────────────────────
+// 각 맵 파일이 MAPS['id']에 훅을 등록합니다. (constants.js 에서 MAPS={} 선언)
+let currentMapId = 'zigzag-canyon';
+
+function _applyMapTheme() {
+  Object.values(MAPS).forEach(m => { if (m.theme?.uiClass) document.body.classList.remove(m.theme.uiClass); });
+  const cls = MAPS[currentMapId]?.theme?.uiClass;
+  if (cls) document.body.classList.add(cls);
+}
+
+function switchMap(mapId) {
+  if (MAPS[mapId]) { currentMapId = mapId; _applyMapTheme(); }
+}
+
+function applyMapZonePhysics(ball)        { MAPS[currentMapId]?.applyPhysics?.(ball); }
+function drawCurrentMapLayer(ctx, v0, v1) { MAPS[currentMapId]?.drawLayer?.(ctx, v0, v1); }
+function recoverCurrentMapIslandTunnel()  { MAPS[currentMapId]?.recoverTunnel?.(); }
+function initPinballMap()                 { MAPS[currentMapId]?.init?.(); _applyMapTheme(); }
 
 // ── 메인 루프 ─────────────────────────────────────────────────
 
@@ -86,7 +100,8 @@ function animatePinball(currentTime) {
   updateCamera(activeBalls, CH, VH);
 
   // B. 배경
-  ctx.fillStyle = '#06070d';
+  const _th = MAPS[currentMapId]?.theme || {};
+  ctx.fillStyle = _th.bgClear || '#06070d';
   ctx.fillRect(0, 0, pinballCanvas.width, pinballCanvas.height);
 
   // C. 게임 영역 카메라 변환
@@ -101,8 +116,8 @@ function animatePinball(currentTime) {
   const visY0 = cameraY;
   const visY1 = cameraY + CH;
   let bgGrad = ctx.createRadialGradient(VW/2, visY0+CH/2, 60, VW/2, visY0+CH/2, 520);
-  bgGrad.addColorStop(0, '#10122e');
-  bgGrad.addColorStop(1, '#05060b');
+  bgGrad.addColorStop(0, _th.bgFrom || '#10122e');
+  bgGrad.addColorStop(1, _th.bgTo   || '#05060b');
   ctx.fillStyle = bgGrad;
   ctx.fillRect(0, visY0, VW, CH);
 
@@ -112,31 +127,31 @@ function animatePinball(currentTime) {
     ctx.moveTo(0, visY0);
     wallProfile.forEach(v => { if (v.y >= visY0 - 50 && v.y <= visY1 + 50) ctx.lineTo(v.lx, v.y); });
     ctx.lineTo(0, visY1); ctx.closePath();
-    ctx.fillStyle = '#07080f'; ctx.fill();
+    ctx.fillStyle = _th.wallFill || '#07080f'; ctx.fill();
 
     ctx.beginPath();
     wallProfile.forEach((v, i) => { if (v.y >= visY0 - 50 && v.y <= visY1 + 50) { i === 0 || wallProfile[i-1]?.y < visY0 - 50 ? ctx.moveTo(v.lx, v.y) : ctx.lineTo(v.lx, v.y); } });
-    ctx.strokeStyle = 'rgba(0,240,255,0.5)'; ctx.lineWidth = 2;
-    ctx.shadowBlur = 6; ctx.shadowColor = '#00f0ff'; ctx.stroke(); ctx.shadowBlur = 0;
+    ctx.strokeStyle = _th.wallStroke || 'rgba(0,240,255,0.5)'; ctx.lineWidth = 2;
+    ctx.shadowBlur = 6; ctx.shadowColor = _th.wallGlow || '#00f0ff'; ctx.stroke(); ctx.shadowBlur = 0;
 
     ctx.beginPath();
     ctx.moveTo(VW, visY0);
     wallProfile.forEach(v => { if (v.y >= visY0 - 50 && v.y <= visY1 + 50) ctx.lineTo(v.rx, v.y); });
     ctx.lineTo(VW, visY1); ctx.closePath();
-    ctx.fillStyle = '#07080f'; ctx.fill();
+    ctx.fillStyle = _th.wallFill || '#07080f'; ctx.fill();
 
     ctx.beginPath();
     wallProfile.forEach((v, i) => { if (v.y >= visY0 - 50 && v.y <= visY1 + 50) { i === 0 || wallProfile[i-1]?.y < visY0 - 50 ? ctx.moveTo(v.rx, v.y) : ctx.lineTo(v.rx, v.y); } });
-    ctx.strokeStyle = 'rgba(0,240,255,0.5)'; ctx.lineWidth = 2;
-    ctx.shadowBlur = 6; ctx.shadowColor = '#00f0ff'; ctx.stroke(); ctx.shadowBlur = 0;
+    ctx.strokeStyle = _th.wallStroke || 'rgba(0,240,255,0.5)'; ctx.lineWidth = 2;
+    ctx.shadowBlur = 6; ctx.shadowColor = _th.wallGlow || '#00f0ff'; ctx.stroke(); ctx.shadowBlur = 0;
   }
 
   // 깔때기 + 골인선
   ctx.save();
-  ctx.strokeStyle = 'rgba(140,82,255,0.5)';
+  ctx.strokeStyle = _th.funnelStroke || 'rgba(140,82,255,0.5)';
   ctx.lineWidth = 4;
   ctx.shadowBlur = 8;
-  ctx.shadowColor = '#8c52ff';
+  ctx.shadowColor = _th.funnelColor || '#8c52ff';
   ctx.beginPath();
   ctx.moveTo(funnelLeftX,  FUNNEL_TOP_Y);
   ctx.lineTo(FUNNEL_BOTTOM_X,      GOAL_Y);
@@ -147,16 +162,16 @@ function animatePinball(currentTime) {
   ctx.stroke();
   ctx.shadowBlur = 0;
 
-  ctx.fillStyle = 'rgba(0,240,255,0.07)';
+  ctx.fillStyle = _th.goalFill   || 'rgba(0,240,255,0.07)';
   ctx.fillRect(FUNNEL_BOTTOM_X, GOAL_Y, VW - FUNNEL_BOTTOM_X * 2, 40);
-  ctx.strokeStyle = '#00f0ff';
+  ctx.strokeStyle = _th.goalStroke || '#00f0ff';
   ctx.lineWidth = 2;
-  ctx.shadowBlur = 5; ctx.shadowColor = '#00f0ff';
+  ctx.shadowBlur = 5; ctx.shadowColor = _th.goalStroke || '#00f0ff';
   ctx.strokeRect(FUNNEL_BOTTOM_X, GOAL_Y, VW - FUNNEL_BOTTOM_X * 2, 40);
   ctx.restore();
 
   // 맵 고유 레이어 (터널, 섬 등) — maps/classic-chaos.js
-  if (typeof drawCurrentMapLayer === 'function') drawCurrentMapLayer(ctx, visY0, visY1);
+  drawCurrentMapLayer(ctx, visY0, visY1);
 
   // 구간 구분선
   ctx.strokeStyle = 'rgba(255,255,255,0.03)';
@@ -209,7 +224,7 @@ function animatePinball(currentTime) {
     }
 
     // 맵 고유 섬 터널링 복구 — maps/classic-chaos.js
-    if (typeof recoverCurrentMapIslandTunnel === 'function') recoverCurrentMapIslandTunnel();
+    recoverCurrentMapIslandTunnel();
 
     // E-1. 구슬 간 충돌
     for (let _iter = 0; _iter < 2; _iter++) {
@@ -437,10 +452,10 @@ function animatePinball(currentTime) {
     ctx.fillRect(0, visY0, VW, CH);
 
     const scanY = visY0 + (Math.sin(Date.now() * 0.0035) * 0.5 + 0.5) * CH;
-    ctx.strokeStyle = '#ff9900';
+    ctx.strokeStyle = _th.scanLine || '#ff9900';
     ctx.lineWidth = 3;
     ctx.shadowBlur = 10;
-    ctx.shadowColor = '#ff9900';
+    ctx.shadowColor = _th.scanLine || '#ff9900';
     ctx.beginPath();
     ctx.moveTo(0, scanY); ctx.lineTo(VW, scanY);
     ctx.stroke();
