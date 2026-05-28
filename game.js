@@ -1812,9 +1812,23 @@ function animatePinball(currentTime) {
       if (ball.isFinished) return;
       const by = ball.y;
 
+      const _ballSpeed = Math.hypot(ball.vx, ball.vy);
       for (const peg of pinballPegs) {
         if (peg.y < by - 60 || peg.y > by + 60) continue;
-        const dx = ball.x - peg.x, dy = ball.y - peg.y;
+
+        // 서브스텝: speed > 14 시 이동 중간 위치도 검사하여 터널링 방지
+        // 중간 위치가 충돌권 내부면 해당 좌표로 충돌 해석
+        let _cx = ball.x, _cy = ball.y;
+        if (_ballSpeed > 14) {
+          const _mx = ball.x - ball.vx * 0.5;
+          const _my = ball.y - ball.vy * 0.5;
+          const _minD = ball.r + peg.r;
+          if ((_mx-peg.x)*(_mx-peg.x) + (_my-peg.y)*(_my-peg.y) < _minD*_minD) {
+            _cx = _mx; _cy = _my;
+          }
+        }
+
+        const dx = _cx - peg.x, dy = _cy - peg.y;
         const distSq = dx*dx + dy*dy;
         const minD = ball.r + peg.r;
         if (distSq < minD*minD && distSq > 0) {
