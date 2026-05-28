@@ -21,6 +21,8 @@ let pinballBumpers = [];
 let pinballPortals = [];
 let pinballVortexes = [];
 let pinballLaunchPads = [];
+let pinballSpeedPads = [];
+let pinballSlowSwamps = [];
 let pinballFinishedBalls = [];
 
 let pinballGameRunning = false;
@@ -223,6 +225,86 @@ class SlowVortex {
       ctx.quadraticCurveTo(this.r/2, this.r/2, Math.cos(i * Math.PI/2)*this.r*0.8, Math.sin(i * Math.PI/2)*this.r*0.8);
     }
     ctx.stroke();
+    ctx.restore();
+  }
+}
+
+// 가속 패드 클래스 (Speed Pad)
+class SpeedPad {
+  constructor(x, y, w, h, color) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.color = color; // e.g. '#00f0ff' (시안) 또는 '#33ff57' (그린)
+    this.pulse = 0;
+  }
+  draw(ctx) {
+    this.pulse += 0.12;
+    ctx.save();
+    ctx.fillStyle = 'rgba(0, 240, 255, 0.06)';
+    ctx.strokeStyle = this.color;
+    ctx.lineWidth = 1.5;
+    ctx.shadowBlur = 6;
+    ctx.shadowColor = this.color;
+    ctx.beginPath();
+    ctx.roundRect(this.x - this.w/2, this.y - this.h/2, this.w, this.h, 4);
+    ctx.fill();
+    ctx.stroke();
+    
+    // 아래로 흐르는 화살표 연출 (깔때기 가속 방향)
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
+    ctx.lineWidth = 2.2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    
+    const arrowOffset = (this.pulse % 1.0) * (this.h - 8);
+    ctx.beginPath();
+    const ay = this.y - this.h/2 + 4 + arrowOffset;
+    if (ay < this.y + this.h/2 - 4) {
+      ctx.moveTo(this.x - 6, ay - 4);
+      ctx.lineTo(this.x, ay);
+      ctx.lineTo(this.x + 6, ay - 4);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+
+// 감속 늪 클래스 (Slow Swamp)
+class SlowSwamp {
+  constructor(x, y, w, h, color) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.color = color; // e.g. '#8c52ff' (퍼플)
+    this.pulse = 0;
+  }
+  draw(ctx) {
+    this.pulse += 0.02;
+    ctx.save();
+    ctx.fillStyle = 'rgba(140, 82, 255, 0.12)';
+    ctx.strokeStyle = this.color;
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 4]);
+    ctx.shadowBlur = 4;
+    ctx.shadowColor = this.color;
+    ctx.beginPath();
+    ctx.roundRect(this.x - this.w/2, this.y - this.h/2, this.w, this.h, 6);
+    ctx.fill();
+    ctx.stroke();
+    
+    // 늪 내부 기포 연출
+    ctx.fillStyle = 'rgba(140, 82, 255, 0.4)';
+    ctx.shadowBlur = 0;
+    for (let i = 0; i < 3; i++) {
+      const bx = this.x - this.w/2 + 8 + ((i * 18 + Math.floor(this.pulse * 75)) % (this.w - 16));
+      const by = this.y - this.h/2 + 6 + (Math.sin(this.pulse * 2 + i) * 0.5 + 0.5) * (this.h - 12);
+      ctx.beginPath();
+      ctx.arc(bx, by, 1.8, 0, Math.PI*2);
+      ctx.fill();
+    }
     ctx.restore();
   }
 }
@@ -633,6 +715,8 @@ function initPinballMap() {
   pinballPortals = [];
   pinballVortexes = [];
   pinballLaunchPads = [];
+  pinballSpeedPads = [];
+  pinballSlowSwamps = [];
 
   const W  = GAME_VWIDTH;
   const cx = W / 2;
@@ -711,7 +795,24 @@ function initPinballMap() {
   pinballSpinners.push(new Spinner(412.5, 2840, 26, '#00f0ff')); // 가운데 상단 하늘색 스피너
   pinballBumpers.push(new SuperBumper(412.5, 2950, 24, '#ff00ff')); // 가운데 하단 대형 탄성 범퍼
 
-  // B. 깔때기 슬로프 밀착형 대각선 런치패드 2개 (슬로프 경계 Y: 3060 지점에서의 좌우 X 동적 연산)
+  // B. 깔때기 지그재그 교차 가속/감속 특수 패드 배치
+  // ① 상부 깔때기 레이어 (Y = 2800): 좌측 가속 / 우측 감속
+  const t1 = (2800 - FUNNEL_TOP_Y) / (GOAL_Y - FUNNEL_TOP_Y);
+  const lx1 = funnelLeftX + t1 * (300 - funnelLeftX);
+  const rx1 = funnelRightX - t1 * (funnelRightX - (GAME_VWIDTH - 300));
+  const width1 = rx1 - lx1;
+  pinballSpeedPads.push(new SpeedPad(lx1 + width1 * 0.28, 2800, 58, 24, '#00f0ff'));
+  pinballSlowSwamps.push(new SlowSwamp(lx1 + width1 * 0.72, 2800, 58, 24, '#8c52ff'));
+
+  // ② 하부 깔때기 레이어 (Y = 2950): 좌측 감속 / 우측 가속
+  const t2 = (2950 - FUNNEL_TOP_Y) / (GOAL_Y - FUNNEL_TOP_Y);
+  const lx2 = funnelLeftX + t2 * (300 - funnelLeftX);
+  const rx2 = funnelRightX - t2 * (funnelRightX - (GAME_VWIDTH - 300));
+  const width2 = rx2 - lx2;
+  pinballSlowSwamps.push(new SlowSwamp(lx2 + width2 * 0.28, 2950, 50, 24, '#8c52ff'));
+  pinballSpeedPads.push(new SpeedPad(lx2 + width2 * 0.72, 2950, 50, 24, '#00f0ff'));
+
+  // C. 깔때기 슬로프 밀착형 대각선 런치패드 2개 (슬로프 경계 Y: 3060 지점에서의 좌우 X 동적 연산)
   const t_lp = (3060 - FUNNEL_TOP_Y) / (GOAL_Y - FUNNEL_TOP_Y);
   const lx_lp = funnelLeftX + t_lp * (300 - funnelLeftX);
   const rx_lp = funnelRightX - t_lp * (funnelRightX - (GAME_VWIDTH - 300));
@@ -1298,6 +1399,12 @@ function animatePinball(currentTime) {
     lp.update();
     if (lp.y + lp.h > visY0 - margin && lp.y < visY1 + margin) lp.draw(ctx);
   });
+  pinballSpeedPads.forEach(pad => {
+    if (pad.y + pad.h/2 > visY0 - margin && pad.y - pad.h/2 < visY1 + margin) pad.draw(ctx);
+  });
+  pinballSlowSwamps.forEach(swamp => {
+    if (swamp.y + swamp.h/2 > visY0 - margin && swamp.y - swamp.h/2 < visY1 + margin) swamp.draw(ctx);
+  });
 
   // 구슬 물리 연산
   if (pinballGameRunning && shouldRunPhysics) {
@@ -1474,6 +1581,24 @@ function animatePinball(currentTime) {
       if (_leaderSet.has(ball.id)) {
         ball.vx *= 0.992;
         ball.vy *= 0.992;
+      }
+
+      // 특수 패드(가속 패드 / 감속 늪) 충돌 체크
+      for (const pad of pinballSpeedPads) {
+        if (Math.abs(ball.x - pad.x) < pad.w/2 + ball.r &&
+            Math.abs(ball.y - pad.y) < pad.h/2 + ball.r) {
+          ball.vy += 0.35; // 중력 방향(아래)으로 순간 가속
+          ball.vx *= 1.01;
+          ball.superChargeTimer = Math.max(ball.superChargeTimer, 20); // 가속 광원 파티클 효과 활성화
+        }
+      }
+
+      for (const swamp of pinballSlowSwamps) {
+        if (Math.abs(ball.x - swamp.x) < swamp.w/2 + ball.r &&
+            Math.abs(ball.y - swamp.y) < swamp.h/2 + ball.r) {
+          ball.vx *= 0.88; // 속도 흡수 및 늪 감속
+          ball.vy *= 0.88;
+        }
       }
 
       const _fw = getWallAtY(ball.y);

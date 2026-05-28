@@ -10,7 +10,7 @@
 const GAME_VWIDTH = 825;       // 가상 가로 너비 (구슬 경주 가상 보드 사이즈)
 const GAME_VHEIGHT = 3200;     // 가상 세로 높이 (3200px 대규모 세로 맵)
 const PANEL_MIN_OFFSET = 415;  // 제어판 패널 폭 오버랩 방지 최소 가로 오프셋
-const FUNNEL_TOP_Y = 2960;     // 지그재그 벽 종료 및 깔때기 수축 시작 Y축
+const FUNNEL_TOP_Y = 2720;     // 지그재그 벽 종료 및 깔때기 수축 시작 Y축
 const GOAL_Y = 3120;           // 최종 센서 골인선 Y축
 
 // ── 2. 프레임 레이트 및 물리 루프 시간 제한 ──────────────────
