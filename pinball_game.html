@@ -456,6 +456,8 @@
     let hasAnnouncedWinners = false;
     let camDramaTimer = 0;      // 드라마 컷 잔여 프레임
     let camDramaTarget = null;  // 드라마 컷 포커스 구슬
+    let camFocusBall = null;    // Focus Lock: 현재 고정된 포커스 볼
+    let camFocusCooldown = 0;   // Focus Lock: 전환 쿨다운 (30프레임)
     let decisiveMomentActive = false; // 결승 순간 진입 여부 (첫 프레임 스냅용)
     let freezeModeEnabled = true; // ❄️ Freeze Mode 활성화 여부
     let prevRankOrder = [];     // 역전 감지용 이전 프레임 순위 배열
@@ -1551,19 +1553,29 @@
         const _anyInFunnel = activeBalls.some(b => b.y > FUNNEL_TOP_Y);
         if (_anyInFunnel) { camDramaTimer = 0; camDramaTarget = null; }
 
-        // ⑤ 포커스 볼 결정
-        const _finCnt = pinballFinishedBalls.length;
-        let focusBall;
+        // ⑤ 포커스 볼 결정 (Focus Lock: 30프레임 쿨다운으로 jitter 방지)
+        let _rawFocus;
         if (camDramaTarget) {
-          focusBall = camDramaTarget;
+          _rawFocus = camDramaTarget;
         } else if (currentRule === 'first') {
-          focusBall = activeBalls.reduce((a, b) => b.y > a.y ? b : a);
+          _rawFocus = _camSorted[0];
         } else if (currentRule === 'last') {
-          focusBall = activeBalls.reduce((a, b) => b.y > a.y ? b : a); // 탈락 위험 선두 추적
+          _rawFocus = _camSorted[_camSorted.length - 1]; // 탈락 위험 꼴찌 추적
         } else {
-          const _s = [...activeBalls].sort((a, b) => b.y - a.y);
-          focusBall = _s[Math.min(specificRank - 1, _s.length - 1)];
+          _rawFocus = _camSorted[Math.min(specificRank - 1, _camSorted.length - 1)];
         }
+
+        // Focus Lock 쿨다운 적용: 대상이 바뀌면 30프레임 후 전환
+        if (camFocusCooldown > 0) camFocusCooldown--;
+        if (!camFocusBall || !activeBalls.includes(camFocusBall)) {
+          // 현재 lock 대상이 없거나 이미 골인한 경우 즉시 전환
+          camFocusBall = _rawFocus;
+          camFocusCooldown = 0;
+        } else if (_rawFocus !== camFocusBall && camFocusCooldown === 0) {
+          camFocusBall = _rawFocus;
+          camFocusCooldown = 30;
+        }
+        const focusBall = camFocusBall;
 
         // 파이널 존·드라마 컷에서는 고속 lerp 적용
         const _lerp = (_anyInFunnel || camDramaTarget) ? 0.12 : 0.05;
@@ -2148,6 +2160,8 @@
       pinballGameRunning = false;
       camDramaTimer = 0;
       camDramaTarget = null;
+      camFocusBall = null;
+      camFocusCooldown = 0;
       prevRankOrder = [];
       overtakeParticles = [];
       pinballNearMissSparks = [];
