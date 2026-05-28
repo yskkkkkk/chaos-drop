@@ -45,10 +45,18 @@ let overtakeParticles = [];
 let currentLeaderId = -1;
 let crownFlashTimer = 0;
 
-// ── 맵 브리지 ────────────────────────────────────────────────
-// 현재 활성 맵의 init을 호출합니다.
-// 맵 전환 시 이 한 줄만 교체하면 됩니다.
-function initPinballMap() { zigzagCanyon_init(); }
+// ── 맵 레지스트리 딜리게이터 ──────────────────────────────────
+// 각 맵 파일이 MAPS['id']에 훅을 등록합니다. (constants.js 에서 MAPS={} 선언)
+let currentMapId = 'zigzag-canyon';
+
+function switchMap(mapId) {
+  if (MAPS[mapId]) currentMapId = mapId;
+}
+
+function applyMapZonePhysics(ball)        { MAPS[currentMapId]?.applyPhysics?.(ball); }
+function drawCurrentMapLayer(ctx, v0, v1) { MAPS[currentMapId]?.drawLayer?.(ctx, v0, v1); }
+function recoverCurrentMapIslandTunnel()  { MAPS[currentMapId]?.recoverTunnel?.(); }
+function initPinballMap()                 { MAPS[currentMapId]?.init?.(); }
 
 // ── 메인 루프 ─────────────────────────────────────────────────
 
@@ -156,7 +164,7 @@ function animatePinball(currentTime) {
   ctx.restore();
 
   // 맵 고유 레이어 (터널, 섬 등) — maps/classic-chaos.js
-  if (typeof drawCurrentMapLayer === 'function') drawCurrentMapLayer(ctx, visY0, visY1);
+  drawCurrentMapLayer(ctx, visY0, visY1);
 
   // 구간 구분선
   ctx.strokeStyle = 'rgba(255,255,255,0.03)';
@@ -209,7 +217,7 @@ function animatePinball(currentTime) {
     }
 
     // 맵 고유 섬 터널링 복구 — maps/classic-chaos.js
-    if (typeof recoverCurrentMapIslandTunnel === 'function') recoverCurrentMapIslandTunnel();
+    recoverCurrentMapIslandTunnel();
 
     // E-1. 구슬 간 충돌
     for (let _iter = 0; _iter < 2; _iter++) {

@@ -5,11 +5,8 @@
  * 벽 프로파일 생성, 장애물 배치, Zone 2.5 터널 물리/렌더링,
  * 고체 섬 터널링 복구.
  *
- * 이 파일이 정의하는 전역 함수:
- *   applyMapZonePhysics(ball)     ← ball.js 에서 호출
- *   drawCurrentMapLayer(ctx, v0, v1) ← game.js animatePinball 에서 호출
- *   recoverCurrentMapIslandTunnel()  ← game.js animatePinball 에서 호출
- *   classicChaos_init()           ← game.js initPinballMap() 브리지에서 호출
+ * MAPS['classic-chaos'] 에 등록. game.js 딜리게이터가 훅을 호출합니다.
+ *   classicChaos_init()  ← initPinballMap() 경유
  */
 
 // ── 벽 프로파일 생성 ─────────────────────────────────────────
@@ -66,7 +63,7 @@ function classicChaos_generateWallProfile() {
 
 // ── Zone 2.5 볼 물리 (ball.js 훅) ────────────────────────────
 
-function applyMapZonePhysics(ball) {
+function _cc_applyPhysics(ball) {
   if (ball.y < TUNNEL_TOP_Y || ball.y > TUNNEL_BOTTOM_Y) return;
 
   // 육각형 다이아몬드 섬 1 충돌
@@ -107,7 +104,7 @@ function applyMapZonePhysics(ball) {
 
 // ── Zone 2.5 터널 렌더링 (game.js animatePinball 훅) ──────────
 
-function drawCurrentMapLayer(ctx, visY0, visY1) {
+function _cc_drawLayer(ctx, visY0, visY1) {
   if (visY1 < TUNNEL_TOP_Y || visY0 > TUNNEL_BOTTOM_Y) return;
 
   ctx.save();
@@ -196,7 +193,7 @@ function drawCurrentMapLayer(ctx, visY0, visY1) {
 
 // ── 고체 섬 터널링 복구 (game.js animatePinball 훅) ───────────
 
-function recoverCurrentMapIslandTunnel() {
+function _cc_recoverTunnel() {
   pinballBalls.forEach(ball => {
     if (ball.isFinished) return;
     if (ball.y < 1500 || ball.y > 1900) return;
@@ -433,3 +430,12 @@ function classicChaos_init() {
   // 핀 10% 랜덤 제거 (배치 완료 후 실행)
   pinballPegs = pinballPegs.filter(() => Math.random() > 0.10);
 }
+
+// ── 맵 레지스트리 등록 ────────────────────────────────────
+MAPS['classic-chaos'] = {
+  label:         '🌀 Classic Chaos',
+  init:          classicChaos_init,
+  applyPhysics:  _cc_applyPhysics,
+  drawLayer:     _cc_drawLayer,
+  recoverTunnel: _cc_recoverTunnel,
+};

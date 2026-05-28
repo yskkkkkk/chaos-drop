@@ -174,7 +174,7 @@ function zigzagCanyon_generateWallProfile() {
 // ─────────────────────────────────────────────────────────
 //  맵 훅 1: 창살 충돌 + 아이템 수집 + 타이머
 // ─────────────────────────────────────────────────────────
-function applyMapZonePhysics(ball) {
+function _zc_applyPhysics(ball) {
   if (ball.isFinished) return;
 
   // 부스터 타이머 tick
@@ -248,7 +248,7 @@ function applyMapZonePhysics(ball) {
 // ─────────────────────────────────────────────────────────
 //  맵 훅 2: 창살·아이템·상태링 렌더링
 // ─────────────────────────────────────────────────────────
-function drawCurrentMapLayer(ctx, visY0, visY1) {
+function _zc_drawLayer(ctx, visY0, visY1) {
   // 구간 배경 틴트 (좁아지는 위험 쪽)
   ZC_SECTIONS.forEach(sec => {
     if (visY1 < sec.top || visY0 > sec.bot) return;
@@ -389,7 +389,7 @@ function drawCurrentMapLayer(ctx, visY0, visY1) {
 // ─────────────────────────────────────────────────────────
 //  맵 훅 3: 창살·아이템 매 프레임 업데이트
 // ─────────────────────────────────────────────────────────
-function recoverCurrentMapIslandTunnel() {
+function _zc_recoverTunnel() {
   _zcUpdateBars();
   _zcUpdateItems();
 }
@@ -470,3 +470,12 @@ function zigzagCanyon_init() {
   // 아이템 초기화: 인원수만큼
   _zcInitItems(Math.max(pinballBalls.length, 2));
 }
+
+// ── 맵 레지스트리 등록 ────────────────────────────────────
+MAPS['zigzag-canyon'] = {
+  label:         '🏜 Zigzag Canyon',
+  init:          zigzagCanyon_init,
+  applyPhysics:  _zc_applyPhysics,
+  drawLayer:     _zc_drawLayer,
+  recoverTunnel: _zc_recoverTunnel,
+};
