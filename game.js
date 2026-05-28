@@ -46,9 +46,9 @@ let currentLeaderId = -1;
 let crownFlashTimer = 0;
 
 // ── 맵 브리지 ────────────────────────────────────────────────
-// 현재 활성 맵(classic-chaos.js)의 init을 호출합니다.
-// 맵이 추가될 때 이 함수만 교체하면 됩니다.
-function initPinballMap() { classicChaos_init(); }
+// 현재 활성 맵의 init을 호출합니다.
+// 맵 전환 시 이 한 줄만 교체하면 됩니다.
+function initPinballMap() { zigzagCanyon_init(); }
 
 // ── 메인 루프 ─────────────────────────────────────────────────
 
