@@ -1557,38 +1557,43 @@
         const _anyInFunnel = activeBalls.some(b => b.y > FUNNEL_TOP_Y);
         if (_anyInFunnel) { camDramaTimer = 0; camDramaTarget = null; }
 
-        // ⑤ 포커스 볼 결정 (Focus Lock: 30프레임 쿨다운으로 jitter 방지)
-        let _rawFocus;
+        // ⑤ Multi-target framing: 모드별 카메라 철학으로 대상 공 배열 선택
+        let _camTargets;
         if (camDramaTarget) {
-          _rawFocus = camDramaTarget;
+          _camTargets = [camDramaTarget];               // 드라마 컷: 단일 공 집중
+        } else if (_anyInFunnel) {
+          _camTargets = [_camSorted[0]];                // 깔때기: 선두 단일 집중
         } else if (currentRule === 'first') {
-          _rawFocus = _camSorted[0];
+          _camTargets = _camSorted.slice(0, Math.min(3, _camSorted.length)); // 상위 3명 경쟁
         } else if (currentRule === 'last') {
-          _rawFocus = _camSorted[_camSorted.length - 1]; // 탈락 위험 꼴찌 추적
+          // 탈락 위험권: 생존선(winCount) 주변 하위권 공 집중
+          const _keepCount = winCount + 2;
+          _camTargets = _camSorted.slice(Math.max(0, _camSorted.length - _keepCount));
+          if (_camTargets.length === 0) _camTargets = [_camSorted[_camSorted.length - 1]];
         } else {
-          _rawFocus = _camSorted[Math.min(specificRank - 1, _camSorted.length - 1)];
+          // specific rank: 목표 순위 ±2 범위 공 집중
+          const _tIdx = Math.min(specificRank - 1, _camSorted.length - 1);
+          _camTargets = _camSorted.slice(Math.max(0, _tIdx - 2), Math.min(_camSorted.length, _tIdx + 3));
         }
 
-        // Focus Lock 쿨다운 적용: 대상이 바뀌면 30프레임 후 전환
-        if (camFocusCooldown > 0) camFocusCooldown--;
-        if (!camFocusBall || !activeBalls.includes(camFocusBall)) {
-          // 현재 lock 대상이 없거나 이미 골인한 경우 즉시 전환
-          camFocusBall = _rawFocus;
-          camFocusCooldown = 0;
-        } else if (_rawFocus !== camFocusBall && camFocusCooldown === 0) {
-          camFocusBall = _rawFocus;
-          camFocusCooldown = 30;
-        }
-        const focusBall = camFocusBall;
+        const _tMinY = Math.min(..._camTargets.map(b => b.y));
+        const _tMaxY = Math.max(..._camTargets.map(b => b.y));
+        const _tCenterY = (_tMinY + _tMaxY) / 2;
+        const _spreadY = _tMaxY - _tMinY;
 
         // 파이널 존·드라마 컷에서는 고속 lerp 적용
         const _lerp = (_anyInFunnel || camDramaTarget) ? 0.12 : 0.05;
-        const targetCY = focusBall.y - CH / 2;
+        const targetCY = _tCenterY - CH / 2;
         cameraY += (targetCY - cameraY) * _lerp;
         cameraY = Math.max(0, Math.min(cameraY, VH - CH));
 
-        // ⑥ Funnel Zoom: 깔때기 진입 시 1.10 줌, 평상시 1.0
-        cameraZoomTarget = _anyInFunnel ? 1.10 : 1.0;
+        // ⑥ Zoom: funnel 1.10 우선, 그 외 spread 기반 미세 줌
+        // spread 0(단일/접전) → 1.08, spread 400 → 1.00, 그 사이 선형 감소
+        if (_anyInFunnel) {
+          cameraZoomTarget = 1.10;
+        } else {
+          cameraZoomTarget = Math.max(1.0, Math.min(1.08, 1.08 - _spreadY * 0.0002));
+        }
         cameraZoom += (cameraZoomTarget - cameraZoom) * 0.04;
       } else {
         // 공이 없을 때 zoom 복원
