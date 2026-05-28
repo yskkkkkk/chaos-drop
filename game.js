@@ -21,7 +21,11 @@ let pinballBumpers = [];
 let pinballPortals = [];
 let pinballVortexes = [];
 let pinballLaunchPads = [];
+let pinballSpeedPads = [];
 let pinballFinishedBalls = [];
+let pinballAccelLane = 0;      // Zone 2.5의 가속 레인 인덱스 (0: 좌, 1: 중, 2: 우, 감속 2개 & 가속 1개 룰렛)
+let speedPadRotateTimer = 300; // 가속 패드 시계방향 즉시 회전 타이머 (5초 = 300프레임)
+
 
 let pinballGameRunning = false;
 let pinballConfettiParticles = [];
@@ -227,6 +231,118 @@ class SlowVortex {
   }
 }
 
+// 가속 패드 클래스 (Speed Pad)
+class SpeedPad {
+  constructor(x, y, w, h, direction = null) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    
+    // 매번 초기화할 때마다 상하좌우(up, down, left, right) 중 랜덤 선택
+    const dirs = ['up', 'down', 'left', 'right'];
+    this.direction = direction || dirs[Math.floor(Math.random() * dirs.length)];
+    
+    // 방향별 대표 네온 컬러 매핑
+    if (this.direction === 'down') {
+      this.color = '#00f0ff'; // 일렉트릭 시안
+    } else if (this.direction === 'up') {
+      this.color = '#ff3366'; // 핫핑크/레드
+    } else {
+      this.color = '#ffcc00'; // 골드 (left, right)
+    }
+    
+    this.pulse = 0;
+  }
+  rotateClockwise() {
+    const dirs = ['up', 'right', 'down', 'left'];
+    const idx = dirs.indexOf(this.direction);
+    this.direction = dirs[(idx + 1) % 4];
+    
+    // 방향별 대표 네온 컬러 재매핑
+    if (this.direction === 'down') {
+      this.color = '#00f0ff'; // 일렉트릭 시안
+    } else if (this.direction === 'up') {
+      this.color = '#ff3366'; // 핫핑크/레드
+    } else {
+      this.color = '#ffcc00'; // 골드 (left, right)
+    }
+  }
+  draw(ctx) {
+    this.pulse += 0.12;
+    ctx.save();
+    
+    // 패드 배경 및 테두리 네온 효과
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
+    ctx.strokeStyle = this.color;
+    ctx.lineWidth = 1.8;
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = this.color;
+    ctx.beginPath();
+    ctx.roundRect(this.x - this.w/2, this.y - this.h/2, this.w, this.h, 4);
+    ctx.fill();
+    ctx.stroke();
+    
+    // 흐르는 화살표 연출 (방향별 렌더링)
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+    ctx.lineWidth = 2.4;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.shadowBlur = 3;
+    ctx.shadowColor = '#fff';
+    
+    const speed = this.pulse % 1.0;
+    
+    if (this.direction === 'down') {
+      // 아래로 흐름
+      const offset = speed * (this.h - 8);
+      const ay = this.y - this.h/2 + 4 + offset;
+      if (ay < this.y + this.h/2 - 4) {
+        ctx.beginPath();
+        ctx.moveTo(this.x - 6, ay - 4);
+        ctx.lineTo(this.x, ay);
+        ctx.lineTo(this.x + 6, ay - 4);
+        ctx.stroke();
+      }
+    } else if (this.direction === 'up') {
+      // 위로 흐름
+      const offset = speed * (this.h - 8);
+      const ay = this.y + this.h/2 - 4 - offset;
+      if (ay > this.y - this.h/2 + 4) {
+        ctx.beginPath();
+        ctx.moveTo(this.x - 6, ay + 4);
+        ctx.lineTo(this.x, ay);
+        ctx.lineTo(this.x + 6, ay + 4);
+        ctx.stroke();
+      }
+    } else if (this.direction === 'left') {
+      // 왼쪽으로 흐름
+      const offset = speed * (this.w - 12);
+      const ax = this.x + this.w/2 - 6 - offset;
+      if (ax > this.x - this.w/2 + 6) {
+        ctx.beginPath();
+        ctx.moveTo(ax + 4, this.y - 6);
+        ctx.lineTo(ax, this.y);
+        ctx.lineTo(ax + 4, this.y + 6);
+        ctx.stroke();
+      }
+    } else if (this.direction === 'right') {
+      // 오른쪽으로 흐름
+      const offset = speed * (this.w - 12);
+      const ax = this.x - this.w/2 + 6 + offset;
+      if (ax < this.x + this.w/2 - 6) {
+        ctx.beginPath();
+        ctx.moveTo(ax - 4, this.y - 6);
+        ctx.lineTo(ax, this.y);
+        ctx.lineTo(ax - 4, this.y + 6);
+        ctx.stroke();
+      }
+    }
+    
+    ctx.restore();
+  }
+}
+
 // 상향 발사대 클래스
 class LaunchPad {
   constructor(x, y, w, color, angle = 0, slideSpeed = 0.55, slideRange = 52) {
@@ -354,11 +470,11 @@ class RacingBall {
         this.vx += (Math.random() - 0.5) * 0.12; // 미세 진동
       }
 
-      if (this.x - this.r < 300) {
-        this.x = 300 + this.r;
+      if (this.x - this.r < FUNNEL_BOTTOM_X) {
+        this.x = FUNNEL_BOTTOM_X + this.r;
         this.vx = Math.abs(this.vx) * this.restitution + 0.1;
-      } else if (this.x + this.r > GAME_VWIDTH - 300) {
-        this.x = GAME_VWIDTH - 300 - this.r;
+      } else if (this.x + this.r > GAME_VWIDTH - FUNNEL_BOTTOM_X) {
+        this.x = GAME_VWIDTH - FUNNEL_BOTTOM_X - this.r;
         this.vx = -Math.abs(this.vx) * this.restitution - 0.1;
       }
       return;
@@ -420,10 +536,54 @@ class RacingBall {
       this.vy = Math.abs(this.vy) * this.restitution;
     }
 
+    // ── Zone 2.5 레인터널 특화 물리 및 충돌 연산 ───────────────────
+    if (this.y >= TUNNEL_TOP_Y && this.y <= TUNNEL_BOTTOM_Y) {
+      // 1. 육각형 다이아몬드 섬 1 충돌 물리 (대칭형 꼭짓점 6개, 60px 폭 확장)
+      // 상단(325, 1500) ➡️ 우상(355, 1530) ➡️ 우하(355, 1870) ➡️ 하단(325, 1900) ➡️ 좌하(295, 1870) ➡️ 좌상(295, 1530)
+      collideBallWithSegment(this, 325, 1500, 355, 1530);
+      collideBallWithSegment(this, 355, 1530, 355, 1870);
+      collideBallWithSegment(this, 355, 1870, 325, 1900);
+      collideBallWithSegment(this, 325, 1900, 295, 1870);
+      collideBallWithSegment(this, 295, 1870, 295, 1530);
+      collideBallWithSegment(this, 295, 1530, 325, 1500);
+
+      // 2. 육각형 다이아몬드 섬 2 충돌 물리 (대칭형 꼭짓점 6개, 60px 폭 확장)
+      // 상단(500, 1500) ➡️ 우상(530, 1530) ➡️ 우하(530, 1870) ➡️ 하단(500, 1900) ➡️ 좌하(470, 1870) ➡️ 좌상(470, 1530)
+      collideBallWithSegment(this, 500, 1500, 530, 1530);
+      collideBallWithSegment(this, 530, 1530, 530, 1870);
+      collideBallWithSegment(this, 530, 1870, 500, 1900);
+      collideBallWithSegment(this, 500, 1900, 470, 1870);
+      collideBallWithSegment(this, 470, 1870, 470, 1530);
+      collideBallWithSegment(this, 470, 1530, 500, 1500);
+
+      // 3. 3레인 가속 및 감속 물리 처리 (러시안 룰렛)
+      let ballLane = 0;
+      if (this.x < TUNNEL_BARRIER1_X) {
+        ballLane = 0;
+      } else if (this.x >= TUNNEL_BARRIER1_X && this.x < TUNNEL_BARRIER2_X) {
+        ballLane = 1;
+      } else {
+        ballLane = 2;
+      }
+
+      if (ballLane !== pinballAccelLane) {
+        // 감속 레인 효과 (0.5배 완화 제동 - 2개 레인)
+        this.vy *= TUNNEL_DECEL_MULT;
+        this.vx *= TUNNEL_DECEL_MULT;
+        this.vy = Math.max(1.5, this.vy); // 멈춤 방지 최소 낙하 전진 보장
+      } else {
+        // 가속 레인 효과 (2배 쾌속 추진 - 1개 레인)
+        this.vy += TUNNEL_BOOST_ACCEL;
+        this.vx *= 1.03;
+        this.vy *= 1.03;
+        this.superChargeTimer = Math.max(this.superChargeTimer, 15); // 잔상 가속 연출 프레임
+      }
+    }
+
     if (this.y >= FUNNEL_TOP_Y && this.y <= GOAL_Y) {
       const t = (this.y - FUNNEL_TOP_Y) / (GOAL_Y - FUNNEL_TOP_Y);
-      const lx = funnelLeftX + t * (300 - funnelLeftX);
-      const rx = funnelRightX - t * (funnelRightX - (GAME_VWIDTH - 300));
+      const lx = funnelLeftX + t * (FUNNEL_BOTTOM_X - funnelLeftX);
+      const rx = funnelRightX - t * (funnelRightX - (GAME_VWIDTH - FUNNEL_BOTTOM_X));
       if (this.x - this.r < lx) {
         this.x = lx + this.r;
         this.vx = Math.abs(this.vx) * 1.1 + 1.5;
@@ -593,9 +753,36 @@ function generateWallProfile() {
   let y = 100;
   let lastLx = 0;
   let lastRx = GAME_VWIDTH;
-  while (y < FUNNEL_TOP_Y - 150) {
+
+  // 1단계: 100 ~ 1500 (TUNNEL_TOP_Y) 구간 무작위 세그먼트 생성
+  while (y < TUNNEL_TOP_Y) {
     const segH = 100 + Math.floor(Math.random() * 200);
-    y = Math.min(y + segH, FUNNEL_TOP_Y - 150);
+    y = Math.min(y + segH, TUNNEL_TOP_Y);
+
+    if (y === TUNNEL_TOP_Y) {
+      lastLx = TUNNEL_LEFT_X;
+      lastRx = TUNNEL_RIGHT_X;
+    } else {
+      const lx = Math.random() < 0.70 ? 10 + Math.random() * 180 : 0;
+      const rx = GAME_VWIDTH - (Math.random() < 0.70 ? 10 + Math.random() * 180 : 0);
+      const safeRx = Math.max(rx, lx + 300);
+      lastLx = lx;
+      lastRx = Math.min(safeRx, GAME_VWIDTH);
+    }
+    wallProfile.push({ y, lx: lastLx, rx: lastRx });
+  }
+
+  // 2단계: 1500 ~ 2000 (TUNNEL_BOTTOM_Y) 터널 고정 구간 생성
+  y = TUNNEL_BOTTOM_Y;
+  lastLx = TUNNEL_LEFT_X;
+  lastRx = TUNNEL_RIGHT_X;
+  wallProfile.push({ y, lx: lastLx, rx: lastRx });
+
+  // 3단계: 2000 ~ 2570 (FUNNEL_TOP_Y - 150) 구간 무작위 세그먼트 생성
+  const wallEndLimit = FUNNEL_TOP_Y - 150;
+  while (y < wallEndLimit) {
+    const segH = 100 + Math.floor(Math.random() * 200);
+    y = Math.min(y + segH, wallEndLimit);
 
     const lx = Math.random() < 0.70 ? 10 + Math.random() * 180 : 0;
     const rx = GAME_VWIDTH - (Math.random() < 0.70 ? 10 + Math.random() * 180 : 0);
@@ -608,7 +795,7 @@ function generateWallProfile() {
   funnelLeftX = lastLx;
   funnelRightX = lastRx;
   wallProfile.push({ y: FUNNEL_TOP_Y, lx: funnelLeftX,  rx: funnelRightX });
-  wallProfile.push({ y: GOAL_Y,       lx: 300,          rx: GAME_VWIDTH - 300 });
+  wallProfile.push({ y: GOAL_Y,       lx: FUNNEL_BOTTOM_X,  rx: GAME_VWIDTH - FUNNEL_BOTTOM_X });
 }
 
 function getWallAtY(y) {
@@ -625,6 +812,48 @@ function getWallAtY(y) {
   return { lx: 0, rx: GAME_VWIDTH };
 }
 
+// 다각형 섬 장벽 선분-원 물리 충돌 헬퍼 함수
+function collideBallWithSegment(ball, x1, y1, x2, y2) {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const lenSq = dx * dx + dy * dy;
+  if (lenSq === 0) return;
+
+  let t = ((ball.x - x1) * dx + (ball.y - y1) * dy) / lenSq;
+  t = Math.max(0, Math.min(1, t));
+
+  const closestX = x1 + t * dx;
+  const closestY = y1 + t * dy;
+
+  const dist = Math.hypot(ball.x - closestX, ball.y - closestY);
+  if (dist < ball.r) {
+    let nx = ball.x - closestX;
+    let ny = ball.y - closestY;
+    let nLen = Math.hypot(nx, ny);
+    if (nLen === 0) {
+      nx = 0; ny = -1; nLen = 1;
+    } else {
+      nx /= nLen;
+      ny /= nLen;
+    }
+
+    // 침입 밖으로 안전 이격 밀어내기
+    ball.x = closestX + nx * ball.r;
+    ball.y = closestY + ny * ball.r;
+
+    // 탄성 반사 속도 벡터 적용
+    const vn = ball.vx * nx + ball.vy * ny;
+    if (vn < 0) {
+      ball.vx -= (1 + ball.restitution) * vn * nx;
+      ball.vy -= (1 + ball.restitution) * vn * ny;
+      // 구슬 탈출 추진력 보조
+      ball.vx += nx * 0.15;
+      ball.vy += ny * 0.15;
+    }
+  }
+}
+
+
 function initPinballMap() {
   generateWallProfile();
   pinballPegs = [];
@@ -633,6 +862,7 @@ function initPinballMap() {
   pinballPortals = [];
   pinballVortexes = [];
   pinballLaunchPads = [];
+  pinballSpeedPads = [];
 
   const W  = GAME_VWIDTH;
   const cx = W / 2;
@@ -650,76 +880,172 @@ function initPinballMap() {
   };
   const gkeep = (y) => Math.random() < (0.80 + 0.20 * Math.min(1, y / FUNNEL_TOP_Y));
   const randAngle = () => (Math.random() - 0.5) * (Math.PI * 0.45); // Random angle between -40.5 and +40.5 deg
+  
+  // ── 기믹 겹침 및 벽 침범 방지 배치 시스템 ──────────────────────────
+  let placedGimmicks = []; // { x, y, r }
 
-  // ── 1. 포탈 2개로 감소 (단방향, IN Y가 OUT Y보다 항상 아래에 배치되며 세로 간격은 500px 이하로 제한) ─────
-  const portalAlphaInY = rjy(750, 40);
-  const portalAlphaOutY = portalAlphaInY - (250 + Math.random() * 200); // IN(AlphaInY) > OUT(AlphaOutY), 간격 250~450px (<= 500px)
-  pinballPortals.push(new TeleportPortal(rj(160,70), portalAlphaInY, rj(660,70), portalAlphaOutY, '#00f0ff', 'PORTAL-α'));
+  // 1. 가변 벽면 스캐닝 X 좌표 클램퍼 (기믹의 세로 면적 전체가 가벽 바깥이나 경계선에 겹치지 않도록 방어)
+  const clampToWall = (x, y, radius, margin = 14) => {
+    let maxLx = -9999;
+    let minRx = 9999;
+    
+    // 기믹의 세로 슬라이스 범위 [y - radius, y + radius] 전체 훑기
+    for (let testY = y - radius; testY <= y + radius; testY += 5) {
+      const wall = getWallAtY(testY);
+      if (wall.lx > maxLx) maxLx = wall.lx;
+      if (wall.rx < minRx) minRx = wall.rx;
+    }
+    
+    const minSafeX = maxLx + radius + margin;
+    const maxSafeX = minRx - radius - margin;
+    
+    if (minSafeX >= maxSafeX) {
+      return (maxLx + minRx) / 2; // 가변 벽 사이가 너무 좁은 경우 가운데 정중앙 배치
+    }
+    return Math.max(minSafeX, Math.min(maxSafeX, x));
+  };
 
-  const portalBetaInY = rjy(1850, 40);
-  const portalBetaOutY = portalBetaInY - (250 + Math.random() * 200); // IN(BetaInY) > OUT(BetaOutY), 간격 250~450px (<= 500px)
-  pinballPortals.push(new TeleportPortal(rj(220,70), portalBetaInY, rj(600,70), portalBetaOutY, '#ff9900', 'PORTAL-β'));
+  // 2. 장애물간 겹침 확인 (반경의 합 + 32px 구슬 안전통로 여유폭 확보)
+  const checkOverlap = (x, y, r) => {
+    for (const g of placedGimmicks) {
+      const dist = Math.hypot(x - g.x, y - g.y);
+      const minSafeDist = r + g.r + 32; // 두 장애물 반경의 합 + 구슬 통과폭 32px
+      if (dist < minSafeDist) return true;
+    }
+    return false;
+  };
 
-  // ── 2. 슈퍼 범퍼 12개 ──
-  { let y=rjy(380,50);  if(gkeep(y)) pinballBumpers.push(new SuperBumper(rjwall(cx,60,y,55),  y, 20, '#ff9900')); }
-  { let y=rjy(620,50);  if(gkeep(y)) pinballBumpers.push(new SuperBumper(rjwall(185,60,y,50), y, 18, '#00f0ff')); }
-  { let y=rjy(620,50);  if(gkeep(y)) pinballBumpers.push(new SuperBumper(rjwall(640,60,y,50), y, 18, '#00f0ff')); }
-  { let y=rjy(960,50);  if(gkeep(y)) pinballBumpers.push(new SuperBumper(rjwall(cx,60,y,55),  y, 22, '#8c52ff')); }
-  { let y=rjy(1280,50); if(gkeep(y)) pinballBumpers.push(new SuperBumper(rjwall(140,60,y,50), y, 18, '#ff9900')); }
-  { let y=rjy(1280,50); if(gkeep(y)) pinballBumpers.push(new SuperBumper(rjwall(685,60,y,50), y, 18, '#ff9900')); }
-  { let y=rjy(1650,50); if(gkeep(y)) pinballBumpers.push(new SuperBumper(rjwall(cx,60,y,55),  y, 22, '#00f0ff')); }
-  { let y=rjy(2080,50); pinballBumpers.push(new SuperBumper(rjwall(280,60,y,50), y, 20, '#8c52ff')); }
-  { let y=rjy(2080,50); pinballBumpers.push(new SuperBumper(rjwall(545,60,y,50), y, 20, '#8c52ff')); }
-  { let y=rjy(2480,50); pinballBumpers.push(new SuperBumper(rjwall(cx,60,y,55),  y, 22, '#ff9900')); }
-  { let y=rjy(2780,50); pinballBumpers.push(new SuperBumper(rjwall(200,60,y,50), y, 18, '#00f0ff')); }
-  { let y=rjy(2780,50); pinballBumpers.push(new SuperBumper(rjwall(625,60,y,50), y, 18, '#00f0ff')); }
+  // 3. 지터 25회 시도를 통해 최적의 안전 구역을 탐색하여 기믹을 삽입하는 코어 탐색기
+  const tryPlaceGimmick = (yCenter, yRange, sizeR, xBase, xRange, creatorFunc) => {
+    for (let attempt = 0; attempt < 25; attempt++) {
+      const tempY = rjy(yCenter, yRange);
+      const tempX = rjwall(xBase, xRange, tempY, sizeR + 15);
+      const safeX = clampToWall(tempX, tempY, sizeR, 14);
+      
+      if (!checkOverlap(safeX, tempY, sizeR)) {
+        creatorFunc(safeX, tempY);
+        placedGimmicks.push({ x: safeX, y: tempY, r: sizeR });
+        return true; // 성공적으로 안전 배치 완료!
+      }
+    }
+    return false; // 안전 공간 탐색 실패 시 건너뜀 (겹침 원천 방지)
+  };
 
-  // ── 3. 스피너 9개 ──
-  { let y=rjy(240,40);  if(gkeep(y)) pinballSpinners.push(new Spinner(rjwall(cx,60,y,60),  y, 26, '#8c52ff')); }
-  { let y=rjy(730,50);  if(gkeep(y)) pinballSpinners.push(new Spinner(rjwall(140,60,y,55), y, 22, '#ff9900')); }
-  { let y=rjy(730,50);  if(gkeep(y)) pinballSpinners.push(new Spinner(rjwall(685,60,y,55), y, 22, '#ff9900')); }
-  { let y=rjy(1120,50); if(gkeep(y)) pinballSpinners.push(new Spinner(rjwall(cx,60,y,60),  y, 26, '#00f0ff')); }
-  { let y=rjy(1520,50); if(gkeep(y)) pinballSpinners.push(new Spinner(rjwall(180,60,y,55), y, 22, '#8c52ff')); }
-  { let y=rjy(1520,50); if(gkeep(y)) pinballSpinners.push(new Spinner(rjwall(645,60,y,55), y, 22, '#8c52ff')); }
-  { let y=rjy(1980,50); pinballSpinners.push(new Spinner(rjwall(cx,60,y,60),  y, 26, '#ff9900')); }
-  { let y=rjy(2380,50); pinballSpinners.push(new Spinner(rjwall(cx,60,y,60),  y, 26, '#00f0ff')); }
-  { let y=rjy(2750,50); pinballSpinners.push(new Spinner(rjwall(cx,60,y,60),  y, 28, '#8c52ff')); }
+  // Zone 2.5를 위한 가속 레인 무작위 지정 (0: 좌, 1: 중, 2: 우, 감속 2개 & 가속 1개 룰렛)
+  pinballAccelLane = Math.floor(Math.random() * 3);
 
-  // ── 4. 와류 존 5개 ──
-  { let y=rjy(820,50);  pinballVortexes.push(new SlowVortex(rjwall(290,60,y,90), y, 75, '#8c52ff')); }
-  { let y=rjy(820,50);  pinballVortexes.push(new SlowVortex(rjwall(535,60,y,90), y, 75, '#8c52ff')); }
-  { let y=rjy(1900,50); pinballVortexes.push(new SlowVortex(rjwall(240,60,y,90), y, 78, '#8c52ff')); }
-  { let y=rjy(1900,50); pinballVortexes.push(new SlowVortex(rjwall(585,60,y,90), y, 78, '#8c52ff')); }
-  { let y=rjy(2620,50); pinballVortexes.push(new SlowVortex(rjwall(cx,60,y,90),  y, 83, '#8c52ff')); }
+  // ── 1. 포탈 생성 (각 구역별 격리 배치) ─────
+  // Portal-α: Zone 1 (Y: 160 ~ 900) 내부 배치 및 역주행 유도
+  const portalAlphaInY = rjy(720, 50);
+  const portalAlphaOutY = Math.max(160, portalAlphaInY - (350 + Math.random() * 150)); 
+  const paInX  = clampToWall(rj(160, 70), portalAlphaInY, PORTAL_R, 20);
+  const paOutX = clampToWall(rj(660, 70), portalAlphaOutY, PORTAL_R, 20);
+  pinballPortals.push(new TeleportPortal(paInX, portalAlphaInY, paOutX, portalAlphaOutY, '#00f0ff', 'PORTAL-α'));
 
-  // ── 5. 상향 발사대 12개 (각도 랜덤 배치) ──
-  { let y=rjy(480,50);  if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(rjwall(cx,50,y,80),  y, 110, '#ff3366', randAngle())); }
-  { let y=rjy(780,50);  if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(rjwall(190,50,y,75), y, 90,  '#ffea00', randAngle())); }
-  { let y=rjy(780,50);  if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(rjwall(635,50,y,75), y, 90,  '#ffea00', randAngle())); }
-  { let y=rjy(1100,50); if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(rjwall(cx,50,y,80),  y, 120, '#ff3366', randAngle())); }
-  { let y=rjy(1480,50); if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(rjwall(170,50,y,75), y, 70,  '#33ff57', randAngle())); }
-  { let y=rjy(1480,50); if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(rjwall(655,50,y,75), y, 70,  '#33ff57', randAngle())); }
-  { let y=rjy(1760,50); pinballLaunchPads.push(new LaunchPad(rjwall(cx,50,y,80),  y, 130, '#ff3366', randAngle())); }
-  { let y=rjy(2150,50); pinballLaunchPads.push(new LaunchPad(rjwall(250,50,y,75), y, 90,  '#ffea00', randAngle())); }
-  { let y=rjy(2150,50); pinballLaunchPads.push(new LaunchPad(rjwall(575,50,y,75), y, 90,  '#ffea00', randAngle())); }
-  { let y=rjy(2500,50); pinballLaunchPads.push(new LaunchPad(rjwall(cx,50,y,80),  y, 70,  '#33ff57', randAngle())); }
-  { let y=rjy(2850,50); pinballLaunchPads.push(new LaunchPad(rjwall(300,50,y,75), y, 90,  '#ffea00', randAngle())); }
-  { let y=rjy(2850,50); pinballLaunchPads.push(new LaunchPad(rjwall(525,50,y,75), y, 90,  '#ffea00', randAngle())); }
+  // Portal-β: Zone 3 (Y: 2000 ~ 2720) 내부 배치 및 역주행 유도
+  const portalBetaInY = rjy(2520, 60);
+  const portalBetaOutY = Math.max(2050, portalBetaInY - (300 + Math.random() * 120)); 
+  const pbInX  = clampToWall(rj(220, 70), portalBetaInY, PORTAL_R, 20);
+  const pbOutX = clampToWall(rj(600, 70), portalBetaOutY, PORTAL_R, 20);
+  pinballPortals.push(new TeleportPortal(pbInX, portalBetaInY, pbOutX, portalBetaOutY, '#ff9900', 'PORTAL-β'));
 
-  // ── 6. 깔때기 입구 극적 역전 지대 (Reversal Zone - 사용자 커스텀 이미지 배치) ──
+  // 포탈 입출구를 충돌 컬링 맵에 등록하여 겹침 사전 차단
+  const pa = pinballPortals[0];
+  placedGimmicks.push({ x: pa.x1, y: pa.y1, r: PORTAL_R });
+  placedGimmicks.push({ x: pa.x2, y: pa.y2, r: PORTAL_R });
+  const pb = pinballPortals[1];
+  placedGimmicks.push({ x: pb.x1, y: pb.y1, r: PORTAL_R });
+  placedGimmicks.push({ x: pb.x2, y: pb.y2, r: PORTAL_R });
+
+  // ── 2. 슈퍼 범퍼 배치 ──
+  // Zone 2 (피지컬 - 핀 없음) 범퍼 4개
+  tryPlaceGimmick(1000, 40, 20, cx, 80, (x, y) => { if(gkeep(y)) pinballBumpers.push(new SuperBumper(x, y, 20, '#ff9900')); });
+  tryPlaceGimmick(1180, 40, 18, 185, 60, (x, y) => { if(gkeep(y)) pinballBumpers.push(new SuperBumper(x, y, 18, '#00f0ff')); });
+  tryPlaceGimmick(1180, 40, 18, 640, 60, (x, y) => { if(gkeep(y)) pinballBumpers.push(new SuperBumper(x, y, 18, '#00f0ff')); });
+  tryPlaceGimmick(1350, 45, 22, cx, 80, (x, y) => { if(gkeep(y)) pinballBumpers.push(new SuperBumper(x, y, 22, '#8c52ff')); });
+  // Zone 3 (고전 복합) 범퍼 6개
+  tryPlaceGimmick(2120, 40, 18, 140, 60, (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 18, '#ff9900')); });
+  tryPlaceGimmick(2120, 40, 18, 685, 60, (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 18, '#ff9900')); });
+  tryPlaceGimmick(2350, 45, 22, cx, 60, (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 22, '#00f0ff')); });
+  tryPlaceGimmick(2500, 40, 20, 280, 60, (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 20, '#8c52ff')); });
+  tryPlaceGimmick(2500, 40, 20, 545, 60, (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 20, '#8c52ff')); });
+  tryPlaceGimmick(2680, 30, 22, cx, 60, (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 22, '#ff9900')); });
+
+  // ── 3. 스피너 배치 ──
+  // Zone 2 (피지컬 - 핀 없음) 스피너 4개 (날개 길이 20% 확대 적용)
+  tryPlaceGimmick(950, 30, 31, cx, 80, (x, y) => { if(gkeep(y)) pinballSpinners.push(new Spinner(x, y, 31, '#8c52ff')); });
+  tryPlaceGimmick(1250, 40, 26, 140, 60, (x, y) => { if(gkeep(y)) pinballSpinners.push(new Spinner(x, y, 26, '#ff9900')); });
+  tryPlaceGimmick(1250, 40, 26, 685, 60, (x, y) => { if(gkeep(y)) pinballSpinners.push(new Spinner(x, y, 26, '#ff9900')); });
+  tryPlaceGimmick(1450, 30, 31, cx, 80, (x, y) => { if(gkeep(y)) pinballSpinners.push(new Spinner(x, y, 31, '#00f0ff')); });
+  
+  // Zone 2 무작위 날개 대형 스피너 2개 추가 배치 (20% 확대 사양인 28 적용)
+  tryPlaceGimmick(1100, 120, 28, cx, 200, (x, y) => { pinballSpinners.push(new Spinner(x, y, 28, '#8c52ff')); });
+  tryPlaceGimmick(1380, 100, 28, cx, 200, (x, y) => { pinballSpinners.push(new Spinner(x, y, 28, '#ffea00')); });
+
+  // Zone 3 (고전 복합) 스피너 5개 (날개 길이 10% 확대 적용)
+  tryPlaceGimmick(2050, 35, 24, 180, 60, (x, y) => { pinballSpinners.push(new Spinner(x, y, 24, '#8c52ff')); });
+  tryPlaceGimmick(2050, 35, 24, 645, 60, (x, y) => { pinballSpinners.push(new Spinner(x, y, 24, '#8c52ff')); });
+  tryPlaceGimmick(2250, 40, 29, cx, 60, (x, y) => { pinballSpinners.push(new Spinner(x, y, 29, '#ff9900')); });
+  tryPlaceGimmick(2420, 40, 29, cx, 60, (x, y) => { pinballSpinners.push(new Spinner(x, y, 29, '#00f0ff')); });
+  tryPlaceGimmick(2600, 40, 31, cx, 60, (x, y) => { pinballSpinners.push(new Spinner(x, y, 31, '#8c52ff')); });
+
+  // ── 4. 와류 존 배치 ──
+  // Zone 2 (피지컬 - 핀 없음) 와류 2개
+  tryPlaceGimmick(1080, 40, 75, 290, 60, (x, y) => { pinballVortexes.push(new SlowVortex(x, y, 75, '#8c52ff')); });
+  tryPlaceGimmick(1300, 40, 75, 535, 60, (x, y) => { pinballVortexes.push(new SlowVortex(x, y, 75, '#8c52ff')); });
+  // Zone 3 (고전 복합) 와류 3개
+  tryPlaceGimmick(2200, 40, 78, 240, 60, (x, y) => { pinballVortexes.push(new SlowVortex(x, y, 78, '#8c52ff')); });
+  tryPlaceGimmick(2480, 40, 78, 585, 60, (x, y) => { pinballVortexes.push(new SlowVortex(x, y, 78, '#8c52ff')); });
+  tryPlaceGimmick(2650, 40, 83, cx, 60, (x, y) => { pinballVortexes.push(new SlowVortex(x, y, 83, '#8c52ff')); });
+
+  // ── 5. 상향 발사대 배치 ──
+  // Zone 2 (피지컬 - 핀 없음) 발사대 4개
+  tryPlaceGimmick(1020, 30, 110/2 + 15, cx, 50, (x, y) => { if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(x, y, 110, '#ff3366', randAngle())); });
+  tryPlaceGimmick(1200, 40, 90/2 + 15, 190, 50, (x, y) => { if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(x, y, 90,  '#ffea00', randAngle())); });
+  tryPlaceGimmick(1200, 40, 90/2 + 15, 635, 50, (x, y) => { if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(x, y, 90,  '#ffea00', randAngle())); });
+  tryPlaceGimmick(1400, 40, 120/2 + 15, cx, 50, (x, y) => { if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(x, y, 120, '#ff3366', randAngle())); });
+  // Zone 3 (고전 복합) 발사대 6개
+  tryPlaceGimmick(2150, 35, 70/2 + 15, 170, 50, (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 70,  '#33ff57', randAngle())); });
+  tryPlaceGimmick(2150, 35, 70/2 + 15, 655, 50, (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 70,  '#33ff57', randAngle())); });
+  tryPlaceGimmick(2300, 40, 130/2 + 15, cx, 50, (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 130, '#ff3366', randAngle())); });
+  tryPlaceGimmick(2450, 40, 90/2 + 15, 250, 50, (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 90,  '#ffea00', randAngle())); });
+  tryPlaceGimmick(2450, 40, 90/2 + 15, 575, 50, (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 90,  '#ffea00', randAngle())); });
+  tryPlaceGimmick(2620, 35, 70/2 + 15, cx, 50, (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 70,  '#33ff57', randAngle())); });
+
+  // ── 6. 깔때기 입구 극적 역전 지대 (Reversal Zone) ──
   // A. 중앙 분산 장치들 (하늘색 스피너 & 핑크 대형 탄성 범퍼)
-  pinballSpinners.push(new Spinner(412.5, 2840, 26, '#00f0ff')); // 가운데 상단 하늘색 스피너
-  pinballBumpers.push(new SuperBumper(412.5, 2950, 24, '#ff00ff')); // 가운데 하단 대형 탄성 범퍼
+  pinballSpinners.push(new Spinner(412.5, 2840, 29, '#00f0ff')); 
+  pinballBumpers.push(new SuperBumper(412.5, 2950, 24, '#ff00ff')); 
+  placedGimmicks.push({ x: 412.5, y: 2840, r: 29 });
+  placedGimmicks.push({ x: 412.5, y: 2950, r: 24 });
 
-  // B. 깔때기 슬로프 밀착형 대각선 런치패드 2개 (슬로프 경계 Y: 3060 지점에서의 좌우 X 동적 연산)
+  // B. 깔때기 지그재그 교차 특수 패드 배치
+  // ① 상부 깔때기 레이어 (Y = 2800)
+  const t1 = (2800 - FUNNEL_TOP_Y) / (GOAL_Y - FUNNEL_TOP_Y);
+  const lx1 = funnelLeftX + t1 * (FUNNEL_BOTTOM_X - funnelLeftX);
+  const rx1 = funnelRightX - t1 * (funnelRightX - (GAME_VWIDTH - FUNNEL_BOTTOM_X));
+  const width1 = rx1 - lx1;
+  pinballSpeedPads.push(new SpeedPad(lx1 + width1 * 0.28, 2800, 58, 24));
+  pinballSpeedPads.push(new SpeedPad(lx1 + width1 * 0.72, 2800, 58, 24));
+
+  // ② 하부 깔때기 레이어 (Y = 2950)
+  const t2 = (2950 - FUNNEL_TOP_Y) / (GOAL_Y - FUNNEL_TOP_Y);
+  const lx2 = funnelLeftX + t2 * (FUNNEL_BOTTOM_X - funnelLeftX);
+  const rx2 = funnelRightX - t2 * (funnelRightX - (GAME_VWIDTH - FUNNEL_BOTTOM_X));
+  const width2 = rx2 - lx2;
+  pinballSpeedPads.push(new SpeedPad(lx2 + width2 * 0.28, 2950, 50, 24));
+  pinballSpeedPads.push(new SpeedPad(lx2 + width2 * 0.72, 2950, 50, 24));
+
+  // C. 깔때기 슬로프 밀착형 대각선 런치패드 2개 (슬로프 경계 Y: 3060 지점에서의 좌우 X 동적 연산)
   const t_lp = (3060 - FUNNEL_TOP_Y) / (GOAL_Y - FUNNEL_TOP_Y);
-  const lx_lp = funnelLeftX + t_lp * (300 - funnelLeftX);
-  const rx_lp = funnelRightX - t_lp * (funnelRightX - (GAME_VWIDTH - 300));
-  pinballLaunchPads.push(new LaunchPad(lx_lp + 25, 3060, 70, '#ffea00', Math.PI * 0.12)); // 노란색 대각선 런치패드 (우상향)
-  pinballLaunchPads.push(new LaunchPad(rx_lp - 25, 3060, 70, '#ff3366', -Math.PI * 0.18)); // 빨간색 대각선 런치패드 (좌상향)
-  pinballLaunchPads.push(new LaunchPad(cx, 3050, 140, '#33ff57', 0, 1.1, 52)); // 초록 중앙 좌우이동 발사대 (대형)
+  const lx_lp = funnelLeftX + t_lp * (FUNNEL_BOTTOM_X - funnelLeftX);
+  const rx_lp = funnelRightX - t_lp * (funnelRightX - (GAME_VWIDTH - FUNNEL_BOTTOM_X));
+  pinballLaunchPads.push(new LaunchPad(lx_lp + 25, 3060, 66, '#ffea00', Math.PI * 0.12)); // 노란색 대각선 런치패드 (5% 축소)
+  pinballLaunchPads.push(new LaunchPad(rx_lp - 25, 3060, 66, '#ff3366', -Math.PI * 0.18)); // 빨간색 대각선 런치패드 (5% 축소)
+  pinballLaunchPads.push(new LaunchPad(cx, 3050, 106, '#33ff57', 0, 1.1, 52)); // 초록 중앙 좌우이동 발사대 (5% 추가 축소: 112 -> 106)
 
-  // ── 7. 핀(Peg) 랜덤 배치 ── (I-3: 섹션 번호 중복 수정)
+
+  // ── 7. 핀(Peg) 랜덤 배치 ── (구역별 필터링 전격 적용)
   const gapX = 28;
   const gapY = 28;
   const pegStartY = 160;
@@ -728,6 +1054,7 @@ function initPinballMap() {
 
   for (let row = 0; pegStartY + row * gapY <= pegEndY; row++) {
     const baseY = pegStartY + row * gapY;
+    if (baseY > 900 && baseY < 1900) continue; // 2구간 및 2.5구간 (900~1900)의 모든 핀 생성 루프 격리 스킵
     const rowT = (baseY - pegStartY) / (pegEndY - pegStartY);
     const rowSkipRate = 0.28 - 0.18 * rowT;
     const isOdd = row % 2 === 1;
@@ -1069,6 +1396,7 @@ function launchPinballRacing() {
 
     varChecking = false;
     varTriggered = false;
+    speedPadRotateTimer = 300; // 가속 패드 회전 주기 리셋
     prevRankOrder = [];
     overtakeParticles = [];
     pinballNearMissSparks = [];
@@ -1245,21 +1573,126 @@ function animatePinball(currentTime) {
   ctx.shadowColor = '#8c52ff';
   ctx.beginPath();
   ctx.moveTo(funnelLeftX,  FUNNEL_TOP_Y);
-  ctx.lineTo(300,          GOAL_Y);
-  ctx.lineTo(300,          GOAL_Y + 40);
+  ctx.lineTo(FUNNEL_BOTTOM_X,          GOAL_Y);
+  ctx.lineTo(FUNNEL_BOTTOM_X,          GOAL_Y + 40);
   ctx.moveTo(funnelRightX, FUNNEL_TOP_Y);
-  ctx.lineTo(VW - 300,     GOAL_Y);
-  ctx.lineTo(VW - 300,     GOAL_Y + 40);
+  ctx.lineTo(VW - FUNNEL_BOTTOM_X,     GOAL_Y);
+  ctx.lineTo(VW - FUNNEL_BOTTOM_X,     GOAL_Y + 40);
   ctx.stroke();
   ctx.shadowBlur = 0;
   
   ctx.fillStyle = 'rgba(0,240,255,0.07)';
-  ctx.fillRect(300, GOAL_Y, VW - 600, 40);
+  ctx.fillRect(FUNNEL_BOTTOM_X, GOAL_Y, VW - FUNNEL_BOTTOM_X * 2, 40);
   ctx.strokeStyle = '#00f0ff';
   ctx.lineWidth = 2;
   ctx.shadowBlur = 5; ctx.shadowColor = '#00f0ff';
-  ctx.strokeRect(300, GOAL_Y, VW - 600, 40);
+  ctx.strokeRect(FUNNEL_BOTTOM_X, GOAL_Y, VW - FUNNEL_BOTTOM_X * 2, 40);
   ctx.restore();
+
+  // ── Zone 2.5 레인터널 3레인 및 수직 장벽 렌더링 ───────────────────
+  if (visY1 >= TUNNEL_TOP_Y && visY0 <= TUNNEL_BOTTOM_Y) {
+    ctx.save();
+
+    const tunnelH = TUNNEL_BOTTOM_Y - TUNNEL_TOP_Y;
+    const tunnelW = TUNNEL_RIGHT_X - TUNNEL_LEFT_X;
+    
+    // 가벽 바깥으로 렌더링이 삐져나가지 않게 클리핑 영역 설정
+    ctx.beginPath();
+    ctx.rect(TUNNEL_LEFT_X, TUNNEL_TOP_Y, tunnelW, tunnelH);
+    ctx.clip();
+
+    // A. 3개 레인 배경 및 흐르는 화살표 애니메이션 그리기 (가속: 하늘색/▼, 감속: 빨간색/▲)
+    const laneWidth = 115; // 3개 레인 폭 115px 완벽 동등 분할
+    const flowDownSpeed = (Date.now() / 20) % 80;
+    const flowUpSpeed = (Date.now() / 20) % 80;
+
+    for (let laneIdx = 0; laneIdx < 3; laneIdx++) {
+      // 레인 0은 180, 레인 1은 355 (180 + 115 + 60), 레인 2는 530 (355 + 115 + 60)
+      const lx = TUNNEL_LEFT_X + laneIdx * (laneWidth + TUNNEL_BARRIER_W);
+      const cxVal = lx + laneWidth / 2;
+
+      // 1. 레인별 배경색 및 스크롤 연출 분리
+      if (laneIdx !== pinballAccelLane) {
+        // 감속 레인: 은은한 빨간색 네온 배경 (2개 레인)
+        ctx.fillStyle = 'rgba(255, 51, 102, 0.05)';
+        ctx.fillRect(lx, TUNNEL_TOP_Y, laneWidth, tunnelH);
+
+        // 위로 거꾸로 역행하여 흐르는 빨간색 화살표 ▲ 렌더링 (제동 연출)
+        ctx.fillStyle = 'rgba(255, 51, 102, 0.18)';
+        ctx.font = 'bold 15px Outfit, sans-serif';
+        ctx.textAlign = 'center';
+        
+        for (let ly = TUNNEL_BOTTOM_Y - flowUpSpeed; ly > TUNNEL_TOP_Y - 40; ly -= 80) {
+          if (ly >= TUNNEL_TOP_Y && ly <= TUNNEL_BOTTOM_Y) {
+            ctx.fillText('▲', cxVal, ly);
+            ctx.fillText('▲', cxVal, ly + 25);
+          }
+        }
+      } else {
+        // 가속 레인: 은은한 하늘색 네온 배경
+        ctx.fillStyle = 'rgba(0, 240, 255, 0.05)';
+        ctx.fillRect(lx, TUNNEL_TOP_Y, laneWidth, tunnelH);
+
+        // 아래로 쾌속 스크롤되는 하늘색 화살표 ▼ 렌더링 (추진 연출)
+        ctx.fillStyle = 'rgba(0, 240, 255, 0.18)';
+        ctx.font = 'bold 15px Outfit, sans-serif';
+        ctx.textAlign = 'center';
+
+        for (let ly = TUNNEL_TOP_Y + flowDownSpeed - 80; ly < TUNNEL_BOTTOM_Y + 40; ly += 80) {
+          if (ly >= TUNNEL_TOP_Y && ly <= TUNNEL_BOTTOM_Y) {
+            ctx.fillText('▼', cxVal, ly);
+            ctx.fillText('▼', cxVal, ly - 25);
+          }
+        }
+      }
+    }
+
+    // 2. 3개 레인 경계 가이드 점선 그리기 (고체 섬 중앙 점선)
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([6, 6]);
+    ctx.beginPath();
+    ctx.moveTo(TUNNEL_BARRIER1_X, TUNNEL_TOP_Y); ctx.lineTo(TUNNEL_BARRIER1_X, TUNNEL_BOTTOM_Y);
+    ctx.moveTo(TUNNEL_BARRIER2_X, TUNNEL_TOP_Y); ctx.lineTo(TUNNEL_BARRIER2_X, TUNNEL_BOTTOM_Y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.restore(); // 클리핑 영역 해제
+
+    // B. 2개의 육각형 다이아몬드 고체 장벽 섬(Island) 렌더링 (외부 맵 가벽 스타일 100% 일체화)
+    ctx.save();
+    ctx.fillStyle = '#07080f'; // 가벽 내부와 동일한 색상 채우기
+    ctx.strokeStyle = 'rgba(0, 240, 255, 0.5)'; // 가벽 외곽선과 동일한 시안 네온 블루
+    ctx.lineWidth = 2; // 가벽 외곽 두께와 동일
+    ctx.shadowBlur = 6; // 가벽 네온 발광도 동일
+    ctx.shadowColor = '#00f0ff'; // 시안 발광 색상 동일
+
+    // 1. 섬 1 렌더링 (대칭형 육각형 다이아몬드 지형, 60px 폭 확장)
+    ctx.beginPath();
+    ctx.moveTo(325, 1500); // 상단 뾰족
+    ctx.lineTo(355, 1530); // 우상 각진 점
+    ctx.lineTo(355, 1870); // 우하 각진 점
+    ctx.lineTo(325, 1900); // 하단 뾰족
+    ctx.lineTo(295, 1870); // 좌하 각진 점
+    ctx.lineTo(295, 1530); // 좌상 각진 점
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    // 2. 섬 2 렌더링 (대칭형 육각형 다이아몬드 지형, 60px 폭 확장)
+    ctx.beginPath();
+    ctx.moveTo(500, 1500); // 상단 뾰족
+    ctx.lineTo(530, 1530); // 우상 각진 점
+    ctx.lineTo(530, 1870); // 우하 각진 점
+    ctx.lineTo(500, 1900); // 하단 뾰족
+    ctx.lineTo(470, 1870); // 좌하 각진 점
+    ctx.lineTo(470, 1530); // 좌상 각진 점
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.restore();
+  }
 
   // 구간 구분선
   ctx.strokeStyle = 'rgba(255,255,255,0.03)';
@@ -1298,9 +1731,49 @@ function animatePinball(currentTime) {
     lp.update();
     if (lp.y + lp.h > visY0 - margin && lp.y < visY1 + margin) lp.draw(ctx);
   });
+  pinballSpeedPads.forEach(pad => {
+    if (pad.y + pad.h/2 > visY0 - margin && pad.y - pad.h/2 < visY1 + margin) pad.draw(ctx);
+  });
 
   // 구슬 물리 연산
   if (pinballGameRunning && shouldRunPhysics) {
+    // 최하단 가속 패드 회전 주기 타이머 (5초 = 300 프레임)
+    speedPadRotateTimer--;
+    if (speedPadRotateTimer <= 0) {
+      speedPadRotateTimer = 300;
+      pinballSpeedPads.forEach(pad => pad.rotateClockwise());
+      pinballLog("⚡ 가속 패드 방향 즉시 회전!");
+    }
+
+    // 고체 섬 내부 뚫림(터널링) 예외 복구 및 자동 사출 핸들러
+    pinballBalls.forEach(ball => {
+      if (ball.isFinished) return;
+      if (ball.y >= 1500 && ball.y <= 1900) {
+        [325, 500].forEach(islandX => {
+          // Y좌표에 따른 육각형 섬의 정확한 수학적 반폭(halfW) 계산 (최대 30px)
+          let halfW = 30;
+          if (ball.y < 1530) {
+            halfW = ball.y - 1500;
+          } else if (ball.y > 1870) {
+            halfW = 1900 - ball.y;
+          }
+          
+          // 구슬 중심이 섬 내부로 침범했는지 정밀 검사
+          if (Math.abs(ball.x - islandX) < halfW) {
+            // 섬 중심 기준 좌우 판정하여 즉시 바깥 통로로 강제 사출
+            if (ball.x < islandX) {
+              ball.x = islandX - halfW - ball.r - 2;
+              ball.vx = -Math.abs(ball.vx) - 2.5; // 왼쪽 통로로 추진 사출
+            } else {
+              ball.x = islandX + halfW + ball.r + 2;
+              ball.vx = Math.abs(ball.vx) + 2.5;  // 오른쪽 통로로 추진 사출
+            }
+            pinballLog(`🛡️ ${ball.name} 섬 내부 터널링 방지막 가동! 강제 사출.`);
+          }
+        });
+      }
+    });
+
     // E-1. 구슬 간 충돌 (구슬간 튕김 및 밀어냄 1.3배 대폭 강화, 완주 구슬도 바닥에서 들이받기 가능)
     for (let _iter = 0; _iter < 2; _iter++) {
       for (let i = 0; i < pinballBalls.length; i++) {
@@ -1423,7 +1896,11 @@ function animatePinball(currentTime) {
 
           lp.trigger();
 
-          const speed = Math.max(8, Math.hypot(ball.vx, ball.vy) * 1.1 + 7);
+          // 가장 밑의 초록색 판 (y > 3000)인 경우 매 튕길 때마다 최소 50% ~ 최대 150% 가변 탄성률 적용
+          const isBottomGreen = lp.color === '#33ff57' && lp.y > 3000;
+          const bounceFactor = isBottomGreen ? (0.5 + Math.random() * 1.0) : 1.0;
+          const speed = Math.max(8, Math.hypot(ball.vx, ball.vy) * 1.1 + 7) * bounceFactor;
+          
           let _nx = Math.sin(lp.angle);
           let _ny = -Math.cos(lp.angle);
           // 노란판: 항상 위쪽으로 발사 (ny > 0이면 법선 반전)
@@ -1474,6 +1951,26 @@ function animatePinball(currentTime) {
       if (_leaderSet.has(ball.id)) {
         ball.vx *= 0.992;
         ball.vy *= 0.992;
+      }
+
+      // 특수 패드(가속 패드) 충돌 체크 및 방향별 4종 물리 효과 적용
+      for (const pad of pinballSpeedPads) {
+        if (Math.abs(ball.x - pad.x) < pad.w/2 + ball.r &&
+            Math.abs(ball.y - pad.y) < pad.h/2 + ball.r) {
+          
+          if (pad.direction === 'down') {
+            ball.vy += 0.48; // 아래로 급가속
+            ball.vx *= 1.01;
+          } else if (pad.direction === 'up') {
+            ball.vy -= 0.38; // 위로 밀어올림 (지연 효과)
+          } else if (pad.direction === 'left') {
+            ball.vx -= 0.45; // 왼쪽 수평 추진
+          } else if (pad.direction === 'right') {
+            ball.vx += 0.45; // 오른쪽 수평 추진
+          }
+          
+          ball.superChargeTimer = Math.max(ball.superChargeTimer, 20); // 가속 광원 파티클 효과 활성화
+        }
       }
 
       const _fw = getWallAtY(ball.y);
@@ -1770,6 +2267,7 @@ function resetPinball() {
   pinballBalls = [];
   hasAnnouncedWinners = false;
   pinballGameRunning = false;
+  speedPadRotateTimer = 300; // 가속 패드 회전 주기 리셋
   camDramaTimer = 0;
   camDramaTarget = null;
   camFocusBall = null;
