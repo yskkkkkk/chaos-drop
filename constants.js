@@ -40,7 +40,7 @@ const BALL_FRICTION_BASE = 0.991;        // 마찰 저항 기본 랜덤 하한
 const BALL_FRICTION_RANGE = 0.005;       // 마찰 저항 기본 랜덤 범위 (0.991 ~ 0.996)
 const BALL_RESTITUTION = 0.58;           // 탄성 반사 기본값 (Bouncy Coefficient)
 const MAX_SPEED_NORMAL = 17;             // 평소 최대 속도 제한
-const MAX_SPEED_BOOST = 25;              // 부스터/폭주 시 최대 속도 해제 상한
+const MAX_SPEED_BOOST = 23;              // 부스터/폭주 시 최대 속도 해제 상한
 const NEAR_MISS_DURATION = 45;           // 프리즈/무중력 호버링 연출 프레임수 (45프레임)
 const NEAR_MISS_COOLDOWN = 240;          // 프리즈 효과 재발생 쿨다운 (4초)
 
