@@ -11,7 +11,23 @@ const GAME_VWIDTH = 825;       // 가상 가로 너비 (구슬 경주 가상 보
 const GAME_VHEIGHT = 3200;     // 가상 세로 높이 (3200px 대규모 세로 맵)
 const PANEL_MIN_OFFSET = 415;  // 제어판 패널 폭 오버랩 방지 최소 가로 오프셋
 const FUNNEL_TOP_Y = 2720;     // 지그재그 벽 종료 및 깔때기 수축 시작 Y축
+const FUNNEL_BOTTOM_X = 311.25;  // 최종 깔때기 수축 시작 X축 좌측 제한 (기존 300에서 10% 골라인 축소)
 const GOAL_Y = 3120;           // 최종 센서 골인선 Y축
+
+// ── 1.2. 레인터널 (Zone 2.5) 특화 물리/레이아웃 규격 ──────
+const TUNNEL_TOP_Y = 1500;        // 3레인 터널 시작 Y축
+const TUNNEL_BOTTOM_Y = 1900;     // 3레인 터널 종료 Y축 (총 400px 연장)
+const TUNNEL_LEFT_X = 180;        // 터널 구역의 고정 좌벽 X축 (안쪽 수축)
+const TUNNEL_RIGHT_X = 645;       // 터널 구역의 고정 우벽 X축 (안쪽 수축)
+const TUNNEL_BARRIER_W = 60;      // 터널 레인 분리벽(섬 장벽) 두께 (px, 60px 확장)
+
+
+const TUNNEL_BARRIER1_X = 325;    // 첫 번째 분리벽 중심 X축 (150 + 175)
+const TUNNEL_BARRIER2_X = 500;    // 두 번째 분리벽 중심 X축 (150 + 350)
+const TUNNEL_BOOST_ACCEL = 0.52;  // 가속 레인 중력 가속 추가분 (2배 가속 효과)
+const TUNNEL_DECEL_MULT = 0.88;   // 감속 레인 저항 드래그 계수 (0.5배 감속 효과)
+
+
 
 // ── 2. 프레임 레이트 및 물리 루프 시간 제한 ──────────────────
 const TARGET_FPS = 60;                   // 고정 표출 프레임 타겟 (60 FPS)
