@@ -478,4 +478,18 @@ MAPS['zigzag-canyon'] = {
   applyPhysics:  _zc_applyPhysics,
   drawLayer:     _zc_drawLayer,
   recoverTunnel: _zc_recoverTunnel,
+  theme: {
+    uiClass:      'theme-zigzag',
+    bgClear:      '#180a04',
+    bgFrom:       '#2a1208',
+    bgTo:         '#0e0603',
+    wallFill:     '#1c0e06',
+    wallStroke:   'rgba(166,94,59,0.55)',
+    wallGlow:     '#A65E3B',
+    funnelStroke: 'rgba(140,75,47,0.55)',
+    funnelColor:  '#8C4B2F',
+    goalFill:     'rgba(199,134,90,0.10)',
+    goalStroke:   '#C7865A',
+    scanLine:     '#C7865A',
+  },
 };

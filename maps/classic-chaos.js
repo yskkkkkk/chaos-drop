@@ -438,4 +438,18 @@ MAPS['classic-chaos'] = {
   applyPhysics:  _cc_applyPhysics,
   drawLayer:     _cc_drawLayer,
   recoverTunnel: _cc_recoverTunnel,
+  theme: {
+    uiClass:      '',
+    bgClear:      '#06070d',
+    bgFrom:       '#10122e',
+    bgTo:         '#05060b',
+    wallFill:     '#07080f',
+    wallStroke:   'rgba(0,240,255,0.5)',
+    wallGlow:     '#00f0ff',
+    funnelStroke: 'rgba(140,82,255,0.5)',
+    funnelColor:  '#8c52ff',
+    goalFill:     'rgba(0,240,255,0.07)',
+    goalStroke:   '#00f0ff',
+    scanLine:     '#ff9900',
+  },
 };
