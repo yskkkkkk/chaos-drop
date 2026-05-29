@@ -72,7 +72,7 @@ function updateCamera(activeBalls, CH, VH) {
       exitZoomTimer--;
       const _goalCamY = Math.max(0, GOAL_Y - CH * 0.5);
       cameraY += (_goalCamY - cameraY) * 0.08;
-      cameraZoomVel += (2.0 - cameraZoom) * 0.01;
+      cameraZoomVel += (2.0 - cameraZoom) * 0.007;
       cameraZoomVel *= 0.85;
       cameraZoomVel = Math.max(-0.08, Math.min(0.08, cameraZoomVel));
       cameraZoom += cameraZoomVel;
