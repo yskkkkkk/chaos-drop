@@ -24,14 +24,15 @@ function updatePreviewBalls() {
   const members = ta.value.split(',').map(n => n.trim()).filter(n => n.length > 0);
   pinballBalls = [];
 
-  const btnShuffle = document.getElementById('btn-shuffle-members');
-  if (btnShuffle) btnShuffle.innerText = `순서섞기 (${members.length}명)`;
+  const cnt = document.getElementById('member-count');
+  if (cnt) cnt.textContent = `${members.length}명`;
 
   if (members.length === 0) return;
   const spacing = GAME_VWIDTH / (members.length + 1);
   members.forEach((name, idx) => {
     pinballBalls.push(new RacingBall(idx, name, spacing * (idx + 1), 40, COLOR_SPECTRUM[idx % COLOR_SPECTRUM.length]));
   });
+  renderLeaderboard();
 }
 
 function updateSpecificRankSelect() {
@@ -190,23 +191,23 @@ window.addEventListener('DOMContentLoaded', () => {
       if (e.target.value === 'specific') {
         winCountInput.disabled = true;
         winCountInput.style.cursor = 'not-allowed';
-        winCountInput.style.opacity = '0.35';
-        if (lblWinCount) lblWinCount.style.color = 'rgba(255,255,255,0.25)';
+        winCountInput.style.opacity = '0.5';
+        if (lblWinCount) lblWinCount.style.color = 'rgba(255,255,255,0.4)';
 
         specRankSelect.disabled = false;
         specRankSelect.style.cursor = 'pointer';
         specRankSelect.style.opacity = '1.0';
-        if (lblSpecificRank) lblSpecificRank.style.color = 'var(--aws-orange)';
+        if (lblSpecificRank) lblSpecificRank.style.color = 'var(--accent)';
       } else {
         winCountInput.disabled = false;
         winCountInput.style.cursor = 'text';
         winCountInput.style.opacity = '1.0';
-        if (lblWinCount) lblWinCount.style.color = 'var(--aws-orange)';
+        if (lblWinCount) lblWinCount.style.color = 'var(--accent)';
 
         specRankSelect.disabled = true;
         specRankSelect.style.cursor = 'not-allowed';
-        specRankSelect.style.opacity = '0.35';
-        if (lblSpecificRank) lblSpecificRank.style.color = 'rgba(255,255,255,0.25)';
+        specRankSelect.style.opacity = '0.5';
+        if (lblSpecificRank) lblSpecificRank.style.color = 'rgba(255,255,255,0.4)';
       }
     });
   });
@@ -232,21 +233,25 @@ window.addEventListener('DOMContentLoaded', () => {
     if (pinballAnimId === null) animatePinball();
   });
 
-  const btnSwitchMap = document.getElementById('btn-switch-map');
-  if (btnSwitchMap) {
-    const _updateMapBtn = () => {
-      btnSwitchMap.textContent = `🗺 맵 전환 → ${MAPS[currentMapId === 'classic-chaos' ? 'zigzag-canyon' : 'classic-chaos']?.label || ''}`;
-    };
-    _updateMapBtn();
-    btnSwitchMap.addEventListener('click', () => {
-      const nextId = currentMapId === 'classic-chaos' ? 'zigzag-canyon' : 'classic-chaos';
+  const mapSegBtns = document.querySelectorAll('.map-seg-btn');
+  mapSegBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.classList.contains('locked') || btn.classList.contains('active')) return;
+      const nextId = btn.dataset.map;
+      if (!MAPS[nextId]) return;
+
+      mapSegBtns.forEach(b => {
+        const on = b === btn;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+
       switchMap(nextId);
       resetPinball();
       if (pinballAnimId === null) animatePinball();
-      _updateMapBtn();
-      pinballLog(`🗺 맵 전환 → ${MAPS[currentMapId]?.label}`);
+      pinballLog(`🗺 맵 전환 → ${MAPS[nextId]?.label}`);
     });
-  }
+  });
 
   const btnModalClose = document.getElementById('btn-modal-close');
   if (btnModalClose) {

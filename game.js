@@ -47,7 +47,7 @@ let crownFlashTimer = 0;
 
 // ── 맵 레지스트리 딜리게이터 ──────────────────────────────────
 // 각 맵 파일이 MAPS['id']에 훅을 등록합니다. (constants.js 에서 MAPS={} 선언)
-let currentMapId = 'zigzag-canyon';
+let currentMapId = 'classic-chaos';
 
 function _applyMapTheme() {
   Object.values(MAPS).forEach(m => { if (m.theme?.uiClass) document.body.classList.remove(m.theme.uiClass); });

@@ -21,22 +21,31 @@
   <!-- 홀로그램 제어 패널 카드 (UI) -->
   <div class="pinball-control-panel">
     <div class="panel-row">
-      <div class="panel-section-title panel-title-flush">🎯 NEON PINBALL RIVAL</div>
+      <div class="panel-brand-title">🎯 Neon Pinball Rival</div>
       <span class="badge orange badge-sm">60FPS ENGINE</span>
+    </div>
+
+    <!-- 맵 선택 세그먼트 -->
+    <div class="panel-row map-select-row">
+      <div class="map-select-label">맵 선택</div>
+      <div class="map-segment" role="tablist" aria-label="맵 선택">
+        <button type="button" class="map-seg-btn active" data-map="classic-chaos" role="tab" aria-selected="true">🌀 Classic</button>
+        <button type="button" class="map-seg-btn locked" data-map="zigzag-canyon" role="tab" aria-selected="false" disabled aria-disabled="true">⛰ Zigzag</button>
+      </div>
     </div>
 
     <!-- 팀원 명단 입력 -->
     <div>
       <div class="panel-row panel-row--mb2">
-        <div class="panel-section-title panel-title-flush">👥 참전 팀원 명단</div>
-        <button id="btn-shuffle-members" class="badge orange badge-btn">순서섞기 (0명)</button>
+        <div class="panel-section-title panel-title-flush">참전 팀원 명단 <span id="member-count" class="member-count">0명</span></div>
+        <button id="btn-shuffle-members" class="shuffle-btn" title="순서 섞기" aria-label="순서 섞기">🔀</button>
       </div>
       <textarea id="pinball-members" class="panel-textarea" placeholder="쉼표로 구분하여 입력"></textarea>
     </div>
 
     <!-- 당첨 룰 설정 라디오 버튼 -->
     <div>
-      <div class="panel-section-title">⚖️ 당첨 순위 규칙 선택</div>
+      <div class="panel-section-title">당첨 순위 규칙 선택</div>
       <div class="rule-radio-group">
         <label class="rule-radio-item">
           <input type="radio" name="pinball-rule" value="first" checked>
@@ -56,11 +65,11 @@
     <!-- 가변 인풋 셋 (당첨 인원 / 특정 순번) -->
     <div class="panel-grid-2">
       <div>
-        <div class="panel-section-title" id="lbl-win-count">🎁 당첨 인원수</div>
+        <div class="panel-section-title" id="lbl-win-count">당첨 인원수</div>
         <input type="number" id="pinball-win-count" min="1" max="11" value="2" class="panel-input">
       </div>
       <div>
-        <div class="panel-section-title panel-title-dim" id="lbl-specific-rank">🎯 당첨 골인 순번</div>
+        <div class="panel-section-title panel-title-dim" id="lbl-specific-rank">당첨 골인 순번</div>
         <select id="pinball-specific-rank" disabled class="panel-input">
           <!-- 구슬 숫자에 맞춰 스크립트에서 동적 생성 -->
         </select>
@@ -70,7 +79,10 @@
     <!-- ❄️ Freeze Mode 토글 -->
     <div class="panel-toggle-row">
       <input type="checkbox" id="freeze-mode-toggle" checked class="panel-toggle-checkbox">
-      <label for="freeze-mode-toggle" class="panel-toggle-label">❄️ FREEZE MODE</label>
+      <div class="freeze-mode-label-group">
+        <label for="freeze-mode-toggle" class="panel-toggle-label">❄️ FREEZE MODE</label>
+        <span class="freeze-mode-hint-text">하단 30% 구간에서 공이 확률적으로 정지</span>
+      </div>
       <span class="freeze-hint">?
         <div class="freeze-toast">하단 30% 구간에서 확률적으로 공이 정지됩니다.</div>
       </span>
@@ -81,18 +93,13 @@
 
     <!-- 조작 버튼들 -->
     <div class="panel-grid-buttons">
-      <button id="btn-pinball-launch" class="panel-btn btn-orange">⚡ LAUNCH RACING (시작)</button>
+      <button id="btn-pinball-launch" class="panel-btn btn-orange">⚡ 경주 시작</button>
       <button id="btn-pinball-reset" class="panel-btn btn-reset">다시 세팅</button>
-    </div>
-
-    <!-- 맵 전환 버튼 -->
-    <div class="panel-grid-buttons" style="margin-top:6px;">
-      <button id="btn-switch-map" class="panel-btn btn-reset" style="width:100%;font-size:13px;">🗺 맵: 로딩 중...</button>
     </div>
 
     <!-- 실시간 리더보드 테이블 -->
     <div class="leaderboard-container">
-      <div class="panel-section-title leaderboard-title">📊 REALTIME RACE RANK</div>
+      <div class="panel-section-title leaderboard-title">REALTIME RACE RANK</div>
       <table class="leaderboard-table">
         <thead>
           <tr>
