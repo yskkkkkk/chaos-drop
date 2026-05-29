@@ -851,7 +851,7 @@ body.theme-zigzag .map-seg-btn.active {
 /* 팝업 닫기 후 플로팅 홈 버튼 */
 .float-home-btn {
   position: fixed;
-  top: 20px; left: 50%; transform: translateX(-50%);
+  top: 22vh; left: 50%; transform: translateX(-50%);
   z-index: 300;
   padding: 10px 24px;
   background: transparent;
