@@ -32,6 +32,7 @@ function updatePreviewBalls() {
   members.forEach((name, idx) => {
     pinballBalls.push(new RacingBall(idx, name, spacing * (idx + 1), 40, COLOR_SPECTRUM[idx % COLOR_SPECTRUM.length]));
   });
+  renderLeaderboard();
 }
 
 function updateSpecificRankSelect() {
@@ -190,8 +191,8 @@ window.addEventListener('DOMContentLoaded', () => {
       if (e.target.value === 'specific') {
         winCountInput.disabled = true;
         winCountInput.style.cursor = 'not-allowed';
-        winCountInput.style.opacity = '0.35';
-        if (lblWinCount) lblWinCount.style.color = 'rgba(255,255,255,0.25)';
+        winCountInput.style.opacity = '0.5';
+        if (lblWinCount) lblWinCount.style.color = 'rgba(255,255,255,0.4)';
 
         specRankSelect.disabled = false;
         specRankSelect.style.cursor = 'pointer';
@@ -205,8 +206,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
         specRankSelect.disabled = true;
         specRankSelect.style.cursor = 'not-allowed';
-        specRankSelect.style.opacity = '0.35';
-        if (lblSpecificRank) lblSpecificRank.style.color = 'rgba(255,255,255,0.25)';
+        specRankSelect.style.opacity = '0.5';
+        if (lblSpecificRank) lblSpecificRank.style.color = 'rgba(255,255,255,0.4)';
       }
     });
   });

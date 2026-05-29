@@ -63,7 +63,22 @@ function renderLeaderboard() {
   if (!tbody) return;
 
   if (pinballFinishedBalls.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="3" class="leaderboard-empty">구슬 경주 대기 중...</td></tr>`;
+    if (!pinballGameRunning && pinballBalls.length > 0) {
+      let ph = '';
+      pinballBalls.forEach((b, idx) => {
+        ph += `<tr style="opacity:0.3;">
+          <td class="leaderboard-rank">#${idx + 1}</td>
+          <td style="display:flex; align-items:center; gap:6px;">
+            <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${b.color};"></span>
+            ${b.name}
+          </td>
+          <td class="col-time">—</td>
+        </tr>`;
+      });
+      tbody.innerHTML = ph;
+    } else {
+      tbody.innerHTML = `<tr><td colspan="3" class="leaderboard-empty">구슬 경주 대기 중...</td></tr>`;
+    }
     return;
   }
 
