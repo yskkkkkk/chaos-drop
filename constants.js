@@ -37,7 +37,7 @@ const TARGET_FPS    = 60;
 const FPS_INTERVAL  = 1000 / TARGET_FPS;
 
 // ── 3. 구슬(RacingBall) 고유 물리 파라미터 ────────────────────
-const BALL_R             = _DEVICE_MOBILE ? 7 : 9;
+const BALL_R             = _DEVICE_MOBILE ? 6 : 9;
 const BALL_GRAVITY       = 0.13;
 const BALL_FRICTION_BASE = 0.991;
 const BALL_FRICTION_RANGE = 0.005;
