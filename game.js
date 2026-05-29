@@ -97,6 +97,18 @@ function animatePinball(currentTime) {
 
   // A. 카메라
   const activeBalls = pinballBalls.filter(b => !b.isFinished);
+
+  // 출구 근접 트리거: 선착순 1명 / 특정 1등은 거리 기반으로 발동
+  if (pinballGameRunning && !exitZoomLeaderTriggered && activeBalls.length > 0) {
+    if ((currentRule === 'first' && winCount === 1) || (currentRule === 'specific' && specificRank === 1)) {
+      const _leader = activeBalls.reduce((a, b) => b.y > a.y ? b : a);
+      if (_leader.y >= GOAL_Y - 100) {
+        triggerExitZoom();
+        exitZoomLeaderTriggered = true;
+      }
+    }
+  }
+
   updateCamera(activeBalls, CH, VH);
 
   // B. 배경
