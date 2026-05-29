@@ -21,8 +21,17 @@
   <!-- 홀로그램 제어 패널 카드 (UI) -->
   <div class="pinball-control-panel">
     <div class="panel-row">
-      <div class="panel-section-title panel-title-flush">🎯 NEON PINBALL RIVAL</div>
+      <div class="panel-brand-title">🎯 Neon Pinball Rival</div>
       <span class="badge orange badge-sm">60FPS ENGINE</span>
+    </div>
+
+    <!-- 맵 선택 세그먼트 -->
+    <div class="panel-row map-select-row">
+      <div class="map-select-label">맵 선택</div>
+      <div class="map-segment" role="tablist" aria-label="맵 선택">
+        <button type="button" class="map-seg-btn active" data-map="classic-chaos" role="tab" aria-selected="true">🌀 Classic</button>
+        <button type="button" class="map-seg-btn locked" data-map="zigzag-canyon" role="tab" aria-selected="false" disabled aria-disabled="true">⛰ Zigzag</button>
+      </div>
     </div>
 
     <!-- 팀원 명단 입력 -->
@@ -83,11 +92,6 @@
     <div class="panel-grid-buttons">
       <button id="btn-pinball-launch" class="panel-btn btn-orange">⚡ LAUNCH RACING (시작)</button>
       <button id="btn-pinball-reset" class="panel-btn btn-reset">다시 세팅</button>
-    </div>
-
-    <!-- 맵 전환 버튼 -->
-    <div class="panel-grid-buttons" style="margin-top:6px;">
-      <button id="btn-switch-map" class="panel-btn btn-reset" style="width:100%;font-size:13px;">🗺 맵: 로딩 중...</button>
     </div>
 
     <!-- 실시간 리더보드 테이블 -->
