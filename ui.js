@@ -445,6 +445,21 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // ── 모바일 초기화 ─────────────────────────────────────────
   initMobileUI();
+
+  // Freeze 툴팁: 패널 overflow 클리핑 우회 (position:fixed + JS 포지셔닝)
+  const _fhint = document.querySelector('.freeze-hint');
+  if (_fhint) {
+    const _ftoast = _fhint.querySelector('.freeze-toast');
+    _fhint.addEventListener('mouseenter', () => {
+      const r = _fhint.getBoundingClientRect();
+      _ftoast.style.top  = (r.top + r.height / 2 - 40) + 'px';
+      _ftoast.style.left = isMobile()
+        ? Math.max(8, r.left - 218) + 'px'
+        : (r.right + 8) + 'px';
+      _ftoast.style.opacity = '1';
+    });
+    _fhint.addEventListener('mouseleave', () => { _ftoast.style.opacity = '0'; });
+  }
 });
 
 // ── 모바일 UI 함수 ──────────────────────────────────────────

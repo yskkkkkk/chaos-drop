@@ -435,9 +435,9 @@ body {
   flex-shrink: 0;
 }
 .freeze-hint .freeze-toast {
-  position: absolute;
-  left: 22px; top: 50%;
-  transform: translateY(-50%) translateX(4px);
+  position: fixed;
+  top: 0; left: 0;
+  transform: none;
   width: 210px;
   background: rgba(4, 10, 24, 0.97);
   border: 1px solid rgba(0,240,255,0.25);
@@ -448,14 +448,10 @@ body {
   line-height: 1.5;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.18s ease, transform 0.18s ease;
-  z-index: 30;
+  transition: opacity 0.18s ease;
+  z-index: 999;
   white-space: normal;
   box-shadow: 0 4px 20px rgba(0,240,255,0.12);
-}
-.freeze-hint:hover .freeze-toast {
-  opacity: 1;
-  transform: translateY(-50%) translateX(0);
 }
 
 /* ── 패널 유틸리티 클래스 ────────────────────────────────── */
