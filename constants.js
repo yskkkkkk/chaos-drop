@@ -6,12 +6,17 @@
  * 그리고 레이싱 참가 팀원 등의 정적 구성 변수들을 통합 관리합니다.
  */
 
-// ── 0. 디바이스 감지 (다른 상수보다 먼저 선언해야 BOARD_XSCALE에서 사용 가능) ──
+// ── 0. 모바일 오버라이드 ──────────────────────────────────────
+// 이 블록만 수정하면 모바일 전용 규격이 전체에 반영됩니다.
+// 데스크탑 기준값은 각 섹션의 원본 상수를 참조하세요.
+// ─────────────────────────────────────────────────────────────
 const _DEVICE_MOBILE = window.innerWidth <= 768;
-const QUALITY        = _DEVICE_MOBILE ? 0.45 : 1.0;
 
-// 모바일 물리 보드폭 스케일: 물리 공간 자체를 화면 폭에 맞춤 (데스크탑 = 1.0)
-const BOARD_XSCALE   = _DEVICE_MOBILE ? (window.innerWidth / 825) : 1.0;
+//  항목             모바일          데스크탑
+const BOARD_XSCALE = _DEVICE_MOBILE ? (window.innerWidth / 825) : 1.0; // 물리 보드폭 스케일
+const QUALITY      = _DEVICE_MOBILE ? 0.45                      : 1.0; // 렌더링 해상도
+const BALL_R       = _DEVICE_MOBILE ? 6                         : 9;   // 구슬 반지름(px)
+// ─────────────────────────────────────────────────────────────
 
 // ── 1. 게임판 기본 레이아웃 규격 ─────────────────────────
 const GAME_VWIDTH  = Math.round(825 * BOARD_XSCALE); // 모바일: 화면폭, 데스크탑: 825
@@ -37,7 +42,6 @@ const TARGET_FPS    = 60;
 const FPS_INTERVAL  = 1000 / TARGET_FPS;
 
 // ── 3. 구슬(RacingBall) 고유 물리 파라미터 ────────────────────
-const BALL_R             = 9;
 const BALL_GRAVITY       = 0.13;
 const BALL_FRICTION_BASE = 0.991;
 const BALL_FRICTION_RANGE = 0.005;
@@ -48,7 +52,7 @@ const NEAR_MISS_DURATION = 45;
 const NEAR_MISS_COOLDOWN = 240;
 
 // ── 4. 기믹 요소별 고유 규격 (Pegs & Portals & Obstacles) ─────
-const PORTAL_R = 18;
+const PORTAL_R = Math.round(18 * BOARD_XSCALE);
 
 // ── 5. 팀원 이름 초기값 ──────────────────────────────
 const DEFAULT_MEMBERS = [

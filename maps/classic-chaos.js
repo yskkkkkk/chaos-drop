@@ -306,75 +306,86 @@ function classicChaos_init() {
   placedGimmicks.push({ x: pb.x2, y: pb.y2, r: PORTAL_R });
 
   // ── 2. 슈퍼 범퍼 ──
-  tryPlaceGimmick(1000, 40, 20, cx,        xs(80), (x, y) => { if(gkeep(y)) pinballBumpers.push(new SuperBumper(x, y, 20, '#ff9900')); });
-  tryPlaceGimmick(1180, 40, 18, xs(185),   xs(60), (x, y) => { if(gkeep(y)) pinballBumpers.push(new SuperBumper(x, y, 18, '#00f0ff')); });
-  tryPlaceGimmick(1180, 40, 18, xs(640),   xs(60), (x, y) => { if(gkeep(y)) pinballBumpers.push(new SuperBumper(x, y, 18, '#00f0ff')); });
-  tryPlaceGimmick(1350, 45, 22, cx,        xs(80), (x, y) => { if(gkeep(y)) pinballBumpers.push(new SuperBumper(x, y, 22, '#8c52ff')); });
-  tryPlaceGimmick(2120, 40, 18, xs(140),   xs(60), (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 18, '#ff9900')); });
-  tryPlaceGimmick(2120, 40, 18, xs(685),   xs(60), (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 18, '#ff9900')); });
-  tryPlaceGimmick(2350, 45, 22, cx,        xs(60), (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 22, '#00f0ff')); });
-  tryPlaceGimmick(2500, 40, 20, xs(280),   xs(60), (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 20, '#8c52ff')); });
-  tryPlaceGimmick(2500, 40, 20, xs(545),   xs(60), (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 20, '#8c52ff')); });
-  tryPlaceGimmick(2680, 30, 22, cx,        xs(60), (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 22, '#ff9900')); });
+  tryPlaceGimmick(1000, 40, xs(20), cx,        xs(80), (x, y) => { if(gkeep(y)) pinballBumpers.push(new SuperBumper(x, y, xs(20), '#ff9900')); });
+  tryPlaceGimmick(1180, 40, xs(18), xs(185),   xs(60), (x, y) => { if(gkeep(y)) pinballBumpers.push(new SuperBumper(x, y, xs(18), '#00f0ff')); });
+  tryPlaceGimmick(1180, 40, xs(18), xs(640),   xs(60), (x, y) => { if(gkeep(y)) pinballBumpers.push(new SuperBumper(x, y, xs(18), '#00f0ff')); });
+  tryPlaceGimmick(1350, 45, xs(22), cx,        xs(80), (x, y) => { if(gkeep(y)) pinballBumpers.push(new SuperBumper(x, y, xs(22), '#8c52ff')); });
+  tryPlaceGimmick(2120, 40, xs(18), xs(140),   xs(60), (x, y) => { pinballBumpers.push(new SuperBumper(x, y, xs(18), '#ff9900')); });
+  tryPlaceGimmick(2120, 40, xs(18), xs(685),   xs(60), (x, y) => { pinballBumpers.push(new SuperBumper(x, y, xs(18), '#ff9900')); });
+  tryPlaceGimmick(2350, 45, xs(22), cx,        xs(60), (x, y) => { pinballBumpers.push(new SuperBumper(x, y, xs(22), '#00f0ff')); });
+  tryPlaceGimmick(2500, 40, xs(20), xs(280),   xs(60), (x, y) => { pinballBumpers.push(new SuperBumper(x, y, xs(20), '#8c52ff')); });
+  tryPlaceGimmick(2500, 40, xs(20), xs(545),   xs(60), (x, y) => { pinballBumpers.push(new SuperBumper(x, y, xs(20), '#8c52ff')); });
+  tryPlaceGimmick(2680, 30, xs(22), cx,        xs(60), (x, y) => { pinballBumpers.push(new SuperBumper(x, y, xs(22), '#ff9900')); });
 
   // ── 3. 스피너 ──
-  tryPlaceGimmick(950,  30, 31, cx,        xs(80),  (x, y) => { if(gkeep(y)) pinballSpinners.push(new Spinner(x, y, 31, '#8c52ff')); });
-  tryPlaceGimmick(1250, 40, 26, xs(140),   xs(60),  (x, y) => { if(gkeep(y)) pinballSpinners.push(new Spinner(x, y, 26, '#ff9900')); });
-  tryPlaceGimmick(1250, 40, 26, xs(685),   xs(60),  (x, y) => { if(gkeep(y)) pinballSpinners.push(new Spinner(x, y, 26, '#ff9900')); });
-  tryPlaceGimmick(1450, 30, 31, cx,        xs(80),  (x, y) => { if(gkeep(y)) pinballSpinners.push(new Spinner(x, y, 31, '#00f0ff')); });
-  tryPlaceGimmick(1100, 120, 28, cx,       xs(200), (x, y) => { pinballSpinners.push(new Spinner(x, y, 28, '#8c52ff')); });
-  tryPlaceGimmick(1380, 100, 28, cx,       xs(200), (x, y) => { pinballSpinners.push(new Spinner(x, y, 28, '#ffea00')); });
-  tryPlaceGimmick(2050, 35, 24, xs(180),   xs(60),  (x, y) => { pinballSpinners.push(new Spinner(x, y, 24, '#8c52ff')); });
-  tryPlaceGimmick(2050, 35, 24, xs(645),   xs(60),  (x, y) => { pinballSpinners.push(new Spinner(x, y, 24, '#8c52ff')); });
-  tryPlaceGimmick(2250, 40, 29, cx,        xs(60),  (x, y) => { pinballSpinners.push(new Spinner(x, y, 29, '#ff9900')); });
-  tryPlaceGimmick(2420, 40, 29, cx,        xs(60),  (x, y) => { pinballSpinners.push(new Spinner(x, y, 29, '#00f0ff')); });
-  tryPlaceGimmick(2600, 40, 31, cx,        xs(60),  (x, y) => { pinballSpinners.push(new Spinner(x, y, 31, '#8c52ff')); });
+  tryPlaceGimmick(950,  30, xs(31), cx,        xs(80),  (x, y) => { if(gkeep(y)) pinballSpinners.push(new Spinner(x, y, xs(31), '#8c52ff')); });
+  tryPlaceGimmick(1250, 40, xs(26), xs(140),   xs(60),  (x, y) => { if(gkeep(y)) pinballSpinners.push(new Spinner(x, y, xs(26), '#ff9900')); });
+  tryPlaceGimmick(1250, 40, xs(26), xs(685),   xs(60),  (x, y) => { if(gkeep(y)) pinballSpinners.push(new Spinner(x, y, xs(26), '#ff9900')); });
+  tryPlaceGimmick(1450, 30, xs(31), cx,        xs(80),  (x, y) => { if(gkeep(y)) pinballSpinners.push(new Spinner(x, y, xs(31), '#00f0ff')); });
+  tryPlaceGimmick(1100, 120, xs(28), cx,       xs(200), (x, y) => { pinballSpinners.push(new Spinner(x, y, xs(28), '#8c52ff')); });
+  tryPlaceGimmick(1380, 100, xs(28), cx,       xs(200), (x, y) => { pinballSpinners.push(new Spinner(x, y, xs(28), '#ffea00')); });
+  tryPlaceGimmick(2050, 35, xs(24), xs(180),   xs(60),  (x, y) => { pinballSpinners.push(new Spinner(x, y, xs(24), '#8c52ff')); });
+  tryPlaceGimmick(2050, 35, xs(24), xs(645),   xs(60),  (x, y) => { pinballSpinners.push(new Spinner(x, y, xs(24), '#8c52ff')); });
+  tryPlaceGimmick(2250, 40, xs(29), cx,        xs(60),  (x, y) => { pinballSpinners.push(new Spinner(x, y, xs(29), '#ff9900')); });
+  tryPlaceGimmick(2420, 40, xs(29), cx,        xs(60),  (x, y) => { pinballSpinners.push(new Spinner(x, y, xs(29), '#00f0ff')); });
+  tryPlaceGimmick(2600, 40, xs(31), cx,        xs(60),  (x, y) => { pinballSpinners.push(new Spinner(x, y, xs(31), '#8c52ff')); });
 
   // ── 4. 와류 ──
-  tryPlaceGimmick(1080, 40, 75, xs(290),   xs(60), (x, y) => { pinballVortexes.push(new SlowVortex(x, y, 75, '#8c52ff')); });
-  tryPlaceGimmick(1300, 40, 75, xs(535),   xs(60), (x, y) => { pinballVortexes.push(new SlowVortex(x, y, 75, '#8c52ff')); });
-  tryPlaceGimmick(2200, 40, 78, xs(240),   xs(60), (x, y) => { pinballVortexes.push(new SlowVortex(x, y, 78, '#8c52ff')); });
-  tryPlaceGimmick(2480, 40, 78, xs(585),   xs(60), (x, y) => { pinballVortexes.push(new SlowVortex(x, y, 78, '#8c52ff')); });
-  tryPlaceGimmick(2650, 40, 83, cx,        xs(60), (x, y) => { pinballVortexes.push(new SlowVortex(x, y, 83, '#8c52ff')); });
+  tryPlaceGimmick(1080, 40, xs(75), xs(290),   xs(60), (x, y) => { pinballVortexes.push(new SlowVortex(x, y, xs(75), '#8c52ff')); });
+  tryPlaceGimmick(1300, 40, xs(75), xs(535),   xs(60), (x, y) => { pinballVortexes.push(new SlowVortex(x, y, xs(75), '#8c52ff')); });
+  tryPlaceGimmick(2200, 40, xs(78), xs(240),   xs(60), (x, y) => { pinballVortexes.push(new SlowVortex(x, y, xs(78), '#8c52ff')); });
+  tryPlaceGimmick(2480, 40, xs(78), xs(585),   xs(60), (x, y) => { pinballVortexes.push(new SlowVortex(x, y, xs(78), '#8c52ff')); });
+  tryPlaceGimmick(2650, 40, xs(83), cx,        xs(60), (x, y) => { pinballVortexes.push(new SlowVortex(x, y, xs(83), '#8c52ff')); });
 
   // ── 5. 발사대 ──
-  tryPlaceGimmick(1020, 30, 110/2+15, cx,        xs(50), (x, y) => { if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(x, y, 110, '#ff3366', randAngle())); });
-  tryPlaceGimmick(1200, 40, 90/2+15,  xs(190),   xs(50), (x, y) => { if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(x, y, 90,  '#ffea00', randAngle())); });
-  tryPlaceGimmick(1200, 40, 90/2+15,  xs(635),   xs(50), (x, y) => { if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(x, y, 90,  '#ffea00', randAngle())); });
-  tryPlaceGimmick(1400, 40, 120/2+15, cx,        xs(50), (x, y) => { if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(x, y, 120, '#ff3366', randAngle())); });
-  tryPlaceGimmick(2150, 35, 70/2+15,  xs(170),   xs(50), (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 70,  '#33ff57', randAngle())); });
-  tryPlaceGimmick(2150, 35, 70/2+15,  xs(655),   xs(50), (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 70,  '#33ff57', randAngle())); });
-  tryPlaceGimmick(2300, 40, 130/2+15, cx,        xs(50), (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 130, '#ff3366', randAngle())); });
-  tryPlaceGimmick(2450, 40, 90/2+15,  xs(250),   xs(50), (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 90,  '#ffea00', randAngle())); });
-  tryPlaceGimmick(2450, 40, 90/2+15,  xs(575),   xs(50), (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 90,  '#ffea00', randAngle())); });
-  tryPlaceGimmick(2620, 35, 70/2+15,  cx,        xs(50), (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 70,  '#33ff57', randAngle())); });
+  tryPlaceGimmick(1020, 30, xs(110)/2+15, cx,        xs(50), (x, y) => { if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(x, y, xs(110), '#ff3366', randAngle())); });
+  tryPlaceGimmick(1200, 40, xs(90)/2+15,  xs(190),   xs(50), (x, y) => { if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(x, y, xs(90),  '#ffea00', randAngle())); });
+  tryPlaceGimmick(1200, 40, xs(90)/2+15,  xs(635),   xs(50), (x, y) => { if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(x, y, xs(90),  '#ffea00', randAngle())); });
+  tryPlaceGimmick(1400, 40, xs(120)/2+15, cx,        xs(50), (x, y) => { if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(x, y, xs(120), '#ff3366', randAngle())); });
+  tryPlaceGimmick(2150, 35, xs(70)/2+15,  xs(170),   xs(50), (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, xs(70),  '#33ff57', randAngle())); });
+  tryPlaceGimmick(2150, 35, xs(70)/2+15,  xs(655),   xs(50), (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, xs(70),  '#33ff57', randAngle())); });
+  tryPlaceGimmick(2300, 40, xs(130)/2+15, cx,        xs(50), (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, xs(130), '#ff3366', randAngle())); });
+  tryPlaceGimmick(2450, 40, xs(90)/2+15,  xs(250),   xs(50), (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, xs(90),  '#ffea00', randAngle())); });
+  tryPlaceGimmick(2450, 40, xs(90)/2+15,  xs(575),   xs(50), (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, xs(90),  '#ffea00', randAngle())); });
+  tryPlaceGimmick(2620, 35, xs(70)/2+15,  cx,        xs(50), (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, xs(70),  '#33ff57', randAngle())); });
 
   // ── 6. 깔때기 입구 역전 지대 ──
-  pinballSpinners.push(new Spinner(cx, 2840, 29, '#00f0ff'));
-  pinballBumpers.push(new SuperBumper(cx, 2950, 24, '#ff00ff'));
-  placedGimmicks.push({ x: cx, y: 2840, r: 29 });
-  placedGimmicks.push({ x: cx, y: 2950, r: 24 });
+  pinballSpinners.push(new Spinner(cx, 2840, xs(29), '#00f0ff'));
+  pinballBumpers.push(new SuperBumper(cx, 2950, xs(24), '#ff00ff'));
+  placedGimmicks.push({ x: cx, y: 2840, r: xs(29) });
+  placedGimmicks.push({ x: cx, y: 2950, r: xs(24) });
 
   const t1 = (2800 - FUNNEL_TOP_Y) / (GOAL_Y - FUNNEL_TOP_Y);
   const lx1 = funnelLeftX + t1 * (FUNNEL_BOTTOM_X - funnelLeftX);
   const rx1 = funnelRightX - t1 * (funnelRightX - (GAME_VWIDTH - FUNNEL_BOTTOM_X));
   const width1 = rx1 - lx1;
-  pinballSpeedPads.push(new SpeedPad(lx1 + width1 * 0.28, 2800, 58, 24));
-  pinballSpeedPads.push(new SpeedPad(lx1 + width1 * 0.72, 2800, 58, 24));
+  pinballSpeedPads.push(new SpeedPad(lx1 + width1 * 0.28, 2800, xs(58), 24));
+  pinballSpeedPads.push(new SpeedPad(lx1 + width1 * 0.72, 2800, xs(58), 24));
 
   const t2 = (2950 - FUNNEL_TOP_Y) / (GOAL_Y - FUNNEL_TOP_Y);
   const lx2 = funnelLeftX + t2 * (FUNNEL_BOTTOM_X - funnelLeftX);
   const rx2 = funnelRightX - t2 * (funnelRightX - (GAME_VWIDTH - FUNNEL_BOTTOM_X));
   const width2 = rx2 - lx2;
-  pinballSpeedPads.push(new SpeedPad(lx2 + width2 * 0.28, 2950, 50, 24));
-  pinballSpeedPads.push(new SpeedPad(lx2 + width2 * 0.72, 2950, 50, 24));
+  pinballSpeedPads.push(new SpeedPad(lx2 + width2 * 0.28, 2950, xs(50), 24));
+  pinballSpeedPads.push(new SpeedPad(lx2 + width2 * 0.72, 2950, xs(50), 24));
 
   const t_lp = (3060 - FUNNEL_TOP_Y) / (GOAL_Y - FUNNEL_TOP_Y);
   const lx_lp = funnelLeftX + t_lp * (FUNNEL_BOTTOM_X - funnelLeftX);
   const rx_lp = funnelRightX - t_lp * (funnelRightX - (GAME_VWIDTH - FUNNEL_BOTTOM_X));
-  pinballLaunchPads.push(new LaunchPad(lx_lp + 25,  3060, 66,  '#ffea00',  Math.PI * 0.12));
-  pinballLaunchPads.push(new LaunchPad(rx_lp - 25,  3060, 66,  '#ff3366', -Math.PI * 0.18));
-  pinballLaunchPads.push(new LaunchPad(cx,           3050, 106, '#33ff57', 0, 1.1, 52));
+  // 퍼널 실제 폭에 맞춰 출구 발판 크기 동적 조정: 각 통로 22px 이상 보장
+  const _exitW   = rx_lp - lx_lp;
+  const _minGap  = 22;
+  let _lpWL = xs(66), _lpWR = xs(66), _lpWC = xs(106);
+  if (_lpWL + _lpWC + _lpWR > _exitW - 2 * _minGap) {
+    const _sc = Math.max(0.3, (_exitW - 2 * _minGap) / (_lpWL + _lpWC + _lpWR));
+    _lpWL = Math.max(8, Math.round(_lpWL * _sc));
+    _lpWR = Math.max(8, Math.round(_lpWR * _sc));
+    _lpWC = Math.max(8, Math.round(_lpWC * _sc));
+  }
+  const _lpOff = Math.min(xs(25), Math.round(_exitW * 0.1));
+  pinballLaunchPads.push(new LaunchPad(lx_lp + _lpOff, 3060, _lpWL, '#ffea00',  Math.PI * 0.12));
+  pinballLaunchPads.push(new LaunchPad(rx_lp - _lpOff, 3060, _lpWR, '#ff3366', -Math.PI * 0.18));
+  pinballLaunchPads.push(new LaunchPad(cx,              3050, _lpWC, '#33ff57', 0, 1.1, Math.round(_lpWC * 0.49)));
 
   // ── 7. 핀(Peg) 배치 ──
   const gapX = 28, gapY = 28;
