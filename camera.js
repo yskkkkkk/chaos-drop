@@ -45,9 +45,10 @@ let exitZoomTimer = 0;           // 출구 줌인 잔여 프레임 (240 = 4초 @
 let exitZoomLeaderTriggered = false; // 거리 기반 트리거 중복 방지
 
 function resetCamera() {
+  const _initZoom = _DEVICE_MOBILE ? 1.35 : 1.0;
   cameraY = 0;
-  cameraZoom = 1.0;
-  cameraZoomTarget = 1.0;
+  cameraZoom = _initZoom;
+  cameraZoomTarget = _initZoom;
   cameraZoomVel = 0;
   camDramaTimer = 0;
   camDramaTarget = null;
@@ -103,18 +104,19 @@ function updateCamera(activeBalls, CH, VH) {
     // ── 줌: 단일 스프링 (k=0.007, d=0.85) ──────────────────
     // target만 상태에 따라 바뀌고, 스프링은 연속으로 동작.
     // 줌인·줌아웃 모두 같은 물리 — 경계에서 속도 점프 없음.
+    const _minZoom = _DEVICE_MOBILE ? 1.35 : 1.0;
     if (exitZoomTimer > 0) {
       cameraZoomTarget = 2.0;
     } else if (_anyInFunnel) {
-      cameraZoomTarget = 1.05;
+      cameraZoomTarget = _minZoom + 0.05;
     } else {
-      cameraZoomTarget = Math.max(1.0, Math.min(1.03, 1.03 - _spreadY * 0.0001));
+      cameraZoomTarget = Math.max(_minZoom, Math.min(_minZoom + 0.03, (_minZoom + 0.03) - _spreadY * 0.0001));
     }
     cameraZoomVel += (cameraZoomTarget - cameraZoom) * 0.007;
     cameraZoomVel *= 0.85;
     cameraZoomVel = Math.max(-0.08, Math.min(0.08, cameraZoomVel));
     cameraZoom += cameraZoomVel;
-    cameraZoom = Math.max(1.0, cameraZoom);
+    cameraZoom = Math.max(_minZoom, cameraZoom);
 
     // ── 카메라 Y ─────────────────────────────────────────────
     const _goalCamY = Math.max(0, GOAL_Y - CH * 0.7);

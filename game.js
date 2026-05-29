@@ -25,6 +25,7 @@ let pinballAccelLane = 0;
 let speedPadRotateTimer = 300;
 
 let pinballGameRunning = false;
+let _lbUpdateFrame = 0;
 let pinballConfettiParticles = [];
 let pinballNearMissSparks = [];
 let varChecking = false;
@@ -87,6 +88,7 @@ function animatePinball(currentTime) {
   const _fitScale = (_DEVICE_MOBILE && pinballCanvas.width < GAME_VWIDTH)
     ? pinballCanvas.width / GAME_VWIDTH : 1.0;
   const _vCH = _fitScale < 1.0 ? Math.round(CH / _fitScale) : CH;
+  window._RENDER_FIT_SCALE = _fitScale; // ball.js 폰트 크기 적응에 사용
 
   // VAR 슬로우모션 제어
   let shouldRunPhysics = true;
@@ -322,6 +324,14 @@ function animatePinball(currentTime) {
     ctx.restore();
     return p.life > 0;
   });
+
+  // 모바일 미니LB 주기 업데이트 (~30fps → 0.5초마다)
+  if (pinballGameRunning && _DEVICE_MOBILE) {
+    _lbUpdateFrame++;
+    if (_lbUpdateFrame % 18 === 0 && typeof updateMobileMiniLB === 'function') {
+      updateMobileMiniLB();
+    }
+  }
 
   // 모드별 순위 인디케이터
   if (pinballGameRunning) {
