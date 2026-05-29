@@ -218,6 +218,62 @@ body {
   margin-left: 2px;
 }
 
+/* 브라우저 기본 스피너 제거 */
+.stepper-input::-webkit-outer-spin-button,
+.stepper-input::-webkit-inner-spin-button {
+  -webkit-appearance: none; margin: 0;
+}
+.stepper-input[type=number] { -moz-appearance: textfield; }
+
+/* 일체형 스태퍼 박스 */
+.number-stepper {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: border-color 0.18s ease;
+}
+.stepper-input {
+  width: 100%;
+  padding: 6px 0;
+  border: 0 !important;
+  background: transparent !important;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  font-family: inherit;
+  cursor: default;
+  box-sizing: border-box;
+}
+.stepper-btn {
+  width: 28px;
+  align-self: stretch;
+  border: 0;
+  background: rgba(255, 255, 255, 0.01);
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.stepper-btn:hover {
+  background: rgba(255, 153, 0, 0.08);
+  color: var(--accent);
+}
+.stepper-btn.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* 가상 코드가 흐르는 터미널 로그 */
 #pinball-terminal {
   width: 100%;

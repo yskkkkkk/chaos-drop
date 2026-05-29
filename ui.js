@@ -16,6 +16,21 @@ function pinballLog(msg) {
   term.scrollTop = term.scrollHeight;
 }
 
+function updateStepperButtons() {
+  const winInput = document.getElementById('pinball-win-count');
+  const btnMinus = document.getElementById('btn-win-minus');
+  const btnPlus = document.getElementById('btn-win-plus');
+
+  if (!winInput || !btnMinus || !btnPlus) return;
+
+  const min = parseInt(winInput.min) || 1;
+  const max = parseInt(winInput.max) || 99;
+  const val = parseInt(winInput.value) || min;
+
+  btnMinus.classList.toggle('is-hidden', val <= min);
+  btnPlus.classList.toggle('is-hidden', val >= max);
+}
+
 function updateRuleLabels() {
   const winInput = document.getElementById('pinball-win-count');
   const specRankSelect = document.getElementById('pinball-specific-rank');
@@ -31,6 +46,8 @@ function updateRuleLabels() {
   if (lblFirst) lblFirst.textContent = `(${currentWinCount}명까지)`;
   if (lblLast) lblLast.textContent = `(${currentWinCount}명까지)`;
   if (lblSpecific) lblSpecific.textContent = `(${currentSpecificRank}등 단독)`;
+
+  updateStepperButtons();
 }
 
 function updatePreviewBalls() {
@@ -235,6 +252,29 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   if (specRankSelect) {
     specRankSelect.addEventListener('change', updateRuleLabels);
+  }
+
+  const btnMinus = document.getElementById('btn-win-minus');
+  const btnPlus = document.getElementById('btn-win-plus');
+
+  if (btnMinus && btnPlus && winCountInput) {
+    btnMinus.addEventListener('click', () => {
+      const min = parseInt(winCountInput.min) || 1;
+      let val = parseInt(winCountInput.value) || min;
+      if (val > min) {
+        winCountInput.value = val - 1;
+        winCountInput.dispatchEvent(new Event('input'));
+      }
+    });
+
+    btnPlus.addEventListener('click', () => {
+      const max = parseInt(winCountInput.max) || 99;
+      let val = parseInt(winCountInput.value) || 1;
+      if (val < max) {
+        winCountInput.value = val + 1;
+        winCountInput.dispatchEvent(new Event('input'));
+      }
+    });
   }
 
   const membersTA = document.getElementById('pinball-members');

@@ -66,7 +66,11 @@
     <div class="panel-grid-2">
       <div>
         <div class="panel-section-title" id="lbl-win-count">당첨 인원수</div>
-        <input type="number" id="pinball-win-count" min="1" max="11" value="2" class="panel-input">
+        <div class="number-stepper">
+          <button type="button" class="stepper-btn stepper-btn--minus" id="btn-win-minus" aria-label="감소">−</button>
+          <input type="number" id="pinball-win-count" min="1" max="11" value="2" class="stepper-input" readonly>
+          <button type="button" class="stepper-btn stepper-btn--plus" id="btn-win-plus" aria-label="증가">+</button>
+        </div>
       </div>
       <div>
         <div class="panel-section-title panel-title-dim" id="lbl-specific-rank">당첨 골인 순번</div>
