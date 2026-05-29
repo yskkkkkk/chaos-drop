@@ -799,9 +799,7 @@ body.theme-zigzag .map-seg-btn.active {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(6,7,13,0.97);
-  padding: 20px 16px 80px;
-  z-index: 50;
-  overflow-y: auto;
+  z-index: 350;
   box-sizing: border-box;
 }
 .mobile-full-lb-header {
