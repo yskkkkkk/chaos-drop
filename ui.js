@@ -422,6 +422,18 @@ window.addEventListener('DOMContentLoaded', () => {
     btnModalClose.addEventListener('click', () => {
       const modal = document.getElementById('pinball-result-modal');
       if (modal) modal.style.display = 'none';
+      const btnFloatHome = document.getElementById('btn-float-home');
+      if (btnFloatHome) btnFloatHome.style.display = '';
+    });
+  }
+
+  const btnFloatHome = document.getElementById('btn-float-home');
+  if (btnFloatHome) {
+    btnFloatHome.addEventListener('click', () => {
+      btnFloatHome.style.display = 'none';
+      exitMobileGameMode();
+      resetPinball();
+      if (pinballAnimId === null) animatePinball();
     });
   }
 
@@ -458,31 +470,44 @@ function updateMobileMiniLB() {
   const fullBody = document.getElementById('mobile-full-lb-body');
   if (!miniLb) return;
 
+  // 라이브 순위: 완주 순서 우선, 나머지는 y좌표(진행도) 내림차순
+  const finished = pinballFinishedBalls;
+  const active = (typeof pinballBalls !== 'undefined' ? pinballBalls : [])
+    .filter(b => !b.isFinished)
+    .sort((a, b) => b.y - a.y);
+  const allRanked = [...finished, ...active];
+
   const medals = ['🥇', '🥈', '🥉'];
-  const top3 = pinballFinishedBalls.slice(0, 3);
+  const top3 = allRanked.slice(0, 3);
   miniLb.innerHTML = top3.length === 0
-    ? '<div class="mobile-mini-lb-row" style="color:rgba(255,255,255,0.35);font-size:0.72rem;">대기 중...</div>'
-    : top3.map((b, i) => '<div class="mobile-mini-lb-row">' +
-        '<span>' + medals[i] + '</span>' +
-        '<span class="mobile-mini-dot" style="background:' + b.color + ';"></span>' +
-        '<span>' + b.name + '</span>' +
-        '</div>').join('');
+    ? '<div class="mobile-mini-lb-row" style="color:rgba(255,255,255,0.35);">대기 중...</div>'
+    : top3.map((b, i) => {
+        const dim = b.isFinished ? '' : 'opacity:0.72;';
+        return '<div class="mobile-mini-lb-row" style="' + dim + '">' +
+          '<span>' + medals[i] + '</span>' +
+          '<span class="mobile-mini-dot" style="background:' + b.color + ';"></span>' +
+          '<span>' + b.name + '</span>' +
+          '</div>';
+      }).join('') + '<div class="mobile-mini-lb-tap-hint">탭하여 순위 보기 ↗</div>';
 
   if (fullBody) {
-    if (pinballFinishedBalls.length === 0) {
-      fullBody.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.3);padding:20px 0;">아직 완주자가 없습니다.</div>';
+    if (allRanked.length === 0) {
+      fullBody.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.3);padding:20px 0;">경주 대기 중...</div>';
     } else {
-      const total = pinballBalls.length;
-      fullBody.innerHTML = pinballFinishedBalls.map((b, idx) => {
+      const total = typeof pinballBalls !== 'undefined' ? pinballBalls.length : allRanked.length;
+      fullBody.innerHTML = allRanked.map((b, idx) => {
         const rank = idx + 1;
         const isTop = (currentRule === 'first' && rank <= winCount)
                    || (currentRule === 'last' && rank > total - winCount)
                    || (currentRule === 'specific' && rank === specificRank);
-        return '<div style="display:flex;align-items:center;gap:10px;padding:8px 6px;border-bottom:1px solid rgba(255,255,255,0.04);">' +
-          '<span style="font-weight:800;width:30px;color:' + (isTop ? 'var(--accent)' : '#9ca3af') + ';">#' + rank + '</span>' +
-          '<span class="mobile-mini-dot" style="background:' + b.color + ';box-shadow:0 0 4px ' + b.color + ';width:8px;height:8px;"></span>' +
-          '<span style="font-weight:700;flex:1;font-size:0.85rem;">' + b.name + '</span>' +
-          '<span style="font-family:\'Courier New\',monospace;font-size:0.78rem;color:var(--neon-blue);">' + b.duration + 's</span>' +
+        const timeStr = b.isFinished
+          ? '<span style="color:var(--neon-blue);">' + b.duration + 's</span>'
+          : '<span style="color:rgba(255,255,255,0.28);">진행중</span>';
+        return '<div style="display:flex;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid rgba(255,255,255,0.05);">' +
+          '<span style="font-weight:800;width:32px;color:' + (isTop ? 'var(--accent)' : '#9ca3af') + ';">#' + rank + '</span>' +
+          '<span class="mobile-mini-dot" style="background:' + b.color + ';box-shadow:0 0 5px ' + b.color + ';width:9px;height:9px;"></span>' +
+          '<span style="font-weight:700;flex:1;font-size:0.9rem;' + (b.isFinished ? '' : 'opacity:0.78;') + '">' + b.name + '</span>' +
+          timeStr +
           '</div>';
       }).join('');
     }
@@ -499,28 +524,12 @@ function exitMobileGameMode() {
   document.body.classList.remove('mobile-game-active');
   const fullLb = document.getElementById('mobile-full-lb');
   if (fullLb) fullLb.style.display = 'none';
-  setMobileStep(1);
+  const btnFloatHome = document.getElementById('btn-float-home');
+  if (btnFloatHome) btnFloatHome.style.display = 'none';
 }
 
 function initMobileUI() {
-  // 패널에 초기 step 1 클래스 설정 (desktop에서는 무해)
-  setMobileStep(1);
-
-  const btnNext = document.getElementById('btn-mobile-next');
-  if (btnNext) {
-    btnNext.addEventListener('click', () => {
-      const ta = document.getElementById('pinball-members');
-      const members = ta ? ta.value.split(',').map(n => n.trim()).filter(n => n.length > 0) : [];
-      if (members.length < 2) {
-        alert('최소 2명 이상 입력해주세요.');
-        return;
-      }
-      setMobileStep(2);
-    });
-  }
-
-  const btnPrev = document.getElementById('btn-mobile-prev');
-  if (btnPrev) btnPrev.addEventListener('click', () => setMobileStep(1));
+  // 단일 페이지 설정화면 — step nav 미사용
 
   const miniLb = document.getElementById('mobile-mini-lb');
   const fullLb = document.getElementById('mobile-full-lb');

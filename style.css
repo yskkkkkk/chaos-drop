@@ -714,31 +714,17 @@ body.theme-zigzag .map-seg-btn.active {
     max-width: 100%;
     height: 100%;
     border-radius: 0;
-    padding: 20px 16px 72px;
+    padding: 20px 16px 20px;
     z-index: 20;
     border: none;
     box-shadow: none;
   }
 
-  /* Step 가시성 */
-  .pinball-control-panel.ms-1 [data-ms="2"] { display: none; }
-  .pinball-control-panel.ms-2 [data-ms="1"] { display: none; }
-
-  /* Wizard에서 리더보드 숨김 */
+  /* 단일 페이지 설정 (step 위저드 비활성) */
   .pinball-control-panel .leaderboard-container { display: none; }
 
-  /* 스텝 내비게이션 */
-  .mobile-step-nav {
-    display: flex;
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    padding: 12px 16px;
-    background: var(--bg-dark);
-    border-top: 1px solid rgba(255,255,255,0.08);
-    align-items: center;
-    justify-content: space-between;
-    z-index: 1;
-  }
+  /* 스텝 내비게이션 — 단일 페이지 전환으로 숨김 */
+  .mobile-step-nav { display: none !important; }
   .mobile-step-indicator {
     font-size: 0.8rem;
     color: rgba(255,255,255,0.45);
@@ -776,23 +762,33 @@ body.theme-zigzag .map-seg-btn.active {
 
 /* 미니 리더보드 칩 */
 .mobile-mini-lb {
-  background: rgba(0,0,0,0.75);
-  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.82);
+  border: 1px solid rgba(255,220,80,0.35);
   border-radius: 12px;
-  padding: 8px 12px;
-  min-width: 130px;
+  padding: 8px 12px 6px;
+  min-width: 145px;
   cursor: pointer;
   user-select: none;
   backdrop-filter: blur(8px);
+  box-shadow: 0 0 0 1px rgba(255,220,80,0.1), 0 4px 16px rgba(0,0,0,0.4);
+  transition: border-color 0.2s;
+}
+.mobile-mini-lb:active { border-color: rgba(255,220,80,0.7); }
+.mobile-mini-lb-tap-hint {
+  font-size: 0.6rem;
+  color: rgba(255,220,80,0.55);
+  text-align: right;
+  letter-spacing: 0.3px;
+  padding-top: 3px;
 }
 .mobile-mini-lb-row {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 0.75rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: #fff;
-  line-height: 1.75;
+  line-height: 1.8;
 }
 .mobile-mini-dot {
   display: inline-block;
@@ -851,6 +847,30 @@ body.theme-zigzag .map-seg-btn.active {
   letter-spacing: 0.3px;
 }
 .mobile-reset-btn:active { background: rgba(255,40,40,0.1); border-color: rgba(255,40,40,0.2); }
+
+/* 팝업 닫기 후 플로팅 홈 버튼 */
+.float-home-btn {
+  position: fixed;
+  bottom: 28px; right: 20px;
+  z-index: 300;
+  padding: 13px 22px;
+  background: linear-gradient(135deg, #ff6b35, #ff9a00);
+  border: none;
+  border-radius: 50px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(255,120,50,0.5);
+  animation: float-pulse 1.8s ease-in-out infinite;
+}
+.float-home-btn:active { transform: scale(0.96); }
+@keyframes float-pulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(255,120,50,0.5); }
+  50%       { box-shadow: 0 4px 30px rgba(255,120,50,0.8); }
+}
 
 /* 회전 안내 오버레이 */
 #mobile-rotate-overlay {
