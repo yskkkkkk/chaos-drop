@@ -70,7 +70,7 @@ function updateCamera(activeBalls, CH, VH) {
     // ── 출구 줌인 (최우선) ──────────────────────────────────
     if (exitZoomTimer > 0) {
       exitZoomTimer--;
-      const _goalCamY = Math.max(0, Math.min(GOAL_Y - CH * 0.5, VH - CH));
+      const _goalCamY = Math.max(0, GOAL_Y - CH * 0.5);
       cameraY += (_goalCamY - cameraY) * 0.08;
       cameraZoomVel += (2.0 - cameraZoom) * 0.01;
       cameraZoomVel *= 0.85;
