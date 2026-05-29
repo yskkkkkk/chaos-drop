@@ -62,7 +62,7 @@ function switchMap(mapId) {
 function applyMapZonePhysics(ball)        { MAPS[currentMapId]?.applyPhysics?.(ball); }
 function drawCurrentMapLayer(ctx, v0, v1) { MAPS[currentMapId]?.drawLayer?.(ctx, v0, v1); }
 function recoverCurrentMapIslandTunnel()  { MAPS[currentMapId]?.recoverTunnel?.(); }
-function initPinballMap()                 { MAPS[currentMapId]?.init?.(); _applyMapTheme(); }
+function initPinballMap()                 { MAPS[currentMapId]?.init?.(); _applyMapTheme(); sortPegsForCollision(); }
 
 // ── 메인 루프 ─────────────────────────────────────────────────
 
@@ -474,7 +474,7 @@ function animatePinball(currentTime) {
 
   // H. HUD 진행 바
   const barX = GAME_X_OFFSET + GAME_VWIDTH + 10;
-  const barH = window.innerHeight - 80;
+  const barH = pinballCanvas.height - 80;
   const barY = 40;
 
   ctx.fillStyle = 'rgba(255,255,255,0.04)';
