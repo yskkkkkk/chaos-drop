@@ -194,7 +194,8 @@ class RacingBall {
         ctx.save();
         ctx.globalAlpha = 0.96;
         ctx.fillStyle = 'rgba(255,255,255,0.98)';
-        ctx.font = '900 16px Outfit, sans-serif';
+        const fontSize = this.finishRank >= 10 ? '11px' : '13px';
+        ctx.font = `900 ${fontSize} Outfit, sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.shadowBlur = 4;
