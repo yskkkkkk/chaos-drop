@@ -24,8 +24,8 @@ function updatePreviewBalls() {
   const members = ta.value.split(',').map(n => n.trim()).filter(n => n.length > 0);
   pinballBalls = [];
 
-  const btnShuffle = document.getElementById('btn-shuffle-members');
-  if (btnShuffle) btnShuffle.innerText = `순서섞기 (${members.length}명)`;
+  const cnt = document.getElementById('member-count');
+  if (cnt) cnt.textContent = `${members.length}명`;
 
   if (members.length === 0) return;
   const spacing = GAME_VWIDTH / (members.length + 1);
@@ -196,12 +196,12 @@ window.addEventListener('DOMContentLoaded', () => {
         specRankSelect.disabled = false;
         specRankSelect.style.cursor = 'pointer';
         specRankSelect.style.opacity = '1.0';
-        if (lblSpecificRank) lblSpecificRank.style.color = 'var(--aws-orange)';
+        if (lblSpecificRank) lblSpecificRank.style.color = 'var(--accent)';
       } else {
         winCountInput.disabled = false;
         winCountInput.style.cursor = 'text';
         winCountInput.style.opacity = '1.0';
-        if (lblWinCount) lblWinCount.style.color = 'var(--aws-orange)';
+        if (lblWinCount) lblWinCount.style.color = 'var(--accent)';
 
         specRankSelect.disabled = true;
         specRankSelect.style.cursor = 'not-allowed';

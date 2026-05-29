@@ -140,7 +140,7 @@ function showWinningPopup(winners) {
 
   if (currentRule === 'first') {
     badgeEl.innerText = `선착순 ${winCount}명 당첨!`;
-    badgeEl.style.color = 'var(--aws-orange)';
+    badgeEl.style.color = 'var(--accent)';
   } else if (currentRule === 'last') {
     badgeEl.innerText = `후착순(꼴찌) ${winCount}명 당첨!`;
     badgeEl.style.color = '#8c52ff';

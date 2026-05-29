@@ -2,7 +2,7 @@
   --bg-dark: #06070d;
   --bg-card: rgba(10, 12, 26, 0.72);
   --border-card: rgba(255, 255, 255, 0.08);
-  --aws-orange: #ff9900;
+  --accent: #ff9900;
   --neon-violet: #8c52ff;
   --neon-blue: #00f0ff;
   --text-main: #f3f4f6;
@@ -102,7 +102,7 @@ body {
 .map-seg-btn:hover:not(.active):not(.locked) { color: rgba(255,255,255,0.85); }
 .map-seg-btn.active {
   background: rgba(255,153,0,0.18);
-  color: var(--aws-orange);
+  color: var(--accent);
   box-shadow: inset 0 0 0 1px rgba(255,153,0,0.35);
 }
 .map-seg-btn.locked {
@@ -111,11 +111,37 @@ body {
 }
 .map-seg-btn.locked::after { content: " 🔒"; font-size: 0.6rem; }
 
+/* 셔플 아이콘 버튼 + 인원수 텍스트 */
+.member-count {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.45);
+  margin-left: 4px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.shuffle-btn {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: var(--text-main);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  flex-shrink: 0;
+}
+.shuffle-btn:hover { background: rgba(255,153,0,0.15); border-color: rgba(255,153,0,0.3); }
+
 /* 설정 타이틀 */
 .panel-section-title {
   font-size: 0.8rem;
   font-weight: 700;
-  color: var(--aws-orange);
+  color: var(--accent);
   letter-spacing: 1.5px;
   text-transform: uppercase;
   margin-bottom: 2px;
@@ -139,7 +165,7 @@ body {
 }
 
 .panel-textarea:focus {
-  border-color: var(--aws-orange);
+  border-color: var(--accent);
 }
 
 /* 라디오 그룹 포맷 */
@@ -164,7 +190,7 @@ body {
 }
 
 .rule-radio-item input[type="radio"] {
-  accent-color: var(--aws-orange);
+  accent-color: var(--accent);
   cursor: pointer;
   width: 14px;
   height: 14px;
@@ -200,7 +226,7 @@ body {
 }
 
 .btn-orange {
-  background: linear-gradient(90deg, var(--aws-orange), #ffb700);
+  background: linear-gradient(90deg, var(--accent), #ffb700);
   box-shadow: 0 4px 15px rgba(255, 153, 0, 0.2);
 }
 .btn-orange:hover:not(:disabled) {
@@ -230,7 +256,7 @@ body {
 .badge.orange {
   background: rgba(255, 153, 0, 0.12);
   border-color: rgba(255, 153, 0, 0.25);
-  color: var(--aws-orange);
+  color: var(--accent);
 }
 
 /* 실시간 리더보드 테이블 */
@@ -270,18 +296,18 @@ body {
   width: 32px;
 }
 .leaderboard-rank.top-rank {
-  color: var(--aws-orange);
+  color: var(--accent);
 }
 
 /* 당첨 오버레이 팝업 카드 (중앙 플로팅 연출) */
 .pinball-modal {
   position: absolute;
   top: 50%;
-  left: 58%;
+  left: clamp(50%, calc(50% + 200px), calc(100% - 250px));
   transform: translate(-50%, -50%);
   width: 450px;
   background: rgba(18, 20, 38, 0.95);
-  border: 2px solid var(--aws-orange);
+  border: 2px solid var(--accent);
   border-radius: 24px;
   padding: 36px;
   text-align: center;
@@ -300,7 +326,7 @@ body {
 
 .modal-winner-badge {
   font-size: 0.82rem;
-  color: var(--aws-orange);
+  color: var(--accent);
   font-weight: 700;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -447,7 +473,7 @@ body.theme-zigzag {
   --bg-dark:     #180a04;
   --bg-card:     rgba(28, 14, 6, 0.84);
   --border-card: rgba(140, 75, 47, 0.22);
-  --aws-orange:  #C7865A;
+  --accent:  #C7865A;
   --neon-violet: #8C4B2F;
   --neon-blue:   #D8B08C;
   background-color: var(--bg-dark) !important;
@@ -483,3 +509,9 @@ body.theme-zigzag .panel-toggle-row {
 body.theme-zigzag .panel-toggle-checkbox { accent-color: #D8B08C; }
 
 body.theme-zigzag .panel-toggle-label { color: #D8B08C; }
+
+body.theme-zigzag .map-seg-btn.active {
+  background: rgba(199,134,90,0.2);
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1px rgba(199,134,90,0.4);
+}
