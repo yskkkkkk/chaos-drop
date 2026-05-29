@@ -851,26 +851,22 @@ body.theme-zigzag .map-seg-btn.active {
 /* 팝업 닫기 후 플로팅 홈 버튼 */
 .float-home-btn {
   position: fixed;
-  bottom: 28px; right: 20px;
+  top: 20px; left: 50%; transform: translateX(-50%);
   z-index: 300;
-  padding: 13px 22px;
-  background: linear-gradient(135deg, #ff6b35, #ff9a00);
-  border: none;
+  padding: 10px 24px;
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.55);
   border-radius: 50px;
-  color: #fff;
+  color: rgba(255,255,255,0.85);
   font-family: inherit;
-  font-size: 0.88rem;
-  font-weight: 800;
+  font-size: 0.82rem;
+  font-weight: 700;
   letter-spacing: 0.3px;
   cursor: pointer;
-  box-shadow: 0 4px 20px rgba(255,120,50,0.5);
-  animation: float-pulse 1.8s ease-in-out infinite;
+  backdrop-filter: blur(6px);
+  white-space: nowrap;
 }
-.float-home-btn:active { transform: scale(0.96); }
-@keyframes float-pulse {
-  0%, 100% { box-shadow: 0 4px 20px rgba(255,120,50,0.5); }
-  50%       { box-shadow: 0 4px 30px rgba(255,120,50,0.8); }
-}
+.float-home-btn:active { background: rgba(255,255,255,0.08); }
 
 /* 회전 안내 오버레이 */
 #mobile-rotate-overlay {

@@ -292,11 +292,6 @@ class RacingBall {
     ctx.restore();
 
     ctx.save();
-    // 모바일 fit-scale 보상: 화면에 ~12px 이상 렌더되도록 가상 좌표 폰트 크기 조정
-    const _fs = (typeof window._RENDER_FIT_SCALE === 'number' && window._RENDER_FIT_SCALE < 1)
-      ? window._RENDER_FIT_SCALE : 1.0;
-    const _namePx  = Math.round(10 / Math.max(_fs, 0.3));
-    const _freezePx = Math.round(11 / Math.max(_fs, 0.3));
     ctx.shadowBlur = 2 * QUALITY;
     ctx.shadowColor = 'rgba(0,0,0,0.9)';
     if (this.nearMissTimer > 0) {
@@ -304,13 +299,13 @@ class RacingBall {
       ctx.fillStyle = blink ? '#00f0ff' : '#ffffff';
       ctx.shadowBlur = (blink ? 8 : 4) * QUALITY;
       ctx.shadowColor = '#00f0ff';
-      ctx.font = 'bold ' + _freezePx + 'px Outfit, sans-serif';
+      ctx.font = 'bold 12px Outfit, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('❄ Freeze!', this.x, this.y - this.r - 18);
-      ctx.font = 'bold ' + (_namePx + 2) + 'px Outfit, sans-serif';
+      ctx.font = 'bold 13px Outfit, sans-serif';
     } else {
       ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-      ctx.font = 'bold ' + _namePx + 'px Outfit, sans-serif';
+      ctx.font = 'bold 10px Outfit, sans-serif';
       ctx.textAlign = 'center';
     }
     ctx.fillText(this.name, this.x, this.y - this.r - 4);

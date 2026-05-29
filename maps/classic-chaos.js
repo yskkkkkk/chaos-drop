@@ -28,9 +28,9 @@ function classicChaos_generateWallProfile() {
       lastLx = TUNNEL_LEFT_X;
       lastRx = TUNNEL_RIGHT_X;
     } else {
-      const lx = Math.random() < 0.70 ? 10 + Math.random() * 180 : 0;
-      const rx = GAME_VWIDTH - (Math.random() < 0.70 ? 10 + Math.random() * 180 : 0);
-      const safeRx = Math.max(rx, lx + 300);
+      const lx = Math.random() < 0.70 ? Math.round(10*BOARD_XSCALE) + Math.random() * Math.round(180*BOARD_XSCALE) : 0;
+      const rx = GAME_VWIDTH - (Math.random() < 0.70 ? Math.round(10*BOARD_XSCALE) + Math.random() * Math.round(180*BOARD_XSCALE) : 0);
+      const safeRx = Math.max(rx, lx + Math.round(300 * BOARD_XSCALE));
       lastLx = lx;
       lastRx = Math.min(safeRx, GAME_VWIDTH);
     }
@@ -66,21 +66,22 @@ function classicChaos_generateWallProfile() {
 function _cc_applyPhysics(ball) {
   if (ball.y < TUNNEL_TOP_Y || ball.y > TUNNEL_BOTTOM_Y) return;
 
+  const _I1C = TUNNEL_BARRIER1_X, _I1HW = Math.round(30 * BOARD_XSCALE);
+  const _I2C = TUNNEL_BARRIER2_X, _I2HW = Math.round(30 * BOARD_XSCALE);
   // 육각형 다이아몬드 섬 1 충돌
-  collideBallWithSegment(ball, 325, 1500, 355, 1530);
-  collideBallWithSegment(ball, 355, 1530, 355, 1870);
-  collideBallWithSegment(ball, 355, 1870, 325, 1900);
-  collideBallWithSegment(ball, 325, 1900, 295, 1870);
-  collideBallWithSegment(ball, 295, 1870, 295, 1530);
-  collideBallWithSegment(ball, 295, 1530, 325, 1500);
-
+  collideBallWithSegment(ball, _I1C,        1500, _I1C+_I1HW, 1530);
+  collideBallWithSegment(ball, _I1C+_I1HW,  1530, _I1C+_I1HW, 1870);
+  collideBallWithSegment(ball, _I1C+_I1HW,  1870, _I1C,       1900);
+  collideBallWithSegment(ball, _I1C,        1900, _I1C-_I1HW, 1870);
+  collideBallWithSegment(ball, _I1C-_I1HW,  1870, _I1C-_I1HW, 1530);
+  collideBallWithSegment(ball, _I1C-_I1HW,  1530, _I1C,       1500);
   // 육각형 다이아몬드 섬 2 충돌
-  collideBallWithSegment(ball, 500, 1500, 530, 1530);
-  collideBallWithSegment(ball, 530, 1530, 530, 1870);
-  collideBallWithSegment(ball, 530, 1870, 500, 1900);
-  collideBallWithSegment(ball, 500, 1900, 470, 1870);
-  collideBallWithSegment(ball, 470, 1870, 470, 1530);
-  collideBallWithSegment(ball, 470, 1530, 500, 1500);
+  collideBallWithSegment(ball, _I2C,        1500, _I2C+_I2HW, 1530);
+  collideBallWithSegment(ball, _I2C+_I2HW,  1530, _I2C+_I2HW, 1870);
+  collideBallWithSegment(ball, _I2C+_I2HW,  1870, _I2C,       1900);
+  collideBallWithSegment(ball, _I2C,        1900, _I2C-_I2HW, 1870);
+  collideBallWithSegment(ball, _I2C-_I2HW,  1870, _I2C-_I2HW, 1530);
+  collideBallWithSegment(ball, _I2C-_I2HW,  1530, _I2C,       1500);
 
   // 3레인 가속/감속 물리
   let ballLane = 0;
@@ -116,7 +117,7 @@ function _cc_drawLayer(ctx, visY0, visY1) {
   ctx.rect(TUNNEL_LEFT_X, TUNNEL_TOP_Y, tunnelW, tunnelH);
   ctx.clip();
 
-  const laneWidth = 115;
+  const laneWidth = Math.round((TUNNEL_RIGHT_X - TUNNEL_LEFT_X - 2 * TUNNEL_BARRIER_W) / 3);
   const flowDownSpeed = (Date.now() / 20) % 80;
   const flowUpSpeed   = (Date.now() / 20) % 80;
 
@@ -174,19 +175,17 @@ function _cc_drawLayer(ctx, visY0, visY1) {
   ctx.shadowBlur = 6;
   ctx.shadowColor = '#00f0ff';
 
+  const _rI1C = TUNNEL_BARRIER1_X, _rHW1 = Math.round(30 * BOARD_XSCALE);
+  const _rI2C = TUNNEL_BARRIER2_X, _rHW2 = Math.round(30 * BOARD_XSCALE);
   ctx.beginPath();
-  ctx.moveTo(325, 1500); ctx.lineTo(355, 1530); ctx.lineTo(355, 1870);
-  ctx.lineTo(325, 1900); ctx.lineTo(295, 1870); ctx.lineTo(295, 1530);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
+  ctx.moveTo(_rI1C, 1500); ctx.lineTo(_rI1C+_rHW1, 1530); ctx.lineTo(_rI1C+_rHW1, 1870);
+  ctx.lineTo(_rI1C, 1900); ctx.lineTo(_rI1C-_rHW1, 1870); ctx.lineTo(_rI1C-_rHW1, 1530);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
 
   ctx.beginPath();
-  ctx.moveTo(500, 1500); ctx.lineTo(530, 1530); ctx.lineTo(530, 1870);
-  ctx.lineTo(500, 1900); ctx.lineTo(470, 1870); ctx.lineTo(470, 1530);
-  ctx.closePath();
-  ctx.fill();
-  ctx.stroke();
+  ctx.moveTo(_rI2C, 1500); ctx.lineTo(_rI2C+_rHW2, 1530); ctx.lineTo(_rI2C+_rHW2, 1870);
+  ctx.lineTo(_rI2C, 1900); ctx.lineTo(_rI2C-_rHW2, 1870); ctx.lineTo(_rI2C-_rHW2, 1530);
+  ctx.closePath(); ctx.fill(); ctx.stroke();
 
   ctx.restore();
 }
@@ -198,8 +197,8 @@ function _cc_recoverTunnel() {
     if (ball.isFinished) return;
     if (ball.y < 1500 || ball.y > 1900) return;
 
-    [325, 500].forEach(islandX => {
-      let halfW = 30;
+    [TUNNEL_BARRIER1_X, TUNNEL_BARRIER2_X].forEach(islandX => {
+      let halfW = Math.round(30 * BOARD_XSCALE);
       if (ball.y < 1530)      halfW = ball.y - 1500;
       else if (ball.y > 1870) halfW = 1900 - ball.y;
 
@@ -231,6 +230,7 @@ function classicChaos_init() {
 
   const W  = GAME_VWIDTH;
   const cx = W / 2;
+  const xs = v => Math.round(v * BOARD_XSCALE); // x좌표 스케일 헬퍼
 
   const rj = (v, range, lo = 40, hi = W - 40) =>
     Math.max(lo, Math.min(hi, v + (Math.random() - 0.5) * 2 * range));
@@ -288,14 +288,14 @@ function classicChaos_init() {
   // ── 1. 포탈 ──
   const portalAlphaInY  = rjy(720, 50);
   const portalAlphaOutY = Math.max(160, portalAlphaInY - (350 + Math.random() * 150));
-  const paInX  = clampToWall(rj(160, 70), portalAlphaInY,  PORTAL_R, 20);
-  const paOutX = clampToWall(rj(660, 70), portalAlphaOutY, PORTAL_R, 20);
+  const paInX  = clampToWall(rj(xs(160), xs(70)), portalAlphaInY,  PORTAL_R, 20);
+  const paOutX = clampToWall(rj(xs(660), xs(70)), portalAlphaOutY, PORTAL_R, 20);
   pinballPortals.push(new TeleportPortal(paInX, portalAlphaInY, paOutX, portalAlphaOutY, '#00f0ff', 'PORTAL-α'));
 
   const portalBetaInY  = rjy(2520, 60);
   const portalBetaOutY = Math.max(2050, portalBetaInY - (300 + Math.random() * 120));
-  const pbInX  = clampToWall(rj(220, 70), portalBetaInY,  PORTAL_R, 20);
-  const pbOutX = clampToWall(rj(600, 70), portalBetaOutY, PORTAL_R, 20);
+  const pbInX  = clampToWall(rj(xs(220), xs(70)), portalBetaInY,  PORTAL_R, 20);
+  const pbOutX = clampToWall(rj(xs(600), xs(70)), portalBetaOutY, PORTAL_R, 20);
   pinballPortals.push(new TeleportPortal(pbInX, portalBetaInY, pbOutX, portalBetaOutY, '#ff9900', 'PORTAL-β'));
 
   const pa = pinballPortals[0];
@@ -306,54 +306,54 @@ function classicChaos_init() {
   placedGimmicks.push({ x: pb.x2, y: pb.y2, r: PORTAL_R });
 
   // ── 2. 슈퍼 범퍼 ──
-  tryPlaceGimmick(1000, 40, 20, cx,  80, (x, y) => { if(gkeep(y)) pinballBumpers.push(new SuperBumper(x, y, 20, '#ff9900')); });
-  tryPlaceGimmick(1180, 40, 18, 185, 60, (x, y) => { if(gkeep(y)) pinballBumpers.push(new SuperBumper(x, y, 18, '#00f0ff')); });
-  tryPlaceGimmick(1180, 40, 18, 640, 60, (x, y) => { if(gkeep(y)) pinballBumpers.push(new SuperBumper(x, y, 18, '#00f0ff')); });
-  tryPlaceGimmick(1350, 45, 22, cx,  80, (x, y) => { if(gkeep(y)) pinballBumpers.push(new SuperBumper(x, y, 22, '#8c52ff')); });
-  tryPlaceGimmick(2120, 40, 18, 140, 60, (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 18, '#ff9900')); });
-  tryPlaceGimmick(2120, 40, 18, 685, 60, (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 18, '#ff9900')); });
-  tryPlaceGimmick(2350, 45, 22, cx,  60, (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 22, '#00f0ff')); });
-  tryPlaceGimmick(2500, 40, 20, 280, 60, (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 20, '#8c52ff')); });
-  tryPlaceGimmick(2500, 40, 20, 545, 60, (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 20, '#8c52ff')); });
-  tryPlaceGimmick(2680, 30, 22, cx,  60, (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 22, '#ff9900')); });
+  tryPlaceGimmick(1000, 40, 20, cx,        xs(80), (x, y) => { if(gkeep(y)) pinballBumpers.push(new SuperBumper(x, y, 20, '#ff9900')); });
+  tryPlaceGimmick(1180, 40, 18, xs(185),   xs(60), (x, y) => { if(gkeep(y)) pinballBumpers.push(new SuperBumper(x, y, 18, '#00f0ff')); });
+  tryPlaceGimmick(1180, 40, 18, xs(640),   xs(60), (x, y) => { if(gkeep(y)) pinballBumpers.push(new SuperBumper(x, y, 18, '#00f0ff')); });
+  tryPlaceGimmick(1350, 45, 22, cx,        xs(80), (x, y) => { if(gkeep(y)) pinballBumpers.push(new SuperBumper(x, y, 22, '#8c52ff')); });
+  tryPlaceGimmick(2120, 40, 18, xs(140),   xs(60), (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 18, '#ff9900')); });
+  tryPlaceGimmick(2120, 40, 18, xs(685),   xs(60), (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 18, '#ff9900')); });
+  tryPlaceGimmick(2350, 45, 22, cx,        xs(60), (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 22, '#00f0ff')); });
+  tryPlaceGimmick(2500, 40, 20, xs(280),   xs(60), (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 20, '#8c52ff')); });
+  tryPlaceGimmick(2500, 40, 20, xs(545),   xs(60), (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 20, '#8c52ff')); });
+  tryPlaceGimmick(2680, 30, 22, cx,        xs(60), (x, y) => { pinballBumpers.push(new SuperBumper(x, y, 22, '#ff9900')); });
 
   // ── 3. 스피너 ──
-  tryPlaceGimmick(950,  30, 31, cx,  80, (x, y) => { if(gkeep(y)) pinballSpinners.push(new Spinner(x, y, 31, '#8c52ff')); });
-  tryPlaceGimmick(1250, 40, 26, 140, 60, (x, y) => { if(gkeep(y)) pinballSpinners.push(new Spinner(x, y, 26, '#ff9900')); });
-  tryPlaceGimmick(1250, 40, 26, 685, 60, (x, y) => { if(gkeep(y)) pinballSpinners.push(new Spinner(x, y, 26, '#ff9900')); });
-  tryPlaceGimmick(1450, 30, 31, cx,  80, (x, y) => { if(gkeep(y)) pinballSpinners.push(new Spinner(x, y, 31, '#00f0ff')); });
-  tryPlaceGimmick(1100, 120, 28, cx, 200, (x, y) => { pinballSpinners.push(new Spinner(x, y, 28, '#8c52ff')); });
-  tryPlaceGimmick(1380, 100, 28, cx, 200, (x, y) => { pinballSpinners.push(new Spinner(x, y, 28, '#ffea00')); });
-  tryPlaceGimmick(2050, 35, 24, 180, 60, (x, y) => { pinballSpinners.push(new Spinner(x, y, 24, '#8c52ff')); });
-  tryPlaceGimmick(2050, 35, 24, 645, 60, (x, y) => { pinballSpinners.push(new Spinner(x, y, 24, '#8c52ff')); });
-  tryPlaceGimmick(2250, 40, 29, cx,  60, (x, y) => { pinballSpinners.push(new Spinner(x, y, 29, '#ff9900')); });
-  tryPlaceGimmick(2420, 40, 29, cx,  60, (x, y) => { pinballSpinners.push(new Spinner(x, y, 29, '#00f0ff')); });
-  tryPlaceGimmick(2600, 40, 31, cx,  60, (x, y) => { pinballSpinners.push(new Spinner(x, y, 31, '#8c52ff')); });
+  tryPlaceGimmick(950,  30, 31, cx,        xs(80),  (x, y) => { if(gkeep(y)) pinballSpinners.push(new Spinner(x, y, 31, '#8c52ff')); });
+  tryPlaceGimmick(1250, 40, 26, xs(140),   xs(60),  (x, y) => { if(gkeep(y)) pinballSpinners.push(new Spinner(x, y, 26, '#ff9900')); });
+  tryPlaceGimmick(1250, 40, 26, xs(685),   xs(60),  (x, y) => { if(gkeep(y)) pinballSpinners.push(new Spinner(x, y, 26, '#ff9900')); });
+  tryPlaceGimmick(1450, 30, 31, cx,        xs(80),  (x, y) => { if(gkeep(y)) pinballSpinners.push(new Spinner(x, y, 31, '#00f0ff')); });
+  tryPlaceGimmick(1100, 120, 28, cx,       xs(200), (x, y) => { pinballSpinners.push(new Spinner(x, y, 28, '#8c52ff')); });
+  tryPlaceGimmick(1380, 100, 28, cx,       xs(200), (x, y) => { pinballSpinners.push(new Spinner(x, y, 28, '#ffea00')); });
+  tryPlaceGimmick(2050, 35, 24, xs(180),   xs(60),  (x, y) => { pinballSpinners.push(new Spinner(x, y, 24, '#8c52ff')); });
+  tryPlaceGimmick(2050, 35, 24, xs(645),   xs(60),  (x, y) => { pinballSpinners.push(new Spinner(x, y, 24, '#8c52ff')); });
+  tryPlaceGimmick(2250, 40, 29, cx,        xs(60),  (x, y) => { pinballSpinners.push(new Spinner(x, y, 29, '#ff9900')); });
+  tryPlaceGimmick(2420, 40, 29, cx,        xs(60),  (x, y) => { pinballSpinners.push(new Spinner(x, y, 29, '#00f0ff')); });
+  tryPlaceGimmick(2600, 40, 31, cx,        xs(60),  (x, y) => { pinballSpinners.push(new Spinner(x, y, 31, '#8c52ff')); });
 
   // ── 4. 와류 ──
-  tryPlaceGimmick(1080, 40, 75, 290, 60, (x, y) => { pinballVortexes.push(new SlowVortex(x, y, 75, '#8c52ff')); });
-  tryPlaceGimmick(1300, 40, 75, 535, 60, (x, y) => { pinballVortexes.push(new SlowVortex(x, y, 75, '#8c52ff')); });
-  tryPlaceGimmick(2200, 40, 78, 240, 60, (x, y) => { pinballVortexes.push(new SlowVortex(x, y, 78, '#8c52ff')); });
-  tryPlaceGimmick(2480, 40, 78, 585, 60, (x, y) => { pinballVortexes.push(new SlowVortex(x, y, 78, '#8c52ff')); });
-  tryPlaceGimmick(2650, 40, 83, cx,  60, (x, y) => { pinballVortexes.push(new SlowVortex(x, y, 83, '#8c52ff')); });
+  tryPlaceGimmick(1080, 40, 75, xs(290),   xs(60), (x, y) => { pinballVortexes.push(new SlowVortex(x, y, 75, '#8c52ff')); });
+  tryPlaceGimmick(1300, 40, 75, xs(535),   xs(60), (x, y) => { pinballVortexes.push(new SlowVortex(x, y, 75, '#8c52ff')); });
+  tryPlaceGimmick(2200, 40, 78, xs(240),   xs(60), (x, y) => { pinballVortexes.push(new SlowVortex(x, y, 78, '#8c52ff')); });
+  tryPlaceGimmick(2480, 40, 78, xs(585),   xs(60), (x, y) => { pinballVortexes.push(new SlowVortex(x, y, 78, '#8c52ff')); });
+  tryPlaceGimmick(2650, 40, 83, cx,        xs(60), (x, y) => { pinballVortexes.push(new SlowVortex(x, y, 83, '#8c52ff')); });
 
   // ── 5. 발사대 ──
-  tryPlaceGimmick(1020, 30, 110/2+15, cx,  50, (x, y) => { if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(x, y, 110, '#ff3366', randAngle())); });
-  tryPlaceGimmick(1200, 40, 90/2+15,  190, 50, (x, y) => { if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(x, y, 90,  '#ffea00', randAngle())); });
-  tryPlaceGimmick(1200, 40, 90/2+15,  635, 50, (x, y) => { if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(x, y, 90,  '#ffea00', randAngle())); });
-  tryPlaceGimmick(1400, 40, 120/2+15, cx,  50, (x, y) => { if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(x, y, 120, '#ff3366', randAngle())); });
-  tryPlaceGimmick(2150, 35, 70/2+15,  170, 50, (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 70,  '#33ff57', randAngle())); });
-  tryPlaceGimmick(2150, 35, 70/2+15,  655, 50, (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 70,  '#33ff57', randAngle())); });
-  tryPlaceGimmick(2300, 40, 130/2+15, cx,  50, (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 130, '#ff3366', randAngle())); });
-  tryPlaceGimmick(2450, 40, 90/2+15,  250, 50, (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 90,  '#ffea00', randAngle())); });
-  tryPlaceGimmick(2450, 40, 90/2+15,  575, 50, (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 90,  '#ffea00', randAngle())); });
-  tryPlaceGimmick(2620, 35, 70/2+15,  cx,  50, (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 70,  '#33ff57', randAngle())); });
+  tryPlaceGimmick(1020, 30, 110/2+15, cx,        xs(50), (x, y) => { if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(x, y, 110, '#ff3366', randAngle())); });
+  tryPlaceGimmick(1200, 40, 90/2+15,  xs(190),   xs(50), (x, y) => { if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(x, y, 90,  '#ffea00', randAngle())); });
+  tryPlaceGimmick(1200, 40, 90/2+15,  xs(635),   xs(50), (x, y) => { if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(x, y, 90,  '#ffea00', randAngle())); });
+  tryPlaceGimmick(1400, 40, 120/2+15, cx,        xs(50), (x, y) => { if(gkeep(y)) pinballLaunchPads.push(new LaunchPad(x, y, 120, '#ff3366', randAngle())); });
+  tryPlaceGimmick(2150, 35, 70/2+15,  xs(170),   xs(50), (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 70,  '#33ff57', randAngle())); });
+  tryPlaceGimmick(2150, 35, 70/2+15,  xs(655),   xs(50), (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 70,  '#33ff57', randAngle())); });
+  tryPlaceGimmick(2300, 40, 130/2+15, cx,        xs(50), (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 130, '#ff3366', randAngle())); });
+  tryPlaceGimmick(2450, 40, 90/2+15,  xs(250),   xs(50), (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 90,  '#ffea00', randAngle())); });
+  tryPlaceGimmick(2450, 40, 90/2+15,  xs(575),   xs(50), (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 90,  '#ffea00', randAngle())); });
+  tryPlaceGimmick(2620, 35, 70/2+15,  cx,        xs(50), (x, y) => { pinballLaunchPads.push(new LaunchPad(x, y, 70,  '#33ff57', randAngle())); });
 
   // ── 6. 깔때기 입구 역전 지대 ──
-  pinballSpinners.push(new Spinner(412.5, 2840, 29, '#00f0ff'));
-  pinballBumpers.push(new SuperBumper(412.5, 2950, 24, '#ff00ff'));
-  placedGimmicks.push({ x: 412.5, y: 2840, r: 29 });
-  placedGimmicks.push({ x: 412.5, y: 2950, r: 24 });
+  pinballSpinners.push(new Spinner(cx, 2840, 29, '#00f0ff'));
+  pinballBumpers.push(new SuperBumper(cx, 2950, 24, '#ff00ff'));
+  placedGimmicks.push({ x: cx, y: 2840, r: 29 });
+  placedGimmicks.push({ x: cx, y: 2950, r: 24 });
 
   const t1 = (2800 - FUNNEL_TOP_Y) / (GOAL_Y - FUNNEL_TOP_Y);
   const lx1 = funnelLeftX + t1 * (FUNNEL_BOTTOM_X - funnelLeftX);

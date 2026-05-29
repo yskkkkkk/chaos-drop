@@ -45,7 +45,7 @@ let exitZoomTimer = 0;           // 출구 줌인 잔여 프레임 (240 = 4초 @
 let exitZoomLeaderTriggered = false; // 거리 기반 트리거 중복 방지
 
 function resetCamera() {
-  const _initZoom = _DEVICE_MOBILE ? 1.35 : 1.0;
+  const _initZoom = 1.0;
   cameraY = 0;
   cameraZoom = _initZoom;
   cameraZoomTarget = _initZoom;
@@ -67,6 +67,11 @@ function triggerExitZoom(frames = 240) {
 
 // 프레임당 1회 호출: 카메라 위치 및 줌 업데이트
 function updateCamera(activeBalls, CH, VH) {
+  const _minZoom = 1.0;
+  // 줌아웃 블렌딩이 끝나는 임계값: _minZoom 바로 위
+  // (1.1 고정값을 쓰면 모바일에서 항상 블렌딩 분기에 걸려 공 추적 불가)
+  const _zoomBlendThresh = _minZoom + 0.02;
+
   if (activeBalls.length > 0 && pinballGameRunning) {
 
     // 출구 줌인 타이머 감소
@@ -104,7 +109,6 @@ function updateCamera(activeBalls, CH, VH) {
     // ── 줌: 단일 스프링 (k=0.007, d=0.85) ──────────────────
     // target만 상태에 따라 바뀌고, 스프링은 연속으로 동작.
     // 줌인·줌아웃 모두 같은 물리 — 경계에서 속도 점프 없음.
-    const _minZoom = _DEVICE_MOBILE ? 1.35 : 1.0;
     if (exitZoomTimer > 0) {
       cameraZoomTarget = 2.0;
     } else if (_anyInFunnel) {
@@ -125,10 +129,9 @@ function updateCamera(activeBalls, CH, VH) {
     if (exitZoomTimer > 0) {
       // 줌인 중: GOAL_Y로 빠르게 스냅
       cameraY += (_goalCamY - cameraY) * 0.08;
-    } else if (cameraZoom > 1.1) {
+    } else if (cameraZoom > _zoomBlendThresh) {
       // 줌아웃 중: zoom 비율에 따라 GOAL_Y → 공 위치로 블렌딩
-      // zoom=2.0 → t=1(GOAL_Y), zoom=1.1 → t=0(공 위치)
-      const _t = Math.max(0, (cameraZoom - 1.1) / (2.0 - 1.1));
+      const _t = Math.max(0, (cameraZoom - _zoomBlendThresh) / (2.0 - _zoomBlendThresh));
       const _blendedCamY = _goalCamY * _t + _ballCamY * (1 - _t);
       cameraY += (_blendedCamY - cameraY) * 0.05;
     } else {
@@ -138,11 +141,11 @@ function updateCamera(activeBalls, CH, VH) {
     }
 
   } else {
-    // 공 없음: 1.0으로 스프링 복귀
-    cameraZoomTarget = 1.0;
+    // 공 없음: _minZoom으로 스프링 복귀
+    cameraZoomTarget = _minZoom;
     cameraZoomVel += (cameraZoomTarget - cameraZoom) * 0.007;
     cameraZoomVel *= 0.85;
     cameraZoom += cameraZoomVel;
-    cameraZoom = Math.max(1.0, cameraZoom);
+    cameraZoom = Math.max(_minZoom, cameraZoom);
   }
 }

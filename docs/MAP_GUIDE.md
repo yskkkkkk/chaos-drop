@@ -210,26 +210,103 @@ new TeleportPortal(x1, y1, x2, y2, color, name)
 
 ## 8. 게임판 주요 상수 (constants.js)
 
-| 상수 | 값 | 설명 |
-|---|---|---|
-| `GAME_VWIDTH` | 825 | 가상 보드 가로 |
-| `GAME_VHEIGHT` | 3200 | 가상 보드 세로 |
-| `FUNNEL_TOP_Y` | 2720 | 깔때기 시작 Y |
-| `GOAL_Y` | 3120 | 골인선 Y |
-| `TUNNEL_TOP_Y` | 1500 | Classic Chaos 터널 시작 Y |
-| `TUNNEL_BOTTOM_Y` | 1900 | Classic Chaos 터널 종료 Y |
+| 상수 | 데스크탑 | 모바일 | 설명 |
+|---|---|---|---|
+| `BOARD_XSCALE` | `1.0` | `screen.width / 825` | 모바일 물리 보드 폭 스케일 계수 |
+| `GAME_VWIDTH` | `825` | `round(825 × BOARD_XSCALE)` | 가상 보드 가로 (모바일에서는 화면 폭) |
+| `GAME_VHEIGHT` | `3200` | `3200` | 가상 보드 세로 (고정) |
+| `FUNNEL_TOP_Y` | `2720` | `2720` | 깔때기 시작 Y |
+| `GOAL_Y` | `3120` | `3120` | 골인선 Y |
+| `FUNNEL_BOTTOM_X` | `311` | `round(311 × xs)` | 깔때기 하단 좌측 제한 X |
+| `TUNNEL_TOP_Y` | `1500` | `1500` | Classic Chaos 터널 시작 Y |
+| `TUNNEL_BOTTOM_Y` | `1900` | `1900` | Classic Chaos 터널 종료 Y |
 
+> Y 좌표 관련 상수(GOAL_Y, FUNNEL_TOP_Y 등)는 스케일하지 않습니다.  
 > `TUNNEL_*` 상수들은 Classic Chaos 맵 전용입니다.  
 > 신규 맵에서 다른 Zone을 만들려면 맵 파일 내에 별도 상수를 선언하세요.
 
 ---
 
-## 9. 최소 템플릿
+## 9. 모바일 보드폭 스케일링 규칙 (필수)
+
+모바일에서는 가상 물리 공간이 화면 폭에 맞춰 축소됩니다.  
+새 맵 파일에서 **X 좌표에 하드코딩된 픽셀값**은 반드시 `BOARD_XSCALE`을 곱해야 합니다.
+
+### 9-1. 기본 원칙
+
+```
+Y 좌표  →  스케일 없음 (보드 세로는 항상 3200px 고정)
+X 좌표  →  BOARD_XSCALE 적용 필수
+```
+
+### 9-2. `xs()` 헬퍼 — 신규 맵 파일 내 선언 패턴
+
+각 맵의 init 함수 상단에 헬퍼를 선언합니다:
+
+```js
+function myNewMap_init() {
+  const W  = GAME_VWIDTH;        // 이미 스케일된 값
+  const cx = W / 2;              // 보드 중앙 X
+  const xs = v => Math.round(v * BOARD_XSCALE); // x 스케일 헬퍼
+
+  // ✅ 올바른 사용
+  const MY_WALL_NARROW = xs(200);        // 200px → 모바일 비례 축소
+  const lx = xs(30) + Math.random() * xs(150);
+
+  // ✅ 이미 스케일된 상수 — 그대로 사용
+  const tunnelCX = (TUNNEL_LEFT_X + TUNNEL_RIGHT_X) / 2;
+
+  // ❌ 잘못된 사용
+  const MY_WALL_NARROW = 200;            // 모바일에서 잘못된 위치
+}
+```
+
+### 9-3. 자동으로 스케일되는 것 (별도 작업 불필요)
+
+| 항목 | 이유 |
+|---|---|
+| `GAME_VWIDTH` | constants.js에서 이미 스케일됨 |
+| `FUNNEL_BOTTOM_X` | constants.js에서 이미 스케일됨 |
+| `TUNNEL_LEFT/RIGHT_X`, `TUNNEL_BARRIER1/2_X` | constants.js에서 이미 스케일됨 |
+| 벽 프로파일 `rx = GAME_VWIDTH - (...)` | GAME_VWIDTH가 스케일되므로 자동 |
+| 공 시작 X (`spacing = GAME_VWIDTH / (n+1)`) | GAME_VWIDTH 기반 → 자동 |
+| 깔때기 speed-pad / launch-pad X | `funnelLeftX`, `funnelRightX` 기반 → 자동 |
+
+### 9-4. 직접 `xs()` 로 감싸야 하는 것
+
+| 항목 | 예시 |
+|---|---|
+| 맵 파일에서 새로 선언하는 x 전용 상수 | `const MY_NARROW = xs(210)` |
+| 벽 생성 랜덤 오프셋 | `xs(10) + Math.random() * xs(180)` |
+| 최소 통로 폭 | `lx + xs(300)` |
+| 충돌 섬의 좌우 꼭짓점 x | `xs(295), xs(355)` (또는 `B1C ± xs(30)`) |
+| 터널 레인폭 하드코딩 | `xs(115)` 또는 도출식 권장 |
+| `tryPlaceGimmick` x 기준값 | `tryPlaceGimmick(y, yr, r, xs(185), xs(60), ...)` |
+
+### 9-5. 데스크탑 영향 없음 확인
+
+`BOARD_XSCALE = 1.0` (데스크탑)이므로:
+
+```js
+xs(300) === Math.round(300 * 1.0) === 300  // 완전히 동일
+```
+
+기존 데스크탑 렌더링·물리는 변경되지 않습니다.
+
+---
+
+## 10. 최소 템플릿
 
 ```js
 /**
  * maps/my-new-map.js — My New Map
  */
+
+// ── 맵 전용 x 상수 (BOARD_XSCALE 필수 적용) ──────────────────
+// Y 관련 상수는 스케일 없이 선언합니다
+const MY_ZONE_TOP    = 800;
+const MY_ZONE_BOTTOM = 1200;
+const MY_WALL_NARROW = Math.round(180 * BOARD_XSCALE); // ← xs() 대신 직접 표기도 무방
 
 function myNewMap_generateWallProfile() {
   wallProfile = [];
@@ -253,6 +330,11 @@ function recoverCurrentMapIslandTunnel() {
 
 function myNewMap_init() {
   myNewMap_generateWallProfile();
+
+  const W  = GAME_VWIDTH;          // 이미 스케일된 보드 폭
+  const cx = W / 2;                // 보드 중앙 X
+  const xs = v => Math.round(v * BOARD_XSCALE); // x 스케일 헬퍼
+
   pinballPegs = [];
   pinballSpinners = [];
   pinballBumpers = [];
@@ -261,10 +343,12 @@ function myNewMap_init() {
   pinballLaunchPads = [];
   pinballSpeedPads = [];
 
-  pinballAccelLane = 0; // 가속 레인 없으면 0으로 고정
+  pinballAccelLane = 0;
 
-  // 장애물 배치
-  // ...
+  // 장애물 배치 — x 좌표는 항상 xs() 또는 cx 사용
+  pinballBumpers.push(new SuperBumper(cx,       500, 20, '#ff9900')); // 중앙
+  pinballBumpers.push(new SuperBumper(xs(180),  700, 18, '#00f0ff')); // 좌측
+  pinballBumpers.push(new SuperBumper(xs(645),  700, 18, '#00f0ff')); // 우측
 
   pinballPegs = pinballPegs.filter(() => Math.random() > 0.10);
 }
