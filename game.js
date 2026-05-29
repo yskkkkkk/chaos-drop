@@ -365,25 +365,44 @@ function animatePinball(currentTime) {
 
       const _drawTarget = (ball, fa) => {
         const _cx = ball.x, _cy = ball.y - ball.r - 26;
-        const t = performance.now() * 0.002;
+        const pulse = 1 + Math.sin(performance.now() * 0.005) * 0.06;
+        const R = 9.5 * pulse;
         ctx.save();
         ctx.globalAlpha = fa;
-        ctx.strokeStyle = '#c084ff';
-        ctx.fillStyle = '#c084ff';
-        ctx.shadowColor = '#c084ff';
-        ctx.lineWidth = 1.8;
+
+        ctx.shadowColor = '#ff5a5a';
         ctx.shadowBlur = 6;
+        ctx.fillStyle = '#ff4d4d';
         ctx.beginPath();
-        ctx.arc(_cx, _cy, 9, t, t + Math.PI * 0.8);
-        ctx.stroke();
-        ctx.shadowBlur = 4;
-        ctx.beginPath();
-        ctx.arc(_cx, _cy, 5.5, -t * 1.2, -t * 1.2 + Math.PI * 0.7);
-        ctx.stroke();
-        ctx.shadowBlur = 8;
-        ctx.beginPath();
-        ctx.arc(_cx, _cy, 2.2, 0, Math.PI * 2);
+        ctx.arc(_cx, _cy, R, 0, Math.PI * 2);
         ctx.fill();
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(_cx, _cy, R * 0.74, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.shadowColor = '#ff5a5a';
+        ctx.shadowBlur = 3;
+        ctx.fillStyle = '#ff4d4d';
+        ctx.beginPath();
+        ctx.arc(_cx, _cy, R * 0.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(_cx, _cy, R * 0.29, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.shadowColor = '#3aa0ff';
+        ctx.shadowBlur = 6;
+        ctx.fillStyle = '#3aa0ff';
+        ctx.beginPath();
+        ctx.arc(_cx, _cy, R * 0.18, 0, Math.PI * 2);
+        ctx.fill();
+
         ctx.restore();
       };
 
