@@ -70,7 +70,7 @@ function updateCamera(activeBalls, CH, VH) {
     // ── 출구 줌인 (최우선) ──────────────────────────────────
     if (exitZoomTimer > 0) {
       exitZoomTimer--;
-      const _goalCamY = Math.max(0, GOAL_Y - CH * 0.5);
+      const _goalCamY = Math.max(0, GOAL_Y - CH * 0.7);
       cameraY += (_goalCamY - cameraY) * 0.08;
       cameraZoomVel += (2.0 - cameraZoom) * 0.007;
       cameraZoomVel *= 0.85;
@@ -122,9 +122,11 @@ function updateCamera(activeBalls, CH, VH) {
     } else {
       cameraZoomTarget = Math.max(1.0, Math.min(1.03, 1.03 - _spreadY * 0.0001));
     }
-    cameraZoom += (cameraZoomTarget - cameraZoom) * 0.02;
+    const _zoomLerp = cameraZoom > 1.1 ? 0.05 : 0.02;
+    cameraZoom += (cameraZoomTarget - cameraZoom) * _zoomLerp;
   } else {
     cameraZoomTarget = 1.0;
-    cameraZoom += (cameraZoomTarget - cameraZoom) * 0.02;
+    const _zoomLerp = cameraZoom > 1.1 ? 0.05 : 0.02;
+    cameraZoom += (cameraZoomTarget - cameraZoom) * _zoomLerp;
   }
 }
