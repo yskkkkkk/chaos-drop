@@ -211,6 +211,13 @@ body {
   height: 14px;
 }
 
+.rule-desc {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-left: 2px;
+}
+
 /* 가상 코드가 흐르는 터미널 로그 */
 #pinball-terminal {
   width: 100%;

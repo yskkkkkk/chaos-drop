@@ -16,6 +16,23 @@ function pinballLog(msg) {
   term.scrollTop = term.scrollHeight;
 }
 
+function updateRuleLabels() {
+  const winInput = document.getElementById('pinball-win-count');
+  const specRankSelect = document.getElementById('pinball-specific-rank');
+  const lblFirst = document.getElementById('lbl-first-desc');
+  const lblLast = document.getElementById('lbl-last-desc');
+  const lblSpecific = document.getElementById('lbl-specific-desc');
+
+  if (!winInput || !specRankSelect) return;
+
+  const currentWinCount = winInput.value || 2;
+  const currentSpecificRank = specRankSelect.value || 1;
+
+  if (lblFirst) lblFirst.textContent = `(${currentWinCount}명까지)`;
+  if (lblLast) lblLast.textContent = `(${currentWinCount}명까지)`;
+  if (lblSpecific) lblSpecific.textContent = `(${currentSpecificRank}등 단독)`;
+}
+
 function updatePreviewBalls() {
   if (pinballGameRunning) return;
   const ta = document.getElementById('pinball-members');
@@ -58,6 +75,7 @@ function updateSpecificRankSelect() {
   });
 
   updatePreviewBalls();
+  updateRuleLabels();
 }
 
 function shuffleMembers() {
@@ -211,6 +229,13 @@ window.addEventListener('DOMContentLoaded', () => {
       }
     });
   });
+
+  if (winCountInput) {
+    winCountInput.addEventListener('input', updateRuleLabels);
+  }
+  if (specRankSelect) {
+    specRankSelect.addEventListener('change', updateRuleLabels);
+  }
 
   const membersTA = document.getElementById('pinball-members');
   if (membersTA) {
