@@ -58,7 +58,7 @@ const DEFAULT_MEMBERS = [
 const MAPS = {};
 
 // ── 7. 렌더링 품질 계수 (모바일 최적화) ─────────────────────────
-const _DEVICE_MOBILE = window.innerWidth < 768;
+const _DEVICE_MOBILE = window.innerWidth <= 768;
 const QUALITY = _DEVICE_MOBILE ? 0.45 : 1.0;
 
 // ── 8. 당첨 축하 텍스트용 컬러 스펙트럼 ───────────────────────

@@ -83,6 +83,10 @@ function animatePinball(currentTime) {
   const VW = GAME_VWIDTH;
   const VH = GAME_VHEIGHT;
   const CH = pinballCanvas.height;
+  // 모바일 fit-scale: 가상 보드(825px)를 화면 폭에 맞게 축소 (desktop 무영향)
+  const _fitScale = (_DEVICE_MOBILE && pinballCanvas.width < GAME_VWIDTH)
+    ? pinballCanvas.width / GAME_VWIDTH : 1.0;
+  const _vCH = _fitScale < 1.0 ? Math.round(CH / _fitScale) : CH;
 
   // VAR 슬로우모션 제어
   let shouldRunPhysics = true;
@@ -109,7 +113,7 @@ function animatePinball(currentTime) {
     }
   }
 
-  updateCamera(activeBalls, CH, VH);
+  updateCamera(activeBalls, _vCH, VH);
 
   // B. 배경
   const _th = MAPS[currentMapId]?.theme || {};
@@ -118,20 +122,21 @@ function animatePinball(currentTime) {
 
   // C. 게임 영역 카메라 변환
   ctx.save();
+  if (_fitScale < 1.0) ctx.scale(_fitScale, _fitScale); // 모바일 fit-scale (outermost)
   const _zoomCX = GAME_X_OFFSET + GAME_VWIDTH / 2;
-  const _zoomCY = CH / 2;
+  const _zoomCY = _vCH / 2;
   ctx.translate(_zoomCX, _zoomCY);
   ctx.scale(cameraZoom, cameraZoom);
   ctx.translate(-_zoomCX, -_zoomCY);
   ctx.translate(GAME_X_OFFSET, -cameraY);
 
   const visY0 = cameraY;
-  const visY1 = cameraY + CH;
-  let bgGrad = ctx.createRadialGradient(VW/2, visY0+CH/2, 60, VW/2, visY0+CH/2, 520);
+  const visY1 = cameraY + _vCH;
+  let bgGrad = ctx.createRadialGradient(VW/2, visY0+_vCH/2, 60, VW/2, visY0+_vCH/2, 520);
   bgGrad.addColorStop(0, _th.bgFrom || '#10122e');
   bgGrad.addColorStop(1, _th.bgTo   || '#05060b');
   ctx.fillStyle = bgGrad;
-  ctx.fillRect(0, visY0, VW, CH);
+  ctx.fillRect(0, visY0, VW, _vCH);
 
   // 가변 벽 드로잉
   if (wallProfile.length >= 2) {
@@ -480,9 +485,9 @@ function animatePinball(currentTime) {
   if (varChecking) {
     ctx.save();
     ctx.fillStyle = 'rgba(8, 16, 32, 0.28)';
-    ctx.fillRect(0, visY0, VW, CH);
+    ctx.fillRect(0, visY0, VW, _vCH);
 
-    const scanY = visY0 + (Math.sin(Date.now() * 0.0035) * 0.5 + 0.5) * CH;
+    const scanY = visY0 + (Math.sin(Date.now() * 0.0035) * 0.5 + 0.5) * _vCH;
     ctx.strokeStyle = _th.scanLine || '#ff9900';
     ctx.lineWidth = 3;
     ctx.shadowBlur = 10 * QUALITY;
@@ -503,30 +508,32 @@ function animatePinball(currentTime) {
 
   ctx.restore();
 
-  // H. HUD 진행 바
-  const barX = GAME_X_OFFSET + GAME_VWIDTH + 10;
-  const barH = pinballCanvas.height - 80;
-  const barY = 40;
+  // H. HUD 진행 바 (모바일에서는 화면 밖으로 벗어나므로 생략)
+  if (!_DEVICE_MOBILE) {
+    const barX = GAME_X_OFFSET + GAME_VWIDTH + 10;
+    const barH = pinballCanvas.height - 80;
+    const barY = 40;
 
-  ctx.fillStyle = 'rgba(255,255,255,0.04)';
-  ctx.fillRect(barX, barY, 6, barH);
+    ctx.fillStyle = 'rgba(255,255,255,0.04)';
+    ctx.fillRect(barX, barY, 6, barH);
 
-  pinballBalls.forEach(ball => {
-    const prog = Math.min(1, ball.y / GOAL_Y);
-    const py = barY + prog * barH;
-    ctx.fillStyle = ball.color;
-    ctx.shadowBlur = 4 * QUALITY; ctx.shadowColor = ball.color;
-    ctx.beginPath();
-    ctx.arc(barX + 3, py, 4, 0, Math.PI*2);
-    ctx.fill();
-    ctx.shadowBlur = 0;
-  });
+    pinballBalls.forEach(ball => {
+      const prog = Math.min(1, ball.y / GOAL_Y);
+      const py = barY + prog * barH;
+      ctx.fillStyle = ball.color;
+      ctx.shadowBlur = 4 * QUALITY; ctx.shadowColor = ball.color;
+      ctx.beginPath();
+      ctx.arc(barX + 3, py, 4, 0, Math.PI*2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    });
 
-  const vpTop = barY + (cameraY / GAME_VHEIGHT) * barH;
-  const vpHt  = (720 / GAME_VHEIGHT) * barH;
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(barX, vpTop, 6, vpHt);
+    const vpTop = barY + (cameraY / GAME_VHEIGHT) * barH;
+    const vpHt  = (720 / GAME_VHEIGHT) * barH;
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(barX, vpTop, 6, vpHt);
+  }
 
   if (!pinballGameRunning && pinballBalls.length > 0) {
     ctx.save();

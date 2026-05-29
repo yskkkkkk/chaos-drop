@@ -289,7 +289,7 @@ window.addEventListener('DOMContentLoaded', () => {
       const _c = pinballCanvas.parentElement;
       pinballCanvas.width  = _c.clientWidth;
       pinballCanvas.height = _c.clientHeight;
-      GAME_X_OFFSET = Math.max(415, Math.round((_c.clientWidth - 415) / 2));
+      GAME_X_OFFSET = isMobile() ? 0 : Math.max(415, Math.round((_c.clientWidth - 415) / 2));
     };
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
