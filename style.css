@@ -701,6 +701,7 @@ body.theme-zigzag .map-seg-btn.active {
 .mobile-step-nav { display: none; }
 #mobile-game-overlay { display: none; }
 #mobile-rotate-overlay { display: none; }
+.float-home-btn { display: none; }
 
 @media (max-width: 768px) {
   /* 전체화면 Wizard 패널 */

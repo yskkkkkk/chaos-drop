@@ -422,8 +422,10 @@ window.addEventListener('DOMContentLoaded', () => {
     btnModalClose.addEventListener('click', () => {
       const modal = document.getElementById('pinball-result-modal');
       if (modal) modal.style.display = 'none';
-      const btnFloatHome = document.getElementById('btn-float-home');
-      if (btnFloatHome) btnFloatHome.style.display = '';
+      if (isMobile()) {
+        const btnFloatHome = document.getElementById('btn-float-home');
+        if (btnFloatHome) btnFloatHome.style.display = '';
+      }
     });
   }
 
