@@ -323,11 +323,12 @@ function animatePinball(currentTime) {
     return p.life > 0;
   });
 
-  // 모바일 미니LB 주기 업데이트 (~30fps → 0.5초마다)
-  if (pinballGameRunning && _DEVICE_MOBILE) {
+  // LB 주기 업데이트: 모바일 미니LB + PC 실시간 리더보드 (~0.5초마다)
+  if (pinballGameRunning) {
     _lbUpdateFrame++;
-    if (_lbUpdateFrame % 18 === 0 && typeof updateMobileMiniLB === 'function') {
-      updateMobileMiniLB();
+    if (_lbUpdateFrame % 18 === 0) {
+      if (_DEVICE_MOBILE && typeof updateMobileMiniLB === 'function') updateMobileMiniLB();
+      if (!_DEVICE_MOBILE && typeof renderLeaderboard === 'function') renderLeaderboard();
     }
   }
 
