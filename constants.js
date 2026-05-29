@@ -48,7 +48,7 @@ const NEAR_MISS_DURATION = 45;
 const NEAR_MISS_COOLDOWN = 240;
 
 // ── 4. 기믹 요소별 고유 규격 (Pegs & Portals & Obstacles) ─────
-const PORTAL_R = 18;
+const PORTAL_R = Math.round(18 * BOARD_XSCALE);
 
 // ── 5. 팀원 이름 초기값 ──────────────────────────────
 const DEFAULT_MEMBERS = [
