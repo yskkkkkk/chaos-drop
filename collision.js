@@ -5,6 +5,22 @@
  * 벽 보간 유틸, 선분-원 충돌 헬퍼, 장애물 충돌 해소 루프
  */
 
+// 맵 초기화 후 1회 호출 — 핀은 정적 장애물이므로 Y 기준 정렬 유지
+function sortPegsForCollision() {
+  pinballPegs.sort((a, b) => a.y - b.y);
+}
+
+// pinballPegs[idx].y >= targetY 인 첫 번째 인덱스 (이진 탐색)
+function _pegLowerBound(targetY) {
+  let lo = 0, hi = pinballPegs.length;
+  while (lo < hi) {
+    const mid = (lo + hi) >> 1;
+    if (pinballPegs[mid].y < targetY) lo = mid + 1;
+    else hi = mid;
+  }
+  return lo;
+}
+
 function getWallAtY(y) {
   for (let i = 0; i < wallProfile.length - 1; i++) {
     const v0 = wallProfile[i], v1 = wallProfile[i + 1];
@@ -66,8 +82,9 @@ function resolveObstacleCollisions() {
     const by = ball.y;
 
     const _ballSpeed = Math.hypot(ball.vx, ball.vy);
-    for (const peg of pinballPegs) {
-      if (peg.y < by - 60 || peg.y > by + 60) continue;
+    const _pegStart = _pegLowerBound(by - 60);
+    for (let _pi = _pegStart; _pi < pinballPegs.length && pinballPegs[_pi].y <= by + 60; _pi++) {
+      const peg = pinballPegs[_pi];
 
       // 서브스텝: speed > 14 시 이동 중간 위치도 검사하여 터널링 방지
       let _cx = ball.x, _cy = ball.y;

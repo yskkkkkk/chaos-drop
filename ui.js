@@ -9,11 +9,10 @@
 function pinballLog(msg) {
   const term = document.getElementById('pinball-terminal');
   if (!term) return;
-  term.innerHTML += `<div>> ${msg}</div>`;
-  const _logEntries = term.querySelectorAll('div');
-  if (_logEntries.length > 20) {
-    for (let _i = 0; _i < _logEntries.length - 20; _i++) _logEntries[_i].remove();
-  }
+  const el = document.createElement('div');
+  el.textContent = `> ${msg}`;
+  term.appendChild(el);
+  if (term.children.length > 20) term.firstChild.remove();
   term.scrollTop = term.scrollHeight;
 }
 
@@ -165,9 +164,10 @@ window.addEventListener('DOMContentLoaded', () => {
     pinballCtx = pinballCanvas.getContext('2d');
 
     const resizeCanvas = () => {
-      pinballCanvas.width = window.innerWidth;
-      pinballCanvas.height = window.innerHeight;
-      GAME_X_OFFSET = Math.max(415, Math.round((window.innerWidth - 415) / 2));
+      const _c = pinballCanvas.parentElement;
+      pinballCanvas.width  = _c.clientWidth;
+      pinballCanvas.height = _c.clientHeight;
+      GAME_X_OFFSET = Math.max(415, Math.round((_c.clientWidth - 415) / 2));
     };
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
@@ -175,7 +175,7 @@ window.addEventListener('DOMContentLoaded', () => {
     pinballCanvas.addEventListener('wheel', (e) => {
       if (!pinballGameRunning) {
         e.preventDefault();
-        cameraY = Math.max(0, Math.min(cameraY + e.deltaY * 0.7, GAME_VHEIGHT - window.innerHeight));
+        cameraY = Math.max(0, Math.min(cameraY + e.deltaY * 0.7, GAME_VHEIGHT - pinballCanvas.height));
       }
     }, { passive: false });
   }
