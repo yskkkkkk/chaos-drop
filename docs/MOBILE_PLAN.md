@@ -64,9 +64,18 @@
 
 ---
 
-## AI.md 준수 체크
+## 6. AI.md 준수 체크
 
 1. **Think Before Coding** — 방향 지원, 스텝 분배, 오버레이 구조 모두 사전 질문으로 확인
 2. **Simplicity First** — 기존 form 요소 재사용, 4개 파일만 수정
 3. **Surgical Changes** — `data-ms` 속성 추가만으로 스텝 제어, game.js/camera.js 무변경
 4. **Goal-Driven Execution** — 목표: "모바일에서 wizard → game overlay → reset 흐름 작동"
+
+---
+
+## 🏁 최종 검수 완료 내역 (PR #29)
+
+상기 계획은 모두 코드에 반영되어 완수되었으며, 추가적으로 다음 항목들이 최신 버전에 포함되었습니다.
+- **실시간 경주 순위 반영**: PC 및 모바일 양쪽 모두 경주 진행 중 실시간으로 구슬들의 순위를 추적하여 미니 리더보드에 반영하는 `PC REALTIME RACE RANK` 기능 구현 완료.
+- **오버레이 툴팁 위치 및 z-index 최적화**: 좁은 모바일 화면에서 발생하는 요소 겹침 및 클릭 차단 방지(Float Home Button 우선순위 등).
+- **출구 병목 방지 스케일링**: 모바일 뷰포트에서 화면 스케일링(`BOARD_XSCALE`) 시 런치패드가 출구를 막아버리는 이슈(ISSUE-03) 감지 및 런치패드 너비 동적 자동 스케일링 적용 완료.

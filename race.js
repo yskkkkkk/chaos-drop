@@ -31,7 +31,8 @@ function registerFinishedBall(ball) {
     id: ball.id,
     name: ball.name,
     color: ball.color,
-    duration: duration
+    duration: duration,
+    isFinished: true
   });
 
   ball.finishRank = finishedCount + 1;
@@ -85,8 +86,11 @@ function renderLeaderboard() {
   const tbody = document.getElementById('leaderboard-body');
   if (!tbody) return;
 
-  if (pinballFinishedBalls.length === 0) {
-    if (!pinballGameRunning && pinballBalls.length > 0) {
+  const total = pinballBalls.length;
+
+  // 경주 전 플레이스홀더
+  if (pinballFinishedBalls.length === 0 && !pinballGameRunning) {
+    if (total > 0) {
       let ph = '';
       pinballBalls.forEach((b, idx) => {
         ph += `<tr style="opacity:0.3;">
@@ -105,14 +109,42 @@ function renderLeaderboard() {
     return;
   }
 
+  // 경주 중: 완주자 + 진행 중 구슬(y 내림차순) 합쳐 전체 순위 표시
+  if (pinballGameRunning) {
+    const active = pinballBalls.filter(b => !b.isFinished).sort((a, b) => b.y - a.y);
+    const allRanked = [...pinballFinishedBalls, ...active];
+    let html = '';
+    allRanked.forEach((b, idx) => {
+      const rank = idx + 1;
+      const isTop = (currentRule === 'first' && rank <= winCount)
+                 || (currentRule === 'last' && rank > total - winCount)
+                 || (currentRule === 'specific' && rank === specificRank);
+      const rankClass = isTop ? 'leaderboard-rank top-rank' : 'leaderboard-rank';
+      const timeCell = b.isFinished
+        ? `<td class="col-time" style="font-family:'Courier New',monospace;color:var(--neon-blue);font-weight:600;">${b.duration}s</td>`
+        : `<td class="col-time" style="color:rgba(255,255,255,0.3);font-size:0.72rem;">진행중</td>`;
+      html += `<tr${b.isFinished ? '' : ' style="opacity:0.72;"'}>
+        <td class="${rankClass}">#${rank}</td>
+        <td style="display:flex;align-items:center;gap:6px;font-weight:700;">
+          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${b.color};box-shadow:0 0 6px ${b.color};"></span>
+          ${b.name}
+        </td>
+        ${timeCell}
+      </tr>`;
+    });
+    tbody.innerHTML = html;
+    if (typeof updateMobileMiniLB === 'function') updateMobileMiniLB();
+    return;
+  }
+
+  // 경주 완료: 완주자 목록 + 시간
   let html = '';
   pinballFinishedBalls.forEach((b, idx) => {
     const rank = idx + 1;
-    const totalForRank = pinballBalls.length;
     const isTop = (currentRule === 'first' && rank <= winCount)
-               || (currentRule === 'last' && rank > totalForRank - winCount);
+               || (currentRule === 'last' && rank > total - winCount)
+               || (currentRule === 'specific' && rank === specificRank);
     const rankClass = isTop ? 'leaderboard-rank top-rank' : 'leaderboard-rank';
-
     html += `
       <tr>
         <td class="${rankClass}">#${rank}</td>
@@ -124,7 +156,6 @@ function renderLeaderboard() {
       </tr>
     `;
   });
-
   tbody.innerHTML = html;
   if (typeof updateMobileMiniLB === 'function') updateMobileMiniLB();
 }

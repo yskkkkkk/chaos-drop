@@ -422,8 +422,10 @@ window.addEventListener('DOMContentLoaded', () => {
     btnModalClose.addEventListener('click', () => {
       const modal = document.getElementById('pinball-result-modal');
       if (modal) modal.style.display = 'none';
-      const btnFloatHome = document.getElementById('btn-float-home');
-      if (btnFloatHome) btnFloatHome.style.display = '';
+      if (isMobile()) {
+        const btnFloatHome = document.getElementById('btn-float-home');
+        if (btnFloatHome) btnFloatHome.style.display = '';
+      }
     });
   }
 
@@ -445,6 +447,21 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // ── 모바일 초기화 ─────────────────────────────────────────
   initMobileUI();
+
+  // Freeze 툴팁: 패널 overflow 클리핑 우회 (position:fixed + JS 포지셔닝)
+  const _fhint = document.querySelector('.freeze-hint');
+  if (_fhint) {
+    const _ftoast = _fhint.querySelector('.freeze-toast');
+    _fhint.addEventListener('mouseenter', () => {
+      const r = _fhint.getBoundingClientRect();
+      _ftoast.style.top  = (r.top + r.height / 2 - 40) + 'px';
+      _ftoast.style.left = isMobile()
+        ? Math.max(8, r.left - 218) + 'px'
+        : (r.right + 8) + 'px';
+      _ftoast.style.opacity = '1';
+    });
+    _fhint.addEventListener('mouseleave', () => { _ftoast.style.opacity = '0'; });
+  }
 });
 
 // ── 모바일 UI 함수 ──────────────────────────────────────────
@@ -536,7 +553,7 @@ function initMobileUI() {
   if (miniLb && fullLb) {
     miniLb.addEventListener('click', () => {
       updateMobileMiniLB();
-      fullLb.style.display = 'block';
+      fullLb.style.display = 'flex';
     });
   }
 
@@ -551,11 +568,9 @@ function initMobileUI() {
   const btnMobileReset = document.getElementById('btn-mobile-reset');
   if (btnMobileReset) {
     btnMobileReset.addEventListener('click', () => {
-      if (confirm('설정으로 되돌아 갑니다.')) {
-        exitMobileGameMode();
-        resetPinball();
-        if (pinballAnimId === null) animatePinball();
-      }
+      exitMobileGameMode();
+      resetPinball();
+      if (pinballAnimId === null) animatePinball();
     });
   }
 }
