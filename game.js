@@ -573,6 +573,10 @@ function resetPinball() {
   const btnLaunchReset = document.getElementById('btn-pinball-launch');
   if (btnLaunchReset) { btnLaunchReset.disabled = false; btnLaunchReset.style.opacity = '1'; }
 
+  if (typeof setControlsEnabled === 'function') {
+    setControlsEnabled(true);
+  }
+
   const term = document.getElementById('pinball-terminal');
   if (term) term.innerHTML = '<div>> Pinball system reset. Awaiting Quantum launch prompt...</div>';
 }

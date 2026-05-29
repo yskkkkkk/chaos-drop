@@ -611,3 +611,15 @@ body.theme-zigzag .map-seg-btn.active {
   color: var(--accent);
   box-shadow: inset 0 0 0 1px rgba(199,134,90,0.4);
 }
+
+/* 🔒 비활성화(잠금) 상태의 컨트롤 연출 */
+.pinball-control-panel input:disabled,
+.pinball-control-panel textarea:disabled,
+.pinball-control-panel select:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.45 !important;
+  filter: grayscale(0.5);
+  box-shadow: none !important;
+  border-color: rgba(255, 255, 255, 0.04) !important;
+  background: rgba(0, 0, 0, 0.2) !important;
+}

@@ -50,6 +50,89 @@ function updateRuleLabels() {
   updateStepperButtons();
 }
 
+function setControlsEnabled(enabled) {
+  const membersTA = document.getElementById('pinball-members');
+  const btnShuffle = document.getElementById('btn-shuffle-members');
+  const ruleRadios = document.querySelectorAll('input[name="pinball-rule"]');
+  const winCountInput = document.getElementById('pinball-win-count');
+  const btnMinus = document.getElementById('btn-win-minus');
+  const btnPlus = document.getElementById('btn-win-plus');
+  const specRankSelect = document.getElementById('pinball-specific-rank');
+  const freezeToggle = document.getElementById('freeze-mode-toggle');
+  const mapSegBtns = document.querySelectorAll('.map-seg-btn');
+
+  if (membersTA) membersTA.disabled = !enabled;
+  if (btnShuffle) {
+    btnShuffle.disabled = !enabled;
+    btnShuffle.style.opacity = enabled ? '1.0' : '0.45';
+    btnShuffle.style.pointerEvents = enabled ? 'auto' : 'none';
+  }
+
+  ruleRadios.forEach(radio => {
+    radio.disabled = !enabled;
+    radio.parentElement.style.opacity = enabled ? '1.0' : '0.5';
+    radio.parentElement.style.pointerEvents = enabled ? 'auto' : 'none';
+  });
+
+  if (winCountInput) {
+    if (!enabled) {
+      winCountInput.disabled = true;
+      winCountInput.style.cursor = 'not-allowed';
+      winCountInput.style.opacity = '0.4';
+    } else {
+      const rule = document.querySelector('input[name="pinball-rule"]:checked')?.value;
+      const isSpecific = rule === 'specific';
+      winCountInput.disabled = isSpecific;
+      winCountInput.style.cursor = isSpecific ? 'not-allowed' : 'text';
+      winCountInput.style.opacity = isSpecific ? '0.5' : '1.0';
+      const lblWinCount = document.getElementById('lbl-win-count');
+      if (lblWinCount) lblWinCount.style.color = isSpecific ? 'rgba(255,255,255,0.4)' : 'var(--accent)';
+    }
+  }
+
+  const stepper = document.querySelector('.number-stepper');
+  if (stepper) {
+    stepper.style.opacity = enabled ? '1.0' : '0.5';
+    stepper.style.pointerEvents = enabled ? 'auto' : 'none';
+  }
+
+  if (btnMinus) btnMinus.disabled = !enabled;
+  if (btnPlus) btnPlus.disabled = !enabled;
+
+  if (specRankSelect) {
+    if (!enabled) {
+      specRankSelect.disabled = true;
+      specRankSelect.style.cursor = 'not-allowed';
+      specRankSelect.style.opacity = '0.4';
+    } else {
+      const rule = document.querySelector('input[name="pinball-rule"]:checked')?.value;
+      const isSpecific = rule === 'specific';
+      specRankSelect.disabled = !isSpecific;
+      specRankSelect.style.cursor = isSpecific ? 'pointer' : 'not-allowed';
+      specRankSelect.style.opacity = isSpecific ? '1.0' : '0.5';
+      const lblSpecificRank = document.getElementById('lbl-specific-rank');
+      if (lblSpecificRank) lblSpecificRank.style.color = isSpecific ? 'var(--accent)' : 'rgba(255,255,255,0.4)';
+    }
+  }
+
+  if (freezeToggle) {
+    freezeToggle.disabled = !enabled;
+    const toggleRow = document.querySelector('.panel-toggle-row');
+    if (toggleRow) {
+      toggleRow.style.opacity = enabled ? '1.0' : '0.5';
+      toggleRow.style.pointerEvents = enabled ? 'auto' : 'none';
+    }
+  }
+
+  mapSegBtns.forEach(btn => {
+    if (!btn.classList.contains('locked')) {
+      btn.disabled = !enabled;
+      btn.style.opacity = enabled ? '1.0' : '0.5';
+      btn.style.pointerEvents = enabled ? 'auto' : 'none';
+    }
+  });
+}
+
 function updatePreviewBalls() {
   if (pinballGameRunning) return;
   const ta = document.getElementById('pinball-members');
@@ -164,6 +247,9 @@ function launchPinballRacing() {
 
   const btnLaunchEl = document.getElementById('btn-pinball-launch');
   if (btnLaunchEl) { btnLaunchEl.disabled = true; btnLaunchEl.style.opacity = '0.45'; }
+
+  // 경주 중 옵션 변경 불가능하도록 컨트롤 잠금
+  setControlsEnabled(false);
 
   setTimeout(() => {
     raceStartTime = Date.now();
@@ -337,6 +423,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  setControlsEnabled(true);
   updateSpecificRankSelect();
   initPinballMap();
   updatePreviewBalls();
