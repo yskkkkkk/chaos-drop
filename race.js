@@ -34,7 +34,24 @@ function registerFinishedBall(ball) {
     duration: duration
   });
 
-  ball.finishRank = finishedCount + 1;   // ← 추가: 골인 등수 고정
+  ball.finishRank = finishedCount + 1;
+
+  // 출구 줌인 트리거
+  const _newCount = pinballFinishedBalls.length;
+  if (currentRule === 'first' && winCount > 1) {
+    if (_newCount >= Math.ceil(winCount / 2) && _newCount <= winCount) {
+      triggerExitZoom();
+    }
+  } else if (currentRule === 'last') {
+    const _remaining = pinballBalls.filter(b => !b.isFinished).length;
+    if (_remaining <= winCount * 2) {
+      triggerExitZoom();
+    }
+  } else if (currentRule === 'specific' && specificRank > 1) {
+    if (_newCount === specificRank - 1) {
+      triggerExitZoom();
+    }
+  }
 
   ball.vy = Math.max(1.2, ball.vy * 0.7);
   ball.vx = ball.vx * 0.8 + (Math.random() - 0.5) * 1.5;
