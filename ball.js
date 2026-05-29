@@ -155,6 +155,72 @@ class RacingBall {
   }
 
   draw(ctx) {
+    // ───── 도착 공: 그레이 고스트 + 중앙 비운 십자 + 가운데 등수 ─────
+    if (this.isFinished) {
+      // 1) 반투명 그레이 본체 (색 제거 → 모든 도착 공 동일)
+      ctx.save();
+      ctx.globalAlpha = 0.5;
+      ctx.shadowBlur = 3;
+      ctx.shadowColor = 'rgba(160,165,180,0.5)';
+      const g = ctx.createRadialGradient(this.x, this.y, 1, this.x, this.y, this.r);
+      g.addColorStop(0,    'rgba(235,238,245,0.85)');
+      g.addColorStop(0.35, 'rgba(120,126,142,0.9)');
+      g.addColorStop(1,    'rgba(0,0,0,0.45)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+
+      // 2) 중앙을 비운 십자 (바깥 링에만 팔 4개) — vx 연동 회전
+      ctx.save();
+      ctx.globalAlpha = 0.7;
+      ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      const inner = this.r * 0.5;
+      const outer = this.r * 0.92;
+      for (let k = 0; k < 4; k++) {
+        const a = this.angle + k * Math.PI / 2;
+        ctx.beginPath();
+        ctx.moveTo(this.x + Math.cos(a) * inner, this.y + Math.sin(a) * inner);
+        ctx.lineTo(this.x + Math.cos(a) * outer, this.y + Math.sin(a) * outer);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // 3) 가운데 등수 숫자 (회전 안 함, 항상 똑바로)
+      if (this.finishRank) {
+        ctx.save();
+        ctx.globalAlpha = 0.96;
+        ctx.fillStyle = 'rgba(255,255,255,0.98)';
+        ctx.font = '900 16px Outfit, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowBlur = 4;
+        ctx.shadowColor = 'rgba(0,0,0,0.95)';
+        ctx.fillText(this.finishRank, this.x, this.y + 1);
+        ctx.restore();
+      }
+
+      // 4) 이름표 (기존과 동일, 살짝 흐리게)
+      ctx.save();
+      ctx.globalAlpha = 0.8;
+      ctx.shadowBlur = 2;
+      ctx.shadowColor = 'rgba(0,0,0,0.9)';
+      ctx.fillStyle = 'rgba(255,255,255,0.95)';
+      ctx.font = 'bold 10px Outfit, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(this.name, this.x, this.y - this.r - 4);
+      ctx.restore();
+
+      // 5) 회전각 갱신 — 살아있는 공과 동일한 vx 연동 (진짜 구를 때만 회전)
+      this.angularVelocity = this.vx * 0.05;
+      this.angle += this.angularVelocity;
+      return;   // ← 기존 컬러 렌더로 내려가지 않음
+    }
+    // ───── 여기서부터 기존 진행 중 공 렌더 (그대로 둠) ─────
+
     if (this.superChargeTimer > 0) {
       ctx.save();
       ctx.strokeStyle = this.color;
