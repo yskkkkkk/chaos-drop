@@ -696,3 +696,181 @@ body.theme-zigzag .map-seg-btn.active {
     width: min(380px, calc(100vw - 32px));
   }
 }
+
+/* ── 모바일 UI (≤768px) ──────────────────────────────────────
+   Wizard 2-Step 패널, 게임 오버레이, 회전 안내
+   ─────────────────────────────────────────────────────────── */
+
+/* 데스크탑에서 모바일 전용 요소 숨김 */
+.mobile-step-nav { display: none; }
+#mobile-game-overlay { display: none; }
+#mobile-rotate-overlay { display: none; }
+
+@media (max-width: 768px) {
+  /* 전체화면 Wizard 패널 */
+  .pinball-control-panel {
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100% !important;
+    max-width: 100%;
+    height: 100%;
+    border-radius: 0;
+    padding: 20px 16px 72px;
+    z-index: 20;
+    border: none;
+    box-shadow: none;
+  }
+
+  /* Step 가시성 */
+  .pinball-control-panel.ms-1 [data-ms="2"] { display: none; }
+  .pinball-control-panel.ms-2 [data-ms="1"] { display: none; }
+
+  /* Wizard에서 리더보드 숨김 */
+  .pinball-control-panel .leaderboard-container { display: none; }
+
+  /* 스텝 내비게이션 */
+  .mobile-step-nav {
+    display: flex;
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 12px 16px;
+    background: var(--bg-dark);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    align-items: center;
+    justify-content: space-between;
+    z-index: 1;
+  }
+  .mobile-step-indicator {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.45);
+    font-weight: 600;
+  }
+  .mobile-nav-btn {
+    padding: 8px 18px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.06);
+    border-radius: 8px;
+    color: #fff;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    min-width: 80px;
+  }
+  .mobile-nav-btn:active { background: rgba(255,255,255,0.14); }
+
+  /* 게임 모드: Wizard 숨김, 모달 최상위 */
+  body.mobile-game-active .pinball-control-panel { display: none; }
+  body.mobile-game-active .pinball-modal { z-index: 30; }
+
+  /* 게임 오버레이 활성화 */
+  body.mobile-game-active #mobile-game-overlay { display: block; }
+}
+
+/* 게임 오버레이 — 화면 우측 상단 고정 */
+#mobile-game-overlay {
+  position: absolute;
+  top: 12px; right: 12px;
+  z-index: 15;
+  pointer-events: auto;
+}
+
+/* 미니 리더보드 칩 */
+.mobile-mini-lb {
+  background: rgba(0,0,0,0.75);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  padding: 8px 12px;
+  min-width: 130px;
+  cursor: pointer;
+  user-select: none;
+  backdrop-filter: blur(8px);
+}
+.mobile-mini-lb-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.75;
+}
+.mobile-mini-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* 전체 순위 오버레이 */
+.mobile-full-lb {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(6,7,13,0.97);
+  padding: 20px 16px 80px;
+  z-index: 50;
+  overflow-y: auto;
+  box-sizing: border-box;
+}
+.mobile-full-lb-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.mobile-full-lb-title {
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: 1px;
+}
+.mobile-close-btn {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 5px 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.mobile-reset-btn {
+  position: fixed;
+  bottom: 16px; left: 16px; right: 16px;
+  padding: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  color: rgba(255,255,255,0.45);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+}
+.mobile-reset-btn:active { background: rgba(255,40,40,0.1); border-color: rgba(255,40,40,0.2); }
+
+/* 회전 안내 오버레이 */
+#mobile-rotate-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(6,7,13,0.97);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+}
+.rotate-icon { font-size: 2.8rem; }
+.rotate-msg {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+@media (max-width: 768px) and (orientation: landscape) {
+  body:not(.mobile-game-active) #mobile-rotate-overlay { display: flex; }
+}

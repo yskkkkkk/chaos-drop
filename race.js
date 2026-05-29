@@ -126,6 +126,7 @@ function renderLeaderboard() {
   });
 
   tbody.innerHTML = html;
+  if (typeof updateMobileMiniLB === 'function') updateMobileMiniLB();
 }
 
 function checkWinningConditions() {

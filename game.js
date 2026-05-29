@@ -144,7 +144,7 @@ function animatePinball(currentTime) {
     ctx.beginPath();
     wallProfile.forEach((v, i) => { if (v.y >= visY0 - 50 && v.y <= visY1 + 50) { i === 0 || wallProfile[i-1]?.y < visY0 - 50 ? ctx.moveTo(v.lx, v.y) : ctx.lineTo(v.lx, v.y); } });
     ctx.strokeStyle = _th.wallStroke || 'rgba(0,240,255,0.5)'; ctx.lineWidth = 2;
-    ctx.shadowBlur = 6; ctx.shadowColor = _th.wallGlow || '#00f0ff'; ctx.stroke(); ctx.shadowBlur = 0;
+    ctx.shadowBlur = 6 * QUALITY; ctx.shadowColor = _th.wallGlow || '#00f0ff'; ctx.stroke(); ctx.shadowBlur = 0;
 
     ctx.beginPath();
     ctx.moveTo(VW, visY0);
@@ -155,14 +155,14 @@ function animatePinball(currentTime) {
     ctx.beginPath();
     wallProfile.forEach((v, i) => { if (v.y >= visY0 - 50 && v.y <= visY1 + 50) { i === 0 || wallProfile[i-1]?.y < visY0 - 50 ? ctx.moveTo(v.rx, v.y) : ctx.lineTo(v.rx, v.y); } });
     ctx.strokeStyle = _th.wallStroke || 'rgba(0,240,255,0.5)'; ctx.lineWidth = 2;
-    ctx.shadowBlur = 6; ctx.shadowColor = _th.wallGlow || '#00f0ff'; ctx.stroke(); ctx.shadowBlur = 0;
+    ctx.shadowBlur = 6 * QUALITY; ctx.shadowColor = _th.wallGlow || '#00f0ff'; ctx.stroke(); ctx.shadowBlur = 0;
   }
 
   // 깔때기 + 골인선
   ctx.save();
   ctx.strokeStyle = _th.funnelStroke || 'rgba(140,82,255,0.5)';
   ctx.lineWidth = 4;
-  ctx.shadowBlur = 8;
+  ctx.shadowBlur = 8 * QUALITY;
   ctx.shadowColor = _th.funnelColor || '#8c52ff';
   ctx.beginPath();
   ctx.moveTo(funnelLeftX,  FUNNEL_TOP_Y);
@@ -178,7 +178,7 @@ function animatePinball(currentTime) {
   ctx.fillRect(FUNNEL_BOTTOM_X, GOAL_Y, VW - FUNNEL_BOTTOM_X * 2, 40);
   ctx.strokeStyle = _th.goalStroke || '#00f0ff';
   ctx.lineWidth = 2;
-  ctx.shadowBlur = 5; ctx.shadowColor = _th.goalStroke || '#00f0ff';
+  ctx.shadowBlur = 5 * QUALITY; ctx.shadowColor = _th.goalStroke || '#00f0ff';
   ctx.strokeRect(FUNNEL_BOTTOM_X, GOAL_Y, VW - FUNNEL_BOTTOM_X * 2, 40);
   ctx.restore();
 
@@ -310,7 +310,7 @@ function animatePinball(currentTime) {
     ctx.translate(p.x, p.y);
     ctx.rotate(p.angle);
     ctx.fillStyle = p.color;
-    ctx.shadowBlur = 6; ctx.shadowColor = p.color;
+    ctx.shadowBlur = 6 * QUALITY; ctx.shadowColor = p.color;
     ctx.font = 'bold 11px Outfit, Noto Sans KR, sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText('역전!', 0, 0);
@@ -331,7 +331,7 @@ function animatePinball(currentTime) {
         ctx.globalAlpha = fa;
         ctx.fillStyle = '#ffe500';
         ctx.shadowColor = '#ffe500';
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = 8 * QUALITY;
         ctx.beginPath();
         ctx.moveTo(_cx - _cw/2, _cy + _ch);
         ctx.lineTo(_cx - _cw/2, _cy + _ch * 0.35);
@@ -342,7 +342,7 @@ function animatePinball(currentTime) {
         ctx.lineTo(_cx + _cw/2, _cy + _ch);
         ctx.closePath();
         ctx.fill();
-        ctx.shadowBlur = 3;
+        ctx.shadowBlur = 3 * QUALITY;
         [[_cx - _cw/2, _cy + _ch*0.35, 2], [_cx, _cy, 2.5], [_cx + _cw/2, _cy + _ch*0.35, 2]].forEach(([px, py, pr]) => {
           ctx.beginPath(); ctx.arc(px, py, pr, 0, Math.PI*2); ctx.fill();
         });
@@ -356,7 +356,7 @@ function animatePinball(currentTime) {
         ctx.globalAlpha = fa;
         ctx.fillStyle = '#67e8f9';
         ctx.shadowColor = '#67e8f9';
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = 8 * QUALITY;
         ctx.beginPath();
         ctx.moveTo(_cx, _cy);
         ctx.quadraticCurveTo(_cx + sw/2,    _cy + sh*0.18, _cx + sw*0.42, _cy + sh*0.58);
@@ -383,7 +383,7 @@ function animatePinball(currentTime) {
         ctx.globalAlpha = fa;
 
         ctx.shadowColor = '#ff5a5a';
-        ctx.shadowBlur = 6;
+        ctx.shadowBlur = 6 * QUALITY;
         ctx.fillStyle = '#ff4d4d';
         ctx.beginPath();
         ctx.arc(_cx, _cy, R, 0, Math.PI * 2);
@@ -396,7 +396,7 @@ function animatePinball(currentTime) {
         ctx.fill();
 
         ctx.shadowColor = '#ff5a5a';
-        ctx.shadowBlur = 3;
+        ctx.shadowBlur = 3 * QUALITY;
         ctx.fillStyle = '#ff4d4d';
         ctx.beginPath();
         ctx.arc(_cx, _cy, R * 0.5, 0, Math.PI * 2);
@@ -409,7 +409,7 @@ function animatePinball(currentTime) {
         ctx.fill();
 
         ctx.shadowColor = '#3aa0ff';
-        ctx.shadowBlur = 6;
+        ctx.shadowBlur = 6 * QUALITY;
         ctx.fillStyle = '#3aa0ff';
         ctx.beginPath();
         ctx.arc(_cx, _cy, R * 0.18, 0, Math.PI * 2);
@@ -451,7 +451,7 @@ function animatePinball(currentTime) {
       ctx.beginPath();
       ctx.arc(s.x, s.y, s.r * (s.life / s.maxLife), 0, Math.PI * 2);
       ctx.fillStyle = s.color;
-      ctx.shadowBlur = 5;
+      ctx.shadowBlur = 5 * QUALITY;
       ctx.shadowColor = s.color;
       ctx.globalAlpha = s.life / s.maxLife;
       ctx.fill();
@@ -485,7 +485,7 @@ function animatePinball(currentTime) {
     const scanY = visY0 + (Math.sin(Date.now() * 0.0035) * 0.5 + 0.5) * CH;
     ctx.strokeStyle = _th.scanLine || '#ff9900';
     ctx.lineWidth = 3;
-    ctx.shadowBlur = 10;
+    ctx.shadowBlur = 10 * QUALITY;
     ctx.shadowColor = _th.scanLine || '#ff9900';
     ctx.beginPath();
     ctx.moveTo(0, scanY); ctx.lineTo(VW, scanY);
@@ -494,7 +494,7 @@ function animatePinball(currentTime) {
     const blink = Math.floor(Date.now() / 120) % 2 === 0;
     ctx.font = 'bold 22px Outfit, Noto Sans KR, sans-serif';
     ctx.fillStyle = blink ? '#ff3366' : 'rgba(255,255,255,0.75)';
-    ctx.shadowBlur = 8;
+    ctx.shadowBlur = 8 * QUALITY;
     ctx.shadowColor = '#ff3366';
     ctx.textAlign = 'center';
     ctx.fillText('🔍 VAR PHOTO FINISH 판독 중...', VW / 2, visY0 + 130);
@@ -515,7 +515,7 @@ function animatePinball(currentTime) {
     const prog = Math.min(1, ball.y / GOAL_Y);
     const py = barY + prog * barH;
     ctx.fillStyle = ball.color;
-    ctx.shadowBlur = 4; ctx.shadowColor = ball.color;
+    ctx.shadowBlur = 4 * QUALITY; ctx.shadowColor = ball.color;
     ctx.beginPath();
     ctx.arc(barX + 3, py, 4, 0, Math.PI*2);
     ctx.fill();
