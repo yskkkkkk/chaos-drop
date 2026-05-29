@@ -116,15 +116,22 @@ function updateCamera(activeBalls, CH, VH) {
     cameraZoom = Math.max(1.0, cameraZoom);
 
     // ── 카메라 Y ─────────────────────────────────────────────
-    // 줌인 중 또는 줌아웃 복귀 중(zoom > 1.1): GOAL_Y 위치 고정
-    // 정상 구간(zoom ≤ 1.1): 공 추적 재개
-    if (exitZoomTimer > 0 || cameraZoom > 1.1) {
-      const _goalCamY = Math.max(0, GOAL_Y - CH * 0.7);
+    const _goalCamY = Math.max(0, GOAL_Y - CH * 0.7);
+    const _ballCamY = Math.max(0, Math.min(_tCenterY - CH / 2, VH - CH));
+
+    if (exitZoomTimer > 0) {
+      // 줌인 중: GOAL_Y로 빠르게 스냅
       cameraY += (_goalCamY - cameraY) * 0.08;
+    } else if (cameraZoom > 1.1) {
+      // 줌아웃 중: zoom 비율에 따라 GOAL_Y → 공 위치로 블렌딩
+      // zoom=2.0 → t=1(GOAL_Y), zoom=1.1 → t=0(공 위치)
+      const _t = Math.max(0, (cameraZoom - 1.1) / (2.0 - 1.1));
+      const _blendedCamY = _goalCamY * _t + _ballCamY * (1 - _t);
+      cameraY += (_blendedCamY - cameraY) * 0.05;
     } else {
+      // 정상 추적
       const _lerp = (_anyInFunnel || camDramaTarget) ? 0.12 : 0.05;
-      cameraY += ((_tCenterY - CH / 2) - cameraY) * _lerp;
-      cameraY = Math.max(0, Math.min(cameraY, VH - CH));
+      cameraY += (_ballCamY - cameraY) * _lerp;
     }
 
   } else {
