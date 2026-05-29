@@ -103,7 +103,7 @@ function animatePinball(currentTime) {
     if ((currentRule === 'first' && winCount === 1) || (currentRule === 'specific' && specificRank === 1)) {
       const _leader = activeBalls.reduce((a, b) => b.y > a.y ? b : a);
       if (_leader.y >= GOAL_Y - 100) {
-        triggerExitZoom();
+        triggerExitZoom(9999); // 골인까지 고정
         exitZoomLeaderTriggered = true;
       }
     }

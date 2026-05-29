@@ -58,9 +58,10 @@ function resetCamera() {
 }
 
 // 출구 줌인 발동 — 게임 시작 10초 이후부터 유효
-function triggerExitZoom() {
+// frames=9999: 당첨자 골인까지 고정 줌인 (선착순 1명 / 특정 1등 전용)
+function triggerExitZoom(frames = 240) {
   if (Date.now() - raceStartTime < 10000) return;
-  exitZoomTimer = 240;
+  exitZoomTimer = frames;
 }
 
 // 프레임당 1회 호출: 카메라 위치 및 줌 업데이트

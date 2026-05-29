@@ -38,7 +38,9 @@ function registerFinishedBall(ball) {
 
   // 출구 줌인 트리거
   const _newCount = pinballFinishedBalls.length;
-  if (currentRule === 'first' && winCount > 1) {
+  if (currentRule === 'first' && winCount === 1) {
+    if (_newCount === 1) exitZoomTimer = 0; // 당첨자 골인 → 고정 줌 해제
+  } else if (currentRule === 'first' && winCount > 1) {
     if (_newCount >= Math.ceil(winCount / 2) && _newCount <= winCount) {
       triggerExitZoom();
     }
@@ -49,7 +51,7 @@ function registerFinishedBall(ball) {
     }
   } else if (currentRule === 'specific') {
     if (specificRank === 1 && _newCount === 1) {
-      triggerExitZoom(); // n=1: 당첨자 실제 입장 시 재발동
+      exitZoomTimer = 0; // n=1: 당첨자 골인 → 고정 줌 해제
     } else if (specificRank > 1 && (_newCount === specificRank - 1 || _newCount === specificRank)) {
       triggerExitZoom();
     }
