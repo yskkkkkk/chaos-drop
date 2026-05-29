@@ -165,9 +165,20 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const resizeCanvas = () => {
       const _c = pinballCanvas.parentElement;
-      pinballCanvas.width  = _c.clientWidth;
-      pinballCanvas.height = _c.clientHeight;
-      GAME_X_OFFSET = Math.max(415, Math.round((_c.clientWidth - 415) / 2));
+      const _vw = _c.clientWidth;
+      const _vh = _c.clientHeight;
+      const _isCompact = _vw <= 700;
+      const _panelReserve = _isCompact ? 0 : PANEL_MIN_OFFSET;
+      const _hudReserve = (_vw - _panelReserve) >= GAME_VWIDTH + 28 ? 28 : 0;
+      const _availableGameWidth = Math.max(280, _vw - _panelReserve - _hudReserve);
+
+      pinballCanvas.width  = _vw;
+      pinballCanvas.height = _vh;
+      GAME_RENDER_SCALE = Math.min(1, _availableGameWidth / GAME_VWIDTH);
+      GAME_VIEWPORT_HEIGHT = Math.max(360, _vh / GAME_RENDER_SCALE);
+      SHOW_PROGRESS_HUD = _hudReserve > 0 && GAME_RENDER_SCALE >= 0.82;
+      GAME_X_OFFSET = Math.max(0, Math.round(_panelReserve + (_availableGameWidth - GAME_VWIDTH * GAME_RENDER_SCALE) / 2));
+      cameraY = Math.max(0, Math.min(cameraY, GAME_VHEIGHT - GAME_VIEWPORT_HEIGHT));
     };
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
@@ -175,7 +186,7 @@ window.addEventListener('DOMContentLoaded', () => {
     pinballCanvas.addEventListener('wheel', (e) => {
       if (!pinballGameRunning) {
         e.preventDefault();
-        cameraY = Math.max(0, Math.min(cameraY + e.deltaY * 0.7, GAME_VHEIGHT - pinballCanvas.height));
+        cameraY = Math.max(0, Math.min(cameraY + e.deltaY * 0.7, GAME_VHEIGHT - GAME_VIEWPORT_HEIGHT));
       }
     }, { passive: false });
   }

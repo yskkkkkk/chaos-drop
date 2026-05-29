@@ -9,6 +9,9 @@
 // ── 전역 동적 상태 변수 ───────────────────────────────────────
 
 let GAME_X_OFFSET = 415;
+let GAME_RENDER_SCALE = 1;
+let GAME_VIEWPORT_HEIGHT = 720;
+let SHOW_PROGRESS_HUD = true;
 
 let pinballCanvas, pinballCtx;
 let pinballAnimId = null;
@@ -82,7 +85,7 @@ function animatePinball(currentTime) {
   const ctx = pinballCtx;
   const VW = GAME_VWIDTH;
   const VH = GAME_VHEIGHT;
-  const CH = pinballCanvas.height;
+  const CH = GAME_VIEWPORT_HEIGHT;
 
   // VAR 슬로우모션 제어
   let shouldRunPhysics = true;
@@ -118,12 +121,14 @@ function animatePinball(currentTime) {
 
   // C. 게임 영역 카메라 변환
   ctx.save();
-  const _zoomCX = GAME_X_OFFSET + GAME_VWIDTH / 2;
-  const _zoomCY = CH / 2;
+  const _zoomCX = GAME_X_OFFSET + (GAME_VWIDTH * GAME_RENDER_SCALE) / 2;
+  const _zoomCY = pinballCanvas.height / 2;
   ctx.translate(_zoomCX, _zoomCY);
   ctx.scale(cameraZoom, cameraZoom);
   ctx.translate(-_zoomCX, -_zoomCY);
-  ctx.translate(GAME_X_OFFSET, -cameraY);
+  ctx.translate(GAME_X_OFFSET, 0);
+  ctx.scale(GAME_RENDER_SCALE, GAME_RENDER_SCALE);
+  ctx.translate(0, -cameraY);
 
   const visY0 = cameraY;
   const visY1 = cameraY + CH;
@@ -504,29 +509,31 @@ function animatePinball(currentTime) {
   ctx.restore();
 
   // H. HUD 진행 바
-  const barX = GAME_X_OFFSET + GAME_VWIDTH + 10;
-  const barH = pinballCanvas.height - 80;
-  const barY = 40;
+  if (SHOW_PROGRESS_HUD) {
+    const barX = GAME_X_OFFSET + GAME_VWIDTH * GAME_RENDER_SCALE + 10;
+    const barH = pinballCanvas.height - 80;
+    const barY = 40;
 
-  ctx.fillStyle = 'rgba(255,255,255,0.04)';
-  ctx.fillRect(barX, barY, 6, barH);
+    ctx.fillStyle = 'rgba(255,255,255,0.04)';
+    ctx.fillRect(barX, barY, 6, barH);
 
-  pinballBalls.forEach(ball => {
-    const prog = Math.min(1, ball.y / GOAL_Y);
-    const py = barY + prog * barH;
-    ctx.fillStyle = ball.color;
-    ctx.shadowBlur = 4; ctx.shadowColor = ball.color;
-    ctx.beginPath();
-    ctx.arc(barX + 3, py, 4, 0, Math.PI*2);
-    ctx.fill();
-    ctx.shadowBlur = 0;
-  });
+    pinballBalls.forEach(ball => {
+      const prog = Math.min(1, ball.y / GOAL_Y);
+      const py = barY + prog * barH;
+      ctx.fillStyle = ball.color;
+      ctx.shadowBlur = 4; ctx.shadowColor = ball.color;
+      ctx.beginPath();
+      ctx.arc(barX + 3, py, 4, 0, Math.PI*2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    });
 
-  const vpTop = barY + (cameraY / GAME_VHEIGHT) * barH;
-  const vpHt  = (720 / GAME_VHEIGHT) * barH;
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(barX, vpTop, 6, vpHt);
+    const vpTop = barY + (cameraY / GAME_VHEIGHT) * barH;
+    const vpHt  = (CH / GAME_VHEIGHT) * barH;
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(barX, vpTop, 6, vpHt);
+  }
 
   if (!pinballGameRunning && pinballBalls.length > 0) {
     ctx.save();
