@@ -80,6 +80,14 @@ function updateCamera(activeBalls, CH, VH) {
       return;
     }
 
+    // ── 줌아웃 복귀: zoom > 1.1 동안 cameraY 고정, 줌만 복귀 ──
+    if (cameraZoom > 1.1) {
+      const _inFunnel = activeBalls.some(b => b.y > FUNNEL_TOP_Y);
+      cameraZoomTarget = _inFunnel ? 1.05 : 1.0;
+      cameraZoom += (cameraZoomTarget - cameraZoom) * 0.05;
+      return;
+    }
+
     // ── VAR·Near-miss 드라마 컷 타이머 ──────────────────────
     if (camDramaTimer > 0) { camDramaTimer--; if (camDramaTimer === 0) camDramaTarget = null; }
 
@@ -122,11 +130,9 @@ function updateCamera(activeBalls, CH, VH) {
     } else {
       cameraZoomTarget = Math.max(1.0, Math.min(1.03, 1.03 - _spreadY * 0.0001));
     }
-    const _zoomLerp = cameraZoom > 1.1 ? 0.05 : 0.02;
-    cameraZoom += (cameraZoomTarget - cameraZoom) * _zoomLerp;
+    cameraZoom += (cameraZoomTarget - cameraZoom) * 0.02;
   } else {
     cameraZoomTarget = 1.0;
-    const _zoomLerp = cameraZoom > 1.1 ? 0.05 : 0.02;
-    cameraZoom += (cameraZoomTarget - cameraZoom) * _zoomLerp;
+    cameraZoom += (cameraZoomTarget - cameraZoom) * 0.02;
   }
 }
