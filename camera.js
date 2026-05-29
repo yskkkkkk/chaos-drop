@@ -8,7 +8,7 @@
  *
  * 공통 조건
  *   - 레이스 시작 후 10초 이상 경과한 경우에만 발동
- *   - 발동 시 GOAL_Y 중심 2배 줌인 + 카메라 Y 스냅, 4초간 유지
+ *   - 발동 시 GOAL_Y 기준 2배 줌인 + 카메라 Y 스냅, 4초간 유지
  *   - 유지 중 VAR·Near-miss 드라마 컷은 억제됨
  *   - 완주자 발생마다 재발동 가능 (타이머 리셋)
  *
@@ -34,58 +34,47 @@
 
 // ── 카메라 상태 변수 ──────────────────────────────────────
 let cameraY = 0;            // 뷰포트 종스크롤 카메라 Y좌표
-let cameraZoom = 1.0;       // 현재 줌 배율 (damped)
-let cameraZoomTarget = 1.0; // 목표 줌 배율
+let cameraZoom = 1.0;       // 현재 줌 배율
+let cameraZoomTarget = 1.0; // 목표 줌 배율 (스프링 목표)
+let cameraZoomVel = 0;      // 줌 스프링 속도 (단일 연속 시스템)
 let camDramaTimer = 0;      // 드라마 컷 잔여 프레임 (VAR·Near-miss 전용)
 let camDramaTarget = null;  // 드라마 컷 포커스 구슬
 let camFocusBall = null;    // (예약)
 let camFocusCooldown = 0;   // (예약)
 let exitZoomTimer = 0;           // 출구 줌인 잔여 프레임 (240 = 4초 @ 60fps)
 let exitZoomLeaderTriggered = false; // 거리 기반 트리거 중복 방지
-let cameraZoomVel = 0;          // 출구 줌인 전용 스프링 속도
 
 function resetCamera() {
   cameraY = 0;
   cameraZoom = 1.0;
   cameraZoomTarget = 1.0;
+  cameraZoomVel = 0;
   camDramaTimer = 0;
   camDramaTarget = null;
   camFocusBall = null;
   camFocusCooldown = 0;
   exitZoomTimer = 0;
   exitZoomLeaderTriggered = false;
-  cameraZoomVel = 0;
 }
 
 // 출구 줌인 발동 — 게임 시작 10초 이후부터 유효
-function triggerExitZoom() {
+// frames=9999: 당첨자 골인까지 고정 줌인 (선착순 1명 / 특정 1등 전용)
+function triggerExitZoom(frames = 240) {
   if (Date.now() - raceStartTime < 10000) return;
-  exitZoomTimer = 240;
+  exitZoomTimer = frames;
 }
 
 // 프레임당 1회 호출: 카메라 위치 및 줌 업데이트
 function updateCamera(activeBalls, CH, VH) {
   if (activeBalls.length > 0 && pinballGameRunning) {
 
-    // ── 출구 줌인 (최우선) ──────────────────────────────────
-    if (exitZoomTimer > 0) {
-      exitZoomTimer--;
-      const _goalCamY = Math.max(0, Math.min(GOAL_Y - CH * 0.5, VH - CH));
-      cameraY += (_goalCamY - cameraY) * 0.08;
-      cameraZoomVel += (2.0 - cameraZoom) * 0.01;
-      cameraZoomVel *= 0.85;
-      cameraZoomVel = Math.max(-0.08, Math.min(0.08, cameraZoomVel));
-      cameraZoom += cameraZoomVel;
-      if (exitZoomTimer === 0) cameraZoomVel = 0; // 타이머 만료 시 속도 클리어
-      return;
-    }
+    // 출구 줌인 타이머 감소
+    if (exitZoomTimer > 0) exitZoomTimer--;
 
-    // ── VAR·Near-miss 드라마 컷 타이머 ──────────────────────
+    // VAR·Near-miss 드라마 컷 타이머
     if (camDramaTimer > 0) { camDramaTimer--; if (camDramaTimer === 0) camDramaTarget = null; }
 
     const _camSorted = [...activeBalls].sort((a, b) => b.y - a.y);
-
-    // 파이널 존 진입 시 드라마 해제 → 리더 단일 추적
     const _anyInFunnel = activeBalls.some(b => b.y > FUNNEL_TOP_Y);
     if (_anyInFunnel) { camDramaTimer = 0; camDramaTarget = null; }
 
@@ -111,20 +100,47 @@ function updateCamera(activeBalls, CH, VH) {
     const _tCenterY = (_tMinY + _tMaxY) / 2;
     const _spreadY = _tMaxY - _tMinY;
 
-    const _lerp = (_anyInFunnel || camDramaTarget) ? 0.12 : 0.05;
-    const targetCY = _tCenterY - CH / 2;
-    cameraY += (targetCY - cameraY) * _lerp;
-    cameraY = Math.max(0, Math.min(cameraY, VH - CH));
-
-    // Zoom: 파이널 존 1.05, 그 외 spread 기반 미세 줌
-    if (_anyInFunnel) {
+    // ── 줌: 단일 스프링 (k=0.007, d=0.85) ──────────────────
+    // target만 상태에 따라 바뀌고, 스프링은 연속으로 동작.
+    // 줌인·줌아웃 모두 같은 물리 — 경계에서 속도 점프 없음.
+    if (exitZoomTimer > 0) {
+      cameraZoomTarget = 2.0;
+    } else if (_anyInFunnel) {
       cameraZoomTarget = 1.05;
     } else {
       cameraZoomTarget = Math.max(1.0, Math.min(1.03, 1.03 - _spreadY * 0.0001));
     }
-    cameraZoom += (cameraZoomTarget - cameraZoom) * 0.02;
+    cameraZoomVel += (cameraZoomTarget - cameraZoom) * 0.007;
+    cameraZoomVel *= 0.85;
+    cameraZoomVel = Math.max(-0.08, Math.min(0.08, cameraZoomVel));
+    cameraZoom += cameraZoomVel;
+    cameraZoom = Math.max(1.0, cameraZoom);
+
+    // ── 카메라 Y ─────────────────────────────────────────────
+    const _goalCamY = Math.max(0, GOAL_Y - CH * 0.7);
+    const _ballCamY = Math.max(0, Math.min(_tCenterY - CH / 2, VH - CH));
+
+    if (exitZoomTimer > 0) {
+      // 줌인 중: GOAL_Y로 빠르게 스냅
+      cameraY += (_goalCamY - cameraY) * 0.08;
+    } else if (cameraZoom > 1.1) {
+      // 줌아웃 중: zoom 비율에 따라 GOAL_Y → 공 위치로 블렌딩
+      // zoom=2.0 → t=1(GOAL_Y), zoom=1.1 → t=0(공 위치)
+      const _t = Math.max(0, (cameraZoom - 1.1) / (2.0 - 1.1));
+      const _blendedCamY = _goalCamY * _t + _ballCamY * (1 - _t);
+      cameraY += (_blendedCamY - cameraY) * 0.05;
+    } else {
+      // 정상 추적
+      const _lerp = (_anyInFunnel || camDramaTarget) ? 0.12 : 0.05;
+      cameraY += (_ballCamY - cameraY) * _lerp;
+    }
+
   } else {
+    // 공 없음: 1.0으로 스프링 복귀
     cameraZoomTarget = 1.0;
-    cameraZoom += (cameraZoomTarget - cameraZoom) * 0.02;
+    cameraZoomVel += (cameraZoomTarget - cameraZoom) * 0.007;
+    cameraZoomVel *= 0.85;
+    cameraZoom += cameraZoomVel;
+    cameraZoom = Math.max(1.0, cameraZoom);
   }
 }
