@@ -551,7 +551,7 @@ function initMobileUI() {
   if (miniLb && fullLb) {
     miniLb.addEventListener('click', () => {
       updateMobileMiniLB();
-      fullLb.style.display = 'block';
+      fullLb.style.display = 'flex';
     });
   }
 
@@ -566,11 +566,9 @@ function initMobileUI() {
   const btnMobileReset = document.getElementById('btn-mobile-reset');
   if (btnMobileReset) {
     btnMobileReset.addEventListener('click', () => {
-      if (confirm('설정으로 되돌아 갑니다.')) {
-        exitMobileGameMode();
-        resetPinball();
-        if (pinballAnimId === null) animatePinball();
-      }
+      exitMobileGameMode();
+      resetPinball();
+      if (pinballAnimId === null) animatePinball();
     });
   }
 }
