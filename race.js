@@ -47,8 +47,10 @@ function registerFinishedBall(ball) {
     if (_remaining <= winCount * 2) {
       triggerExitZoom();
     }
-  } else if (currentRule === 'specific' && specificRank > 1) {
-    if (_newCount === specificRank - 1) {
+  } else if (currentRule === 'specific') {
+    if (specificRank === 1 && _newCount === 1) {
+      triggerExitZoom(); // n=1: 당첨자 실제 입장 시 재발동
+    } else if (specificRank > 1 && (_newCount === specificRank - 1 || _newCount === specificRank)) {
       triggerExitZoom();
     }
   }
