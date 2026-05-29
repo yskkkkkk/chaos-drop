@@ -42,6 +42,7 @@ let camFocusBall = null;    // (예약)
 let camFocusCooldown = 0;   // (예약)
 let exitZoomTimer = 0;           // 출구 줌인 잔여 프레임 (240 = 4초 @ 60fps)
 let exitZoomLeaderTriggered = false; // 거리 기반 트리거 중복 방지
+let cameraZoomVel = 0;          // 출구 줌인 전용 스프링 속도
 
 function resetCamera() {
   cameraY = 0;
@@ -53,6 +54,7 @@ function resetCamera() {
   camFocusCooldown = 0;
   exitZoomTimer = 0;
   exitZoomLeaderTriggered = false;
+  cameraZoomVel = 0;
 }
 
 // 출구 줌인 발동 — 게임 시작 10초 이후부터 유효
@@ -70,8 +72,11 @@ function updateCamera(activeBalls, CH, VH) {
       exitZoomTimer--;
       const _goalCamY = Math.max(0, Math.min(GOAL_Y - CH * 0.5, VH - CH));
       cameraY += (_goalCamY - cameraY) * 0.08;
-      cameraZoomTarget = 2.0;
-      cameraZoom += (cameraZoomTarget - cameraZoom) * 0.06;
+      cameraZoomVel += (2.0 - cameraZoom) * 0.01;
+      cameraZoomVel *= 0.85;
+      cameraZoomVel = Math.max(-0.08, Math.min(0.08, cameraZoomVel));
+      cameraZoom += cameraZoomVel;
+      if (exitZoomTimer === 0) cameraZoomVel = 0; // 타이머 만료 시 속도 클리어
       return;
     }
 
