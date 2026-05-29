@@ -7,7 +7,7 @@
 
 function spawnNearMissSparks(x, y, color) {
   const sparkColors = [color, '#ffffff', '#ff9900', '#ff3366'];
-  for (let i = 0; i < 18; i++) {
+  for (let i = 0; i < Math.max(4, Math.floor(18 * QUALITY)); i++) {
     pinballNearMissSparks.push({
       x: x,
       y: y,
@@ -26,7 +26,7 @@ function triggerPinballConfetti() {
   stopPinballConfetti();
   const colors = ['#ff9900', '#8c52ff', '#00f0ff', '#ffcc00', '#ffffff'];
   pinballConfettiParticles = [];
-  for (let i = 0; i < 120; i++) {
+  for (let i = 0; i < Math.max(20, Math.floor(120 * QUALITY)); i++) {
     pinballConfettiParticles.push({
       x: GAME_VWIDTH / 2 + (Math.random() - 0.5) * 400,
       y: GOAL_Y - 10,

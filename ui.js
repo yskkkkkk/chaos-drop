@@ -254,6 +254,7 @@ function launchPinballRacing() {
   setTimeout(() => {
     raceStartTime = Date.now();
     pinballGameRunning = true;
+    enterMobileGameMode();
 
     varChecking = false;
     varTriggered = false;
@@ -288,7 +289,7 @@ window.addEventListener('DOMContentLoaded', () => {
       const _c = pinballCanvas.parentElement;
       pinballCanvas.width  = _c.clientWidth;
       pinballCanvas.height = _c.clientHeight;
-      GAME_X_OFFSET = Math.max(415, Math.round((_c.clientWidth - 415) / 2));
+      GAME_X_OFFSET = isMobile() ? 0 : Math.max(415, Math.round((_c.clientWidth - 415) / 2));
     };
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
@@ -391,6 +392,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const btnReset = document.getElementById('btn-pinball-reset');
   if (btnReset) btnReset.addEventListener('click', () => {
+    exitMobileGameMode();
     resetPinball();
     if (pinballAnimId === null) animatePinball();
   });
@@ -428,4 +430,123 @@ window.addEventListener('DOMContentLoaded', () => {
   initPinballMap();
   updatePreviewBalls();
   animatePinball();
+
+  // ── 모바일 초기화 ─────────────────────────────────────────
+  initMobileUI();
 });
+
+// ── 모바일 UI 함수 ──────────────────────────────────────────
+
+function isMobile() { return window.innerWidth <= 768; }
+
+function setMobileStep(n) {
+  const panel = document.querySelector('.pinball-control-panel');
+  const indicator = document.querySelector('.mobile-step-indicator');
+  const btnPrev = document.getElementById('btn-mobile-prev');
+  const btnNext = document.getElementById('btn-mobile-next');
+  if (!panel) return;
+  panel.classList.remove('ms-1', 'ms-2');
+  panel.classList.add('ms-' + n);
+  if (indicator) indicator.textContent = n + ' / 2';
+  if (btnPrev) btnPrev.style.visibility = n === 1 ? 'hidden' : 'visible';
+  if (btnNext) btnNext.style.display = n === 2 ? 'none' : '';
+}
+
+function updateMobileMiniLB() {
+  if (!isMobile()) return;
+  const miniLb = document.getElementById('mobile-mini-lb');
+  const fullBody = document.getElementById('mobile-full-lb-body');
+  if (!miniLb) return;
+
+  const medals = ['🥇', '🥈', '🥉'];
+  const top3 = pinballFinishedBalls.slice(0, 3);
+  miniLb.innerHTML = top3.length === 0
+    ? '<div class="mobile-mini-lb-row" style="color:rgba(255,255,255,0.35);font-size:0.72rem;">대기 중...</div>'
+    : top3.map((b, i) => '<div class="mobile-mini-lb-row">' +
+        '<span>' + medals[i] + '</span>' +
+        '<span class="mobile-mini-dot" style="background:' + b.color + ';"></span>' +
+        '<span>' + b.name + '</span>' +
+        '</div>').join('');
+
+  if (fullBody) {
+    if (pinballFinishedBalls.length === 0) {
+      fullBody.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.3);padding:20px 0;">아직 완주자가 없습니다.</div>';
+    } else {
+      const total = pinballBalls.length;
+      fullBody.innerHTML = pinballFinishedBalls.map((b, idx) => {
+        const rank = idx + 1;
+        const isTop = (currentRule === 'first' && rank <= winCount)
+                   || (currentRule === 'last' && rank > total - winCount)
+                   || (currentRule === 'specific' && rank === specificRank);
+        return '<div style="display:flex;align-items:center;gap:10px;padding:8px 6px;border-bottom:1px solid rgba(255,255,255,0.04);">' +
+          '<span style="font-weight:800;width:30px;color:' + (isTop ? 'var(--accent)' : '#9ca3af') + ';">#' + rank + '</span>' +
+          '<span class="mobile-mini-dot" style="background:' + b.color + ';box-shadow:0 0 4px ' + b.color + ';width:8px;height:8px;"></span>' +
+          '<span style="font-weight:700;flex:1;font-size:0.85rem;">' + b.name + '</span>' +
+          '<span style="font-family:\'Courier New\',monospace;font-size:0.78rem;color:var(--neon-blue);">' + b.duration + 's</span>' +
+          '</div>';
+      }).join('');
+    }
+  }
+}
+
+function enterMobileGameMode() {
+  if (!isMobile()) return;
+  document.body.classList.add('mobile-game-active');
+  updateMobileMiniLB();
+}
+
+function exitMobileGameMode() {
+  document.body.classList.remove('mobile-game-active');
+  const fullLb = document.getElementById('mobile-full-lb');
+  if (fullLb) fullLb.style.display = 'none';
+  setMobileStep(1);
+}
+
+function initMobileUI() {
+  // 패널에 초기 step 1 클래스 설정 (desktop에서는 무해)
+  setMobileStep(1);
+
+  const btnNext = document.getElementById('btn-mobile-next');
+  if (btnNext) {
+    btnNext.addEventListener('click', () => {
+      const ta = document.getElementById('pinball-members');
+      const members = ta ? ta.value.split(',').map(n => n.trim()).filter(n => n.length > 0) : [];
+      if (members.length < 2) {
+        alert('최소 2명 이상 입력해주세요.');
+        return;
+      }
+      setMobileStep(2);
+    });
+  }
+
+  const btnPrev = document.getElementById('btn-mobile-prev');
+  if (btnPrev) btnPrev.addEventListener('click', () => setMobileStep(1));
+
+  const miniLb = document.getElementById('mobile-mini-lb');
+  const fullLb = document.getElementById('mobile-full-lb');
+  if (miniLb && fullLb) {
+    miniLb.addEventListener('click', () => {
+      updateMobileMiniLB();
+      fullLb.style.display = 'block';
+    });
+  }
+
+  const btnCloseFull = document.getElementById('btn-mobile-close-full');
+  if (btnCloseFull && fullLb) {
+    btnCloseFull.addEventListener('click', e => {
+      e.stopPropagation();
+      fullLb.style.display = 'none';
+    });
+  }
+
+  const btnMobileReset = document.getElementById('btn-mobile-reset');
+  if (btnMobileReset) {
+    btnMobileReset.addEventListener('click', () => {
+      if (confirm('설정으로 되돌아 갑니다.')) {
+        exitMobileGameMode();
+        resetPinball();
+        if (pinballAnimId === null) animatePinball();
+      }
+    });
+  }
+}

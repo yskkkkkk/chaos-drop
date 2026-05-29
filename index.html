@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>네온 핀볼 구슬 경주 (Neon Pinball Ball Race)</title>
-  
+
   <!-- Google Fonts (Outfit & Noto Sans KR & Inter) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,8 +25,8 @@
       <span class="badge orange badge-sm">60FPS ENGINE</span>
     </div>
 
-    <!-- 맵 선택 세그먼트 -->
-    <div class="panel-row map-select-row">
+    <!-- 맵 선택 세그먼트 — Step 1 -->
+    <div class="panel-row map-select-row" data-ms="1">
       <div class="map-select-label">맵 선택</div>
       <div class="map-segment" role="tablist" aria-label="맵 선택">
         <button type="button" class="map-seg-btn active" data-map="classic-chaos" role="tab" aria-selected="true">🌀 Classic</button>
@@ -34,8 +34,8 @@
       </div>
     </div>
 
-    <!-- 팀원 명단 입력 -->
-    <div>
+    <!-- 팀원 명단 입력 — Step 1 -->
+    <div data-ms="1">
       <div class="panel-row panel-row--mb2">
         <div class="panel-section-title panel-title-flush">참전 팀원 명단 <span id="member-count" class="member-count">0명</span></div>
         <button id="btn-shuffle-members" class="shuffle-btn" title="명단 순서 섞기" aria-label="명단 순서 섞기"><span class="shuffle-ico">🔀</span> 순서 섞기</button>
@@ -43,8 +43,8 @@
       <textarea id="pinball-members" class="panel-textarea" placeholder="쉼표로 구분하여 입력"></textarea>
     </div>
 
-    <!-- 당첨 룰 설정 라디오 버튼 -->
-    <div>
+    <!-- 당첨 룰 설정 라디오 버튼 — Step 2 -->
+    <div data-ms="2">
       <div class="panel-section-title">당첨 순위 규칙 선택</div>
       <div class="rule-radio-group">
         <label class="rule-radio-item">
@@ -62,8 +62,8 @@
       </div>
     </div>
 
-    <!-- 가변 인풋 셋 (당첨 인원 / 특정 순번) -->
-    <div class="panel-grid-2">
+    <!-- 가변 인풋 셋 (당첨 인원 / 특정 순번) — Step 2 -->
+    <div class="panel-grid-2" data-ms="2">
       <div>
         <div class="panel-section-title" id="lbl-win-count">당첨 인원수</div>
         <div class="number-stepper">
@@ -80,8 +80,8 @@
       </div>
     </div>
 
-    <!-- ❄️ Freeze Mode 토글 -->
-    <div class="panel-toggle-row">
+    <!-- ❄️ Freeze Mode 토글 — Step 2 -->
+    <div class="panel-toggle-row" data-ms="2">
       <input type="checkbox" id="freeze-mode-toggle" checked class="panel-toggle-checkbox">
       <div class="freeze-mode-label-group">
         <label for="freeze-mode-toggle" class="panel-toggle-label">❄️ FREEZE MODE</label>
@@ -92,11 +92,11 @@
       </span>
     </div>
 
-    <!-- 터미널 모니터 로그 -->
-    <div id="pinball-terminal">> Pinball System initialized. Awaiting Launch...</div>
+    <!-- 터미널 모니터 로그 — Step 2 -->
+    <div id="pinball-terminal" data-ms="2">> Pinball System initialized. Awaiting Launch...</div>
 
-    <!-- 조작 버튼들 -->
-    <div class="panel-grid-buttons">
+    <!-- 조작 버튼들 — Step 2 -->
+    <div class="panel-grid-buttons" data-ms="2">
       <button id="btn-pinball-launch" class="panel-btn btn-orange">⚡ 경주 시작</button>
       <button id="btn-pinball-reset" class="panel-btn btn-reset">다시 세팅</button>
     </div>
@@ -119,6 +119,13 @@
         </tbody>
       </table>
     </div>
+
+    <!-- 모바일 스텝 내비게이션 (데스크탑에서 숨김) -->
+    <div class="mobile-step-nav">
+      <button id="btn-mobile-prev" class="mobile-nav-btn">← 이전</button>
+      <span class="mobile-step-indicator">1 / 2</span>
+      <button id="btn-mobile-next" class="mobile-nav-btn">다음 →</button>
+    </div>
   </div>
 
   <!-- 공중 플로팅 당첨 팝업 모달 -->
@@ -128,6 +135,27 @@
     <h2 class="modal-winner-names" id="pinball-winner-text">홍길동, 김철수</h2>
     <p class="modal-subtext">축하합니다!</p>
     <button id="btn-modal-close" class="panel-btn btn-reset btn-modal-close">확인 및 닫기</button>
+  </div>
+
+  <!-- 모바일 게임 오버레이 (미니 리더보드 + 전체 순위) -->
+  <div id="mobile-game-overlay">
+    <div id="mobile-mini-lb" class="mobile-mini-lb">
+      <div class="mobile-mini-lb-row" style="color:rgba(255,255,255,0.35);font-size:0.72rem;">대기 중...</div>
+    </div>
+    <div id="mobile-full-lb" class="mobile-full-lb">
+      <div class="mobile-full-lb-header">
+        <span class="mobile-full-lb-title">RACE RANK</span>
+        <button id="btn-mobile-close-full" class="mobile-close-btn">✕ 닫기</button>
+      </div>
+      <div id="mobile-full-lb-body"></div>
+      <button id="btn-mobile-reset" class="mobile-reset-btn">처음으로</button>
+    </div>
+  </div>
+
+  <!-- 모바일 화면 회전 안내 (세로 모드 요청) -->
+  <div id="mobile-rotate-overlay">
+    <div class="rotate-icon">📱</div>
+    <div class="rotate-msg">화면을 세로로 돌려주세요</div>
   </div>
 
   <!-- ── 스크립트 파일 로드 ───────────────────────────────── -->

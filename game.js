@@ -83,6 +83,10 @@ function animatePinball(currentTime) {
   const VW = GAME_VWIDTH;
   const VH = GAME_VHEIGHT;
   const CH = pinballCanvas.height;
+  // 모바일 fit-scale: 가상 보드(825px)를 화면 폭에 맞게 축소 (desktop 무영향)
+  const _fitScale = (_DEVICE_MOBILE && pinballCanvas.width < GAME_VWIDTH)
+    ? pinballCanvas.width / GAME_VWIDTH : 1.0;
+  const _vCH = _fitScale < 1.0 ? Math.round(CH / _fitScale) : CH;
 
   // VAR 슬로우모션 제어
   let shouldRunPhysics = true;
@@ -109,7 +113,7 @@ function animatePinball(currentTime) {
     }
   }
 
-  updateCamera(activeBalls, CH, VH);
+  updateCamera(activeBalls, _vCH, VH);
 
   // B. 배경
   const _th = MAPS[currentMapId]?.theme || {};
@@ -118,20 +122,21 @@ function animatePinball(currentTime) {
 
   // C. 게임 영역 카메라 변환
   ctx.save();
+  if (_fitScale < 1.0) ctx.scale(_fitScale, _fitScale); // 모바일 fit-scale (outermost)
   const _zoomCX = GAME_X_OFFSET + GAME_VWIDTH / 2;
-  const _zoomCY = CH / 2;
+  const _zoomCY = _vCH / 2;
   ctx.translate(_zoomCX, _zoomCY);
   ctx.scale(cameraZoom, cameraZoom);
   ctx.translate(-_zoomCX, -_zoomCY);
   ctx.translate(GAME_X_OFFSET, -cameraY);
 
   const visY0 = cameraY;
-  const visY1 = cameraY + CH;
-  let bgGrad = ctx.createRadialGradient(VW/2, visY0+CH/2, 60, VW/2, visY0+CH/2, 520);
+  const visY1 = cameraY + _vCH;
+  let bgGrad = ctx.createRadialGradient(VW/2, visY0+_vCH/2, 60, VW/2, visY0+_vCH/2, 520);
   bgGrad.addColorStop(0, _th.bgFrom || '#10122e');
   bgGrad.addColorStop(1, _th.bgTo   || '#05060b');
   ctx.fillStyle = bgGrad;
-  ctx.fillRect(0, visY0, VW, CH);
+  ctx.fillRect(0, visY0, VW, _vCH);
 
   // 가변 벽 드로잉
   if (wallProfile.length >= 2) {
@@ -144,7 +149,7 @@ function animatePinball(currentTime) {
     ctx.beginPath();
     wallProfile.forEach((v, i) => { if (v.y >= visY0 - 50 && v.y <= visY1 + 50) { i === 0 || wallProfile[i-1]?.y < visY0 - 50 ? ctx.moveTo(v.lx, v.y) : ctx.lineTo(v.lx, v.y); } });
     ctx.strokeStyle = _th.wallStroke || 'rgba(0,240,255,0.5)'; ctx.lineWidth = 2;
-    ctx.shadowBlur = 6; ctx.shadowColor = _th.wallGlow || '#00f0ff'; ctx.stroke(); ctx.shadowBlur = 0;
+    ctx.shadowBlur = 6 * QUALITY; ctx.shadowColor = _th.wallGlow || '#00f0ff'; ctx.stroke(); ctx.shadowBlur = 0;
 
     ctx.beginPath();
     ctx.moveTo(VW, visY0);
@@ -155,14 +160,14 @@ function animatePinball(currentTime) {
     ctx.beginPath();
     wallProfile.forEach((v, i) => { if (v.y >= visY0 - 50 && v.y <= visY1 + 50) { i === 0 || wallProfile[i-1]?.y < visY0 - 50 ? ctx.moveTo(v.rx, v.y) : ctx.lineTo(v.rx, v.y); } });
     ctx.strokeStyle = _th.wallStroke || 'rgba(0,240,255,0.5)'; ctx.lineWidth = 2;
-    ctx.shadowBlur = 6; ctx.shadowColor = _th.wallGlow || '#00f0ff'; ctx.stroke(); ctx.shadowBlur = 0;
+    ctx.shadowBlur = 6 * QUALITY; ctx.shadowColor = _th.wallGlow || '#00f0ff'; ctx.stroke(); ctx.shadowBlur = 0;
   }
 
   // 깔때기 + 골인선
   ctx.save();
   ctx.strokeStyle = _th.funnelStroke || 'rgba(140,82,255,0.5)';
   ctx.lineWidth = 4;
-  ctx.shadowBlur = 8;
+  ctx.shadowBlur = 8 * QUALITY;
   ctx.shadowColor = _th.funnelColor || '#8c52ff';
   ctx.beginPath();
   ctx.moveTo(funnelLeftX,  FUNNEL_TOP_Y);
@@ -178,7 +183,7 @@ function animatePinball(currentTime) {
   ctx.fillRect(FUNNEL_BOTTOM_X, GOAL_Y, VW - FUNNEL_BOTTOM_X * 2, 40);
   ctx.strokeStyle = _th.goalStroke || '#00f0ff';
   ctx.lineWidth = 2;
-  ctx.shadowBlur = 5; ctx.shadowColor = _th.goalStroke || '#00f0ff';
+  ctx.shadowBlur = 5 * QUALITY; ctx.shadowColor = _th.goalStroke || '#00f0ff';
   ctx.strokeRect(FUNNEL_BOTTOM_X, GOAL_Y, VW - FUNNEL_BOTTOM_X * 2, 40);
   ctx.restore();
 
@@ -310,7 +315,7 @@ function animatePinball(currentTime) {
     ctx.translate(p.x, p.y);
     ctx.rotate(p.angle);
     ctx.fillStyle = p.color;
-    ctx.shadowBlur = 6; ctx.shadowColor = p.color;
+    ctx.shadowBlur = 6 * QUALITY; ctx.shadowColor = p.color;
     ctx.font = 'bold 11px Outfit, Noto Sans KR, sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText('역전!', 0, 0);
@@ -331,7 +336,7 @@ function animatePinball(currentTime) {
         ctx.globalAlpha = fa;
         ctx.fillStyle = '#ffe500';
         ctx.shadowColor = '#ffe500';
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = 8 * QUALITY;
         ctx.beginPath();
         ctx.moveTo(_cx - _cw/2, _cy + _ch);
         ctx.lineTo(_cx - _cw/2, _cy + _ch * 0.35);
@@ -342,7 +347,7 @@ function animatePinball(currentTime) {
         ctx.lineTo(_cx + _cw/2, _cy + _ch);
         ctx.closePath();
         ctx.fill();
-        ctx.shadowBlur = 3;
+        ctx.shadowBlur = 3 * QUALITY;
         [[_cx - _cw/2, _cy + _ch*0.35, 2], [_cx, _cy, 2.5], [_cx + _cw/2, _cy + _ch*0.35, 2]].forEach(([px, py, pr]) => {
           ctx.beginPath(); ctx.arc(px, py, pr, 0, Math.PI*2); ctx.fill();
         });
@@ -356,7 +361,7 @@ function animatePinball(currentTime) {
         ctx.globalAlpha = fa;
         ctx.fillStyle = '#67e8f9';
         ctx.shadowColor = '#67e8f9';
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = 8 * QUALITY;
         ctx.beginPath();
         ctx.moveTo(_cx, _cy);
         ctx.quadraticCurveTo(_cx + sw/2,    _cy + sh*0.18, _cx + sw*0.42, _cy + sh*0.58);
@@ -383,7 +388,7 @@ function animatePinball(currentTime) {
         ctx.globalAlpha = fa;
 
         ctx.shadowColor = '#ff5a5a';
-        ctx.shadowBlur = 6;
+        ctx.shadowBlur = 6 * QUALITY;
         ctx.fillStyle = '#ff4d4d';
         ctx.beginPath();
         ctx.arc(_cx, _cy, R, 0, Math.PI * 2);
@@ -396,7 +401,7 @@ function animatePinball(currentTime) {
         ctx.fill();
 
         ctx.shadowColor = '#ff5a5a';
-        ctx.shadowBlur = 3;
+        ctx.shadowBlur = 3 * QUALITY;
         ctx.fillStyle = '#ff4d4d';
         ctx.beginPath();
         ctx.arc(_cx, _cy, R * 0.5, 0, Math.PI * 2);
@@ -409,7 +414,7 @@ function animatePinball(currentTime) {
         ctx.fill();
 
         ctx.shadowColor = '#3aa0ff';
-        ctx.shadowBlur = 6;
+        ctx.shadowBlur = 6 * QUALITY;
         ctx.fillStyle = '#3aa0ff';
         ctx.beginPath();
         ctx.arc(_cx, _cy, R * 0.18, 0, Math.PI * 2);
@@ -451,7 +456,7 @@ function animatePinball(currentTime) {
       ctx.beginPath();
       ctx.arc(s.x, s.y, s.r * (s.life / s.maxLife), 0, Math.PI * 2);
       ctx.fillStyle = s.color;
-      ctx.shadowBlur = 5;
+      ctx.shadowBlur = 5 * QUALITY;
       ctx.shadowColor = s.color;
       ctx.globalAlpha = s.life / s.maxLife;
       ctx.fill();
@@ -480,12 +485,12 @@ function animatePinball(currentTime) {
   if (varChecking) {
     ctx.save();
     ctx.fillStyle = 'rgba(8, 16, 32, 0.28)';
-    ctx.fillRect(0, visY0, VW, CH);
+    ctx.fillRect(0, visY0, VW, _vCH);
 
-    const scanY = visY0 + (Math.sin(Date.now() * 0.0035) * 0.5 + 0.5) * CH;
+    const scanY = visY0 + (Math.sin(Date.now() * 0.0035) * 0.5 + 0.5) * _vCH;
     ctx.strokeStyle = _th.scanLine || '#ff9900';
     ctx.lineWidth = 3;
-    ctx.shadowBlur = 10;
+    ctx.shadowBlur = 10 * QUALITY;
     ctx.shadowColor = _th.scanLine || '#ff9900';
     ctx.beginPath();
     ctx.moveTo(0, scanY); ctx.lineTo(VW, scanY);
@@ -494,7 +499,7 @@ function animatePinball(currentTime) {
     const blink = Math.floor(Date.now() / 120) % 2 === 0;
     ctx.font = 'bold 22px Outfit, Noto Sans KR, sans-serif';
     ctx.fillStyle = blink ? '#ff3366' : 'rgba(255,255,255,0.75)';
-    ctx.shadowBlur = 8;
+    ctx.shadowBlur = 8 * QUALITY;
     ctx.shadowColor = '#ff3366';
     ctx.textAlign = 'center';
     ctx.fillText('🔍 VAR PHOTO FINISH 판독 중...', VW / 2, visY0 + 130);
@@ -503,30 +508,32 @@ function animatePinball(currentTime) {
 
   ctx.restore();
 
-  // H. HUD 진행 바
-  const barX = GAME_X_OFFSET + GAME_VWIDTH + 10;
-  const barH = pinballCanvas.height - 80;
-  const barY = 40;
+  // H. HUD 진행 바 (모바일에서는 화면 밖으로 벗어나므로 생략)
+  if (!_DEVICE_MOBILE) {
+    const barX = GAME_X_OFFSET + GAME_VWIDTH + 10;
+    const barH = pinballCanvas.height - 80;
+    const barY = 40;
 
-  ctx.fillStyle = 'rgba(255,255,255,0.04)';
-  ctx.fillRect(barX, barY, 6, barH);
+    ctx.fillStyle = 'rgba(255,255,255,0.04)';
+    ctx.fillRect(barX, barY, 6, barH);
 
-  pinballBalls.forEach(ball => {
-    const prog = Math.min(1, ball.y / GOAL_Y);
-    const py = barY + prog * barH;
-    ctx.fillStyle = ball.color;
-    ctx.shadowBlur = 4; ctx.shadowColor = ball.color;
-    ctx.beginPath();
-    ctx.arc(barX + 3, py, 4, 0, Math.PI*2);
-    ctx.fill();
-    ctx.shadowBlur = 0;
-  });
+    pinballBalls.forEach(ball => {
+      const prog = Math.min(1, ball.y / GOAL_Y);
+      const py = barY + prog * barH;
+      ctx.fillStyle = ball.color;
+      ctx.shadowBlur = 4 * QUALITY; ctx.shadowColor = ball.color;
+      ctx.beginPath();
+      ctx.arc(barX + 3, py, 4, 0, Math.PI*2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    });
 
-  const vpTop = barY + (cameraY / GAME_VHEIGHT) * barH;
-  const vpHt  = (720 / GAME_VHEIGHT) * barH;
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(barX, vpTop, 6, vpHt);
+    const vpTop = barY + (cameraY / GAME_VHEIGHT) * barH;
+    const vpHt  = (720 / GAME_VHEIGHT) * barH;
+    ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(barX, vpTop, 6, vpHt);
+  }
 
   if (!pinballGameRunning && pinballBalls.length > 0) {
     ctx.save();
