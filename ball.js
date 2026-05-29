@@ -189,7 +189,7 @@ class RacingBall {
       }
       ctx.restore();
 
-      // 3) 가운데 등수 숫자 (회전 안 함, 항상 똑바로)
+      // 3) 가운데 등수 숫자 (공의 굴러가는 회전각과 연동되어 역동적으로 떰블링)
       if (this.finishRank) {
         ctx.save();
         ctx.globalAlpha = 0.96;
@@ -200,7 +200,10 @@ class RacingBall {
         ctx.textBaseline = 'middle';
         ctx.shadowBlur = 4;
         ctx.shadowColor = 'rgba(0,0,0,0.95)';
-        ctx.fillText(this.finishRank, this.x, this.y + 1);
+        
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+        ctx.fillText(this.finishRank, 0, 1);
         ctx.restore();
       }
 
