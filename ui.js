@@ -249,6 +249,17 @@ window.addEventListener('DOMContentLoaded', () => {
 
   if (winCountInput) {
     winCountInput.addEventListener('input', updateRuleLabels);
+    winCountInput.addEventListener('change', () => {
+      const min = parseInt(winCountInput.min) || 1;
+      const max = parseInt(winCountInput.max) || 99;
+      let val = parseInt(winCountInput.value);
+      if (isNaN(val) || val < min) {
+        winCountInput.value = min;
+      } else if (val > max) {
+        winCountInput.value = max;
+      }
+      winCountInput.dispatchEvent(new Event('input'));
+    });
   }
   if (specRankSelect) {
     specRankSelect.addEventListener('change', updateRuleLabels);
