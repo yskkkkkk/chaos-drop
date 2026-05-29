@@ -34,6 +34,8 @@ function registerFinishedBall(ball) {
     duration: duration
   });
 
+  ball.finishRank = finishedCount + 1;   // ← 추가: 골인 등수 고정
+
   ball.vy = Math.max(1.2, ball.vy * 0.7);
   ball.vx = ball.vx * 0.8 + (Math.random() - 0.5) * 1.5;
 
