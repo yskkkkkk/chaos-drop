@@ -31,7 +31,8 @@ function registerFinishedBall(ball) {
     id: ball.id,
     name: ball.name,
     color: ball.color,
-    duration: duration
+    duration: duration,
+    isFinished: true
   });
 
   ball.finishRank = finishedCount + 1;
