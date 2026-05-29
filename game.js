@@ -84,11 +84,10 @@ function animatePinball(currentTime) {
   const VW = GAME_VWIDTH;
   const VH = GAME_VHEIGHT;
   const CH = pinballCanvas.height;
-  // 모바일 fit-scale: 가상 보드(825px)를 화면 폭에 맞게 축소 (desktop 무영향)
-  const _fitScale = (_DEVICE_MOBILE && pinballCanvas.width < GAME_VWIDTH)
-    ? pinballCanvas.width / GAME_VWIDTH : 1.0;
-  const _vCH = _fitScale < 1.0 ? Math.round(CH / _fitScale) : CH;
-  window._RENDER_FIT_SCALE = _fitScale; // ball.js 폰트 크기 적응에 사용
+  // BOARD_XSCALE로 물리 보드폭 = 캔버스폭 → fitScale 불필요
+  const _fitScale = 1.0;
+  const _vCH = CH;
+  window._RENDER_FIT_SCALE = 1.0;
 
   // VAR 슬로우모션 제어
   let shouldRunPhysics = true;
@@ -124,7 +123,6 @@ function animatePinball(currentTime) {
 
   // C. 게임 영역 카메라 변환
   ctx.save();
-  if (_fitScale < 1.0) ctx.scale(_fitScale, _fitScale); // 모바일 fit-scale (outermost)
   const _zoomCX = GAME_X_OFFSET + GAME_VWIDTH / 2;
   const _zoomCY = _vCH / 2;
   ctx.translate(_zoomCX, _zoomCY);

@@ -8,8 +8,8 @@
  */
 
 // ── 협곡 구조 상수 ────────────────────────────────────────
-const ZC_NARROW = 210;
-const ZC_WIDE   = GAME_VWIDTH - ZC_NARROW;  // 615
+const ZC_NARROW = Math.round(210 * BOARD_XSCALE);
+const ZC_WIDE   = GAME_VWIDTH - ZC_NARROW;
 
 const ZC_SECTIONS = [
   { top: 600,  bot: 1080, narrowSide: 'left',  barSide: 'right', spawnY: 660  },
@@ -21,7 +21,7 @@ const ZC_SECTIONS = [
 const ZC_BARS_PER_SEC  = 3;
 const ZC_BAR_Y_OFFSET  = 110;
 const ZC_BAR_SPACING   = 135;
-const ZC_BAR_MAX_LEN   = 220;
+const ZC_BAR_MAX_LEN   = Math.round(220 * BOARD_XSCALE);
 const ZC_BAR_SPEED     = 5;
 const ZC_BAR_HOLD      = 85;
 const ZC_BAR_PAUSE     = 70;

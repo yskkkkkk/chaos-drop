@@ -45,7 +45,7 @@ let exitZoomTimer = 0;           // 출구 줌인 잔여 프레임 (240 = 4초 @
 let exitZoomLeaderTriggered = false; // 거리 기반 트리거 중복 방지
 
 function resetCamera() {
-  const _initZoom = _DEVICE_MOBILE ? 1.35 : 1.0;
+  const _initZoom = 1.0;
   cameraY = 0;
   cameraZoom = _initZoom;
   cameraZoomTarget = _initZoom;
@@ -67,7 +67,7 @@ function triggerExitZoom(frames = 240) {
 
 // 프레임당 1회 호출: 카메라 위치 및 줌 업데이트
 function updateCamera(activeBalls, CH, VH) {
-  const _minZoom = _DEVICE_MOBILE ? 1.35 : 1.0;
+  const _minZoom = 1.0;
   // 줌아웃 블렌딩이 끝나는 임계값: _minZoom 바로 위
   // (1.1 고정값을 쓰면 모바일에서 항상 블렌딩 분기에 걸려 공 추적 불가)
   const _zoomBlendThresh = _minZoom + 0.02;
