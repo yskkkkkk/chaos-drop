@@ -16,6 +16,123 @@ function pinballLog(msg) {
   term.scrollTop = term.scrollHeight;
 }
 
+function updateStepperButtons() {
+  const winInput = document.getElementById('pinball-win-count');
+  const btnMinus = document.getElementById('btn-win-minus');
+  const btnPlus = document.getElementById('btn-win-plus');
+
+  if (!winInput || !btnMinus || !btnPlus) return;
+
+  const min = parseInt(winInput.min) || 1;
+  const max = parseInt(winInput.max) || 99;
+  const val = parseInt(winInput.value) || min;
+
+  btnMinus.classList.toggle('is-hidden', val <= min);
+  btnPlus.classList.toggle('is-hidden', val >= max);
+}
+
+function updateRuleLabels() {
+  const winInput = document.getElementById('pinball-win-count');
+  const specRankSelect = document.getElementById('pinball-specific-rank');
+  const lblFirst = document.getElementById('lbl-first-desc');
+  const lblLast = document.getElementById('lbl-last-desc');
+  const lblSpecific = document.getElementById('lbl-specific-desc');
+
+  if (!winInput || !specRankSelect) return;
+
+  const currentWinCount = winInput.value || 2;
+  const currentSpecificRank = specRankSelect.value || 1;
+
+  if (lblFirst) lblFirst.textContent = `(${currentWinCount}명까지)`;
+  if (lblLast) lblLast.textContent = `(${currentWinCount}명까지)`;
+  if (lblSpecific) lblSpecific.textContent = `(${currentSpecificRank}등 단독)`;
+
+  updateStepperButtons();
+}
+
+function setControlsEnabled(enabled) {
+  const membersTA = document.getElementById('pinball-members');
+  const btnShuffle = document.getElementById('btn-shuffle-members');
+  const ruleRadios = document.querySelectorAll('input[name="pinball-rule"]');
+  const winCountInput = document.getElementById('pinball-win-count');
+  const btnMinus = document.getElementById('btn-win-minus');
+  const btnPlus = document.getElementById('btn-win-plus');
+  const specRankSelect = document.getElementById('pinball-specific-rank');
+  const freezeToggle = document.getElementById('freeze-mode-toggle');
+  const mapSegBtns = document.querySelectorAll('.map-seg-btn');
+
+  if (membersTA) membersTA.disabled = !enabled;
+  if (btnShuffle) {
+    btnShuffle.disabled = !enabled;
+    btnShuffle.style.opacity = enabled ? '1.0' : '0.45';
+    btnShuffle.style.pointerEvents = enabled ? 'auto' : 'none';
+  }
+
+  ruleRadios.forEach(radio => {
+    radio.disabled = !enabled;
+    radio.parentElement.style.opacity = enabled ? '1.0' : '0.5';
+    radio.parentElement.style.pointerEvents = enabled ? 'auto' : 'none';
+  });
+
+  if (winCountInput) {
+    if (!enabled) {
+      winCountInput.disabled = true;
+      winCountInput.style.cursor = 'not-allowed';
+      winCountInput.style.opacity = '0.4';
+    } else {
+      const rule = document.querySelector('input[name="pinball-rule"]:checked')?.value;
+      const isSpecific = rule === 'specific';
+      winCountInput.disabled = isSpecific;
+      winCountInput.style.cursor = isSpecific ? 'not-allowed' : 'text';
+      winCountInput.style.opacity = isSpecific ? '0.5' : '1.0';
+      const lblWinCount = document.getElementById('lbl-win-count');
+      if (lblWinCount) lblWinCount.style.color = isSpecific ? 'rgba(255,255,255,0.4)' : 'var(--accent)';
+    }
+  }
+
+  const stepper = document.querySelector('.number-stepper');
+  if (stepper) {
+    stepper.style.opacity = enabled ? '1.0' : '0.5';
+    stepper.style.pointerEvents = enabled ? 'auto' : 'none';
+  }
+
+  if (btnMinus) btnMinus.disabled = !enabled;
+  if (btnPlus) btnPlus.disabled = !enabled;
+
+  if (specRankSelect) {
+    if (!enabled) {
+      specRankSelect.disabled = true;
+      specRankSelect.style.cursor = 'not-allowed';
+      specRankSelect.style.opacity = '0.4';
+    } else {
+      const rule = document.querySelector('input[name="pinball-rule"]:checked')?.value;
+      const isSpecific = rule === 'specific';
+      specRankSelect.disabled = !isSpecific;
+      specRankSelect.style.cursor = isSpecific ? 'pointer' : 'not-allowed';
+      specRankSelect.style.opacity = isSpecific ? '1.0' : '0.5';
+      const lblSpecificRank = document.getElementById('lbl-specific-rank');
+      if (lblSpecificRank) lblSpecificRank.style.color = isSpecific ? 'var(--accent)' : 'rgba(255,255,255,0.4)';
+    }
+  }
+
+  if (freezeToggle) {
+    freezeToggle.disabled = !enabled;
+    const toggleRow = document.querySelector('.panel-toggle-row');
+    if (toggleRow) {
+      toggleRow.style.opacity = enabled ? '1.0' : '0.5';
+      toggleRow.style.pointerEvents = enabled ? 'auto' : 'none';
+    }
+  }
+
+  mapSegBtns.forEach(btn => {
+    if (!btn.classList.contains('locked')) {
+      btn.disabled = !enabled;
+      btn.style.opacity = enabled ? '1.0' : '0.5';
+      btn.style.pointerEvents = enabled ? 'auto' : 'none';
+    }
+  });
+}
+
 function updatePreviewBalls() {
   if (pinballGameRunning) return;
   const ta = document.getElementById('pinball-members');
@@ -58,6 +175,7 @@ function updateSpecificRankSelect() {
   });
 
   updatePreviewBalls();
+  updateRuleLabels();
 }
 
 function shuffleMembers() {
@@ -129,6 +247,9 @@ function launchPinballRacing() {
 
   const btnLaunchEl = document.getElementById('btn-pinball-launch');
   if (btnLaunchEl) { btnLaunchEl.disabled = true; btnLaunchEl.style.opacity = '0.45'; }
+
+  // 경주 중 옵션 변경 불가능하도록 컨트롤 잠금
+  setControlsEnabled(false);
 
   setTimeout(() => {
     raceStartTime = Date.now();
@@ -212,6 +333,47 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  if (winCountInput) {
+    winCountInput.addEventListener('input', updateRuleLabels);
+    winCountInput.addEventListener('change', () => {
+      const min = parseInt(winCountInput.min) || 1;
+      const max = parseInt(winCountInput.max) || 99;
+      let val = parseInt(winCountInput.value);
+      if (isNaN(val) || val < min) {
+        winCountInput.value = min;
+      } else if (val > max) {
+        winCountInput.value = max;
+      }
+      winCountInput.dispatchEvent(new Event('input'));
+    });
+  }
+  if (specRankSelect) {
+    specRankSelect.addEventListener('change', updateRuleLabels);
+  }
+
+  const btnMinus = document.getElementById('btn-win-minus');
+  const btnPlus = document.getElementById('btn-win-plus');
+
+  if (btnMinus && btnPlus && winCountInput) {
+    btnMinus.addEventListener('click', () => {
+      const min = parseInt(winCountInput.min) || 1;
+      let val = parseInt(winCountInput.value) || min;
+      if (val > min) {
+        winCountInput.value = val - 1;
+        winCountInput.dispatchEvent(new Event('input'));
+      }
+    });
+
+    btnPlus.addEventListener('click', () => {
+      const max = parseInt(winCountInput.max) || 99;
+      let val = parseInt(winCountInput.value) || 1;
+      if (val < max) {
+        winCountInput.value = val + 1;
+        winCountInput.dispatchEvent(new Event('input'));
+      }
+    });
+  }
+
   const membersTA = document.getElementById('pinball-members');
   if (membersTA) {
     membersTA.value = DEFAULT_MEMBERS;
@@ -261,6 +423,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  setControlsEnabled(true);
   updateSpecificRankSelect();
   initPinballMap();
   updatePreviewBalls();

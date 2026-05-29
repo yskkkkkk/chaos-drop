@@ -49,15 +49,15 @@
       <div class="rule-radio-group">
         <label class="rule-radio-item">
           <input type="radio" name="pinball-rule" value="first" checked>
-          👑 선착순 당첨 (가장 먼저 들어온 사람)
+          👑 선착순 당첨 <span id="lbl-first-desc" class="rule-desc">(2명까지)</span>
         </label>
         <label class="rule-radio-item">
           <input type="radio" name="pinball-rule" value="last">
-          🛡️ 후착순 당첨 (가장 오래 걸려 꼴찌로 들어온 사람)
+          🛡️ 후착순 당첨 <span id="lbl-last-desc" class="rule-desc">(2명까지)</span>
         </label>
         <label class="rule-radio-item">
           <input type="radio" name="pinball-rule" value="specific">
-          🎯 특정 순위 당첨 (지정한 순번에 들어온 사람)
+          🎯 특정 순위 당첨 <span id="lbl-specific-desc" class="rule-desc">(1등 단독)</span>
         </label>
       </div>
     </div>
@@ -66,7 +66,11 @@
     <div class="panel-grid-2">
       <div>
         <div class="panel-section-title" id="lbl-win-count">당첨 인원수</div>
-        <input type="number" id="pinball-win-count" min="1" max="11" value="2" class="panel-input">
+        <div class="number-stepper">
+          <button type="button" class="stepper-btn stepper-btn--minus" id="btn-win-minus" aria-label="감소">−</button>
+          <input type="number" id="pinball-win-count" min="1" max="11" value="2" class="stepper-input">
+          <button type="button" class="stepper-btn stepper-btn--plus" id="btn-win-plus" aria-label="증가">+</button>
+        </div>
       </div>
       <div>
         <div class="panel-section-title panel-title-dim" id="lbl-specific-rank">당첨 골인 순번</div>
