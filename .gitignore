@@ -1,0 +1,11 @@
+# Local environment secrets
+.env
+*.local
+.env.local
+
+# Backups and temporary files
+*backup*.html
+.DS_Store
+Thumbs.db
+
+scratch/

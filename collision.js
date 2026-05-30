@@ -22,6 +22,10 @@ function _pegLowerBound(targetY) {
 }
 
 function getWallAtY(y) {
+  if (!wallProfile || wallProfile.length === 0) return { lx: 0, rx: GAME_VWIDTH };
+  if (y <= wallProfile[0].y) return wallProfile[0];
+  if (y >= wallProfile[wallProfile.length - 1].y) return wallProfile[wallProfile.length - 1];
+
   for (let i = 0; i < wallProfile.length - 1; i++) {
     const v0 = wallProfile[i], v1 = wallProfile[i + 1];
     if (y >= v0.y && y <= v1.y) {
@@ -32,7 +36,7 @@ function getWallAtY(y) {
       };
     }
   }
-  return { lx: 0, rx: GAME_VWIDTH };
+  return wallProfile[wallProfile.length - 1];
 }
 
 function collideBallWithSegment(ball, x1, y1, x2, y2) {
@@ -205,6 +209,7 @@ function resolveObstacleCollisions() {
     }
 
     for (const vort of pinballVortexes) {
+      if (ball.shieldActive) continue; // 무적 상태면 블랙홀 무시
       if (Math.hypot(ball.x - vort.x, ball.y - vort.y) < vort.r + ball.r) {
         const _vMult = _leaderSet.has(ball.id) ? 1.8 : 1.0;
         ball.vy -= ball.gravity * 0.425;
@@ -250,9 +255,9 @@ function resolveObstacleCollisions() {
         item.collect();
         spawnNearMissSparks(item.x, item.y, item.type === 'shield' ? '#00ccff' : '#ffaa00');
         if (item.type === 'shield') {
-          ball.shieldTimer = 600;
+          ball.shieldTimer = 300; // 5초 무적
           ball.shieldActive = true;
-          if (typeof pinballLog === 'function') pinballLog(`🛡 ${ball.name} 실드 획득! (10초)`);
+          if (typeof pinballLog === 'function') pinballLog(`🛡 ${ball.name} 무적 아이템 획득! (5초)`);
         } else {
           if (!ball.boosterActive) {
             ball.vx *= 1.5;
@@ -265,7 +270,10 @@ function resolveObstacleCollisions() {
       }
     }
 
-    if (ball.immuneTimer > 0) { ball.immuneTimer--; }
+    // 무적 상태이거나 리스폰 무적 타이머가 남아있으면 창살(가시) 충돌 무시
+    if (ball.immuneTimer > 0 || ball.shieldActive) { 
+      if (ball.immuneTimer > 0) ball.immuneTimer--; 
+    }
     else {
       for (const bar of pinballSpikeTraps) {
         if (bar.currentLen < 8) continue;
@@ -283,22 +291,14 @@ function resolveObstacleCollisions() {
         const dx = ball.x - nearX, dy = ball.y - nearY;
 
         if (dx * dx + dy * dy < ball.r * ball.r) {
-          if (ball.shieldActive) {
-            ball.shieldActive = false;
-            ball.shieldTimer = 0;
-            ball.immuneTimer = 60;
-            spawnNearMissSparks(ball.x, ball.y, '#00ccff');
-            if (typeof pinballLog === 'function') pinballLog(`🛡 ${ball.name} 실드 방어!`);
-          } else {
-            spawnNearMissSparks(ball.x, ball.y, '#ff3300');
-            ball.x = GAME_VWIDTH * 0.5 + (Math.random() - 0.5) * 140;
-            ball.y = bar.spawnY + (Math.random() - 0.5) * 20;
-            ball.vx = (Math.random() - 0.5) * 1;
-            ball.vy = 0.2;
-            ball.immuneTimer = 40;
-            spawnNearMissSparks(ball.x, ball.y, '#00ff99');
-            if (typeof pinballLog === 'function') pinballLog(`💀 ${ball.name} 창살 소멸 → 리스폰!`);
-          }
+          spawnNearMissSparks(ball.x, ball.y, '#ff3300');
+          ball.x = GAME_VWIDTH * 0.5 + (Math.random() - 0.5) * 140;
+          ball.y = bar.spawnY + (Math.random() - 0.5) * 20;
+          ball.vx = (Math.random() - 0.5) * 1;
+          ball.vy = 0.2;
+          ball.immuneTimer = 60;
+          spawnNearMissSparks(ball.x, ball.y, '#00ff99');
+          if (typeof pinballLog === 'function') pinballLog(`💀 ${ball.name} 창살 소멸 → 리스폰!`);
           break;
         }
       }

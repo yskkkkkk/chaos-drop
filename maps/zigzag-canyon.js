@@ -12,6 +12,13 @@ const ZC_SECTIONS = [
   { top: 2020, bot: 2500, narrowSide: 'left',  barSide: 'right', spawnY: 2080 },
 ];
 
+const ZC_FLUSH_SECTIONS = [
+  { top: 2160, bot: 2400, baseTimer: 300, currentTimer: Math.random() * 300, activeTime: 0, jitter: 0 },
+  { top: 2400, bot: 2640, baseTimer: 240, currentTimer: Math.random() * 240, activeTime: 0, jitter: 0 },
+  { top: 2640, bot: 2880, baseTimer: 300, currentTimer: Math.random() * 300, activeTime: 0, jitter: 0 },
+  { top: 2880, bot: 3120, baseTimer: 240, currentTimer: Math.random() * 240, activeTime: 0, jitter: 0 },
+];
+
 const ZC_BARS_PER_SEC = 3;
 const ZC_BAR_Y_OFFSET = 110;
 const ZC_BAR_SPACING = 135;
@@ -23,13 +30,9 @@ function zigzagCanyon_generateWallProfile() {
   wallProfile = [];
   wallProfile.push({ y: 0, lx: 0, rx: GAME_VWIDTH });
   
-  for (let y = 50; y <= FUNNEL_TOP_Y; y += 25) {
+  for (let y = 50; y <= GOAL_Y; y += 25) {
     wallProfile.push({ y, lx: 0, rx: GAME_VWIDTH });
   }
-
-  funnelLeftX = Math.round(210 * BOARD_XSCALE);
-  funnelRightX = GAME_VWIDTH;
-  wallProfile.push({ y: GOAL_Y, lx: FUNNEL_BOTTOM_X, rx: GAME_VWIDTH - FUNNEL_BOTTOM_X });
 }
 
 // ── 맵 초기화 ────────────────────────────────────────────────
@@ -102,7 +105,20 @@ function zigzagCanyon_init() {
 
 // ── 맵 훅: 동적 벽면 물리 ────────────────────────────────────
 function _zc_applyPhysics(ball) {
-  // 엔진 코어의 wallProfile 기준 충돌로 완벽히 대체되므로 여기선 훅 비움
+  if (ball.shieldActive) return; // 무적 상태면 급류 역류 무시
+
+  ZC_FLUSH_SECTIONS.forEach(sec => {
+    if (sec.activeTime > 0 && ball.y >= sec.top && ball.y <= sec.bot) {
+      ball.vy -= 0.65; // 위쪽으로 강한 역류 힘
+      if (ball.vy < -6) ball.vy = -6; // 최고 상승 속도 제한
+      
+      const wBounds = getWallAtY(ball.y);
+      const cx = (wBounds.lx + wBounds.rx) / 2;
+      ball.vx += (cx - ball.x) * 0.01; // 역류 시 벽에 끼지 않도록 중앙으로 밀어줌
+      
+      if (Math.random() < 0.1) spawnNearMissSparks(ball.x, ball.y, '#00c8ff');
+    }
+  });
 }
 
 // ── 맵 훅: 동적 벽면 모핑 ────────────────────────────────────
@@ -113,20 +129,29 @@ function _zc_recoverTunnel(isInit = false) {
 
   for (let i = 0; i < wallProfile.length; i++) {
     const wp = wallProfile[i];
-    if (wp.y < 50 || wp.y > FUNNEL_TOP_Y) continue;
+    if (wp.y < 50) continue;
 
     // 하단부로 갈수록 좁아지고 진폭이 커지는 급류 효과
-    const depthT = Math.min(1, Math.max(0, (wp.y - 1400) / 1200)); // 1400부터 2600까지 0 -> 1
+    const depthT = Math.min(1, Math.max(0, (wp.y - 1200) / 960)); // 1200부터 2160까지 0 -> 1
     const easeDepth = depthT * depthT; // 하단부에서 급격히 변함
     
     // 폭은 210에서 극한으로 좁은 55(총 폭 110)까지 좁아짐
-    const currentHalfWidth = xs(210) * (1 - easeDepth) + xs(55) * easeDepth;
+    let currentHalfWidth = xs(210) * (1 - easeDepth) + xs(55) * easeDepth;
     
     // 기본 완만한 S자 커브
     let sCurve = Math.sin(wp.y * 0.0035) * xs(120);
     
-    // 하단부 급류 구간 전용 고주파 S자 커브(급격한 꺾임) 추가
-    sCurve += Math.sin(wp.y * 0.016) * xs(200) * easeDepth;
+    // 하단부 4구간(240px 단위)에 완벽하게 일치하는 고주파 S자 커브 추가
+    // (wp.y = 3120, 2880, 2640, 2400, 2160에서 정확히 중앙을 교차함)
+    sCurve += Math.sin((3120 - wp.y) * (Math.PI / 240)) * xs(200) * easeDepth;
+
+    // 골인 지점(GOAL_Y) 부근에서 중앙으로 부드럽게 정렬시켜 결승선과 맞춤
+    if (wp.y > GOAL_Y - 250) {
+      const alignT = Math.min(1, Math.max(0, (wp.y - (GOAL_Y - 250)) / 250));
+      sCurve *= (1 - alignT);
+      const goalHalfWidth = (W / 2) - FUNNEL_BOTTOM_X;
+      currentHalfWidth = currentHalfWidth * (1 - alignT) + goalHalfWidth * alignT;
+    }
 
     const bumpL = Math.sin(wp.y * 0.06) * 16 + Math.cos(wp.y * 0.11) * 11;
     const bumpR = Math.cos(wp.y * 0.05) * 16 + Math.sin(wp.y * 0.13) * 11;
@@ -162,16 +187,29 @@ function _zc_recoverTunnel(isInit = false) {
     wp.lx = targetLx;
     wp.rx = targetRx;
     
-    // 맵 끝단(FUNNEL_TOP_Y) 도달 시, 메인 엔진의 깔때기(funnel) 시작 좌표 동기화
+    // 맵 끝단 깔때기 직선 보이지 않게 치움
     if (wp.y >= FUNNEL_TOP_Y - 5) {
-      funnelLeftX = wp.lx;
-      funnelRightX = wp.rx;
+      funnelLeftX = -999;
+      funnelRightX = 9999;
     }
   }
 }
 
 // ── 맵 훅: 상태 렌더링 ────────────────────────────────────
 function _zc_drawLayer(ctx, visY0, visY1) {
+  // 게임 시작 전(미리보기 모드)에도 역류 이펙트가 작동하도록 렌더링 루프에서 타이머 갱신
+  ZC_FLUSH_SECTIONS.forEach(sec => {
+    if (sec.activeTime > 0) sec.activeTime--;
+    else {
+      sec.currentTimer++;
+      if (sec.currentTimer >= sec.baseTimer + sec.jitter) {
+        sec.currentTimer = 0;
+        sec.jitter = Math.floor(Math.random() * 60 - 30);
+        sec.activeTime = 90;
+      }
+    }
+  });
+
   ZC_SECTIONS.forEach(sec => {
     if (visY1 < sec.top || visY0 > sec.bot) return;
 
@@ -189,6 +227,85 @@ function _zc_drawLayer(ctx, visY0, visY1) {
       ctx.restore();
     }
   });
+
+  // 역류 물결 이펙트 (Upstream Flush) 렌더링
+  ZC_FLUSH_SECTIONS.forEach(sec => {
+    if (visY1 < sec.top || visY0 > sec.bot) return;
+    
+    const isActive = sec.activeTime > 0;
+    const alpha = isActive ? Math.min(1, sec.activeTime / 15) : 0.05;
+    const color = isActive ? 'rgba(0, 200, 255' : 'rgba(0, 100, 150';
+    
+    ctx.save();
+    ctx.lineWidth = isActive ? 3 : 1;
+    ctx.shadowBlur = isActive ? 12 : 0;
+    ctx.shadowColor = '#00c8ff';
+    
+    const time = performance.now();
+    const speed = isActive ? 20 : 4;
+    const offset = (time * speed * 0.05) % (sec.bot - sec.top);
+    
+    // 강물을 가로지르는 리얼한 물결(Wave) 선 렌더링
+    for (let i = 0; i < 6; i++) {
+      const yPos = sec.bot - (offset + i * 60) % (sec.bot - sec.top);
+      if (yPos >= sec.top && yPos <= sec.bot) {
+        const wBounds = getWallAtY(yPos);
+        const width = wBounds.rx - wBounds.lx;
+        
+        ctx.beginPath();
+        ctx.strokeStyle = `${color}, ${alpha})`;
+        ctx.moveTo(wBounds.lx, yPos);
+        
+        for(let x = wBounds.lx; x <= wBounds.rx; x += 15) {
+           const t = (x - wBounds.lx) / width;
+           // 시간에 따라 출렁이는 잔물결(Wave) + 거슬러 올라가는 형태의 아치(Arch)
+           const wave = Math.sin(t * Math.PI * 4 + time * 0.01) * 12;
+           const arch = Math.sin(t * Math.PI) * -30; // 위로 볼록하게 굽어짐
+           ctx.lineTo(x, yPos + wave + arch);
+        }
+        ctx.stroke();
+      }
+    }
+    
+    // 급류 활성화 시 물보라(거품) 파티클 효과 추가
+    if (isActive) {
+      ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.8})`;
+      ctx.beginPath();
+      for(let p = 0; p < 15; p++) {
+         const pOffset = (time * speed * 0.08 + p * 43) % (sec.bot - sec.top);
+         const py = sec.bot - pOffset;
+         if (py >= sec.top && py <= sec.bot) {
+            const wBounds = getWallAtY(py);
+            // 좌우로 무작위하게 요동치며 솟구치는 파티클
+            const px = wBounds.lx + (Math.sin(p * 99 + time * 0.005) * 0.4 + 0.5) * (wBounds.rx - wBounds.lx);
+            ctx.moveTo(px, py);
+            ctx.arc(px, py, Math.random() * 2 + 1, 0, Math.PI * 2);
+         }
+      }
+      ctx.fill();
+    }
+    ctx.restore();
+  });
+
+  // 거친 노이즈 텍스쳐의 결승선 (고정된 지그재그)
+  if (visY1 >= GOAL_Y - 50 && visY0 <= GOAL_Y + 50) {
+    ctx.save();
+    ctx.beginPath();
+    const wBounds = getWallAtY(GOAL_Y);
+    ctx.moveTo(wBounds.lx, GOAL_Y);
+    for(let x = wBounds.lx; x <= wBounds.rx; x += 15) {
+       // Math.random() 대신 x좌표 기반 삼각함수를 사용하여 프레임마다 변하지 않는 고정된 거친 질감 생성
+       const staticNoise = Math.sin(x * 0.4) * 7 + Math.cos(x * 0.9) * 5;
+       ctx.lineTo(x, GOAL_Y + staticNoise);
+    }
+    ctx.lineTo(wBounds.rx, GOAL_Y);
+    ctx.strokeStyle = 'rgba(255, 115, 0, 0.8)';
+    ctx.lineWidth = 4;
+    ctx.shadowBlur = 12;
+    ctx.shadowColor = '#ff6600';
+    ctx.stroke();
+    ctx.restore();
+  }
 
   // 실드/부스터 상태링 렌더링
   const glow = 0.55 + 0.45 * Math.cos(performance.now() * 0.005);
@@ -232,15 +349,15 @@ MAPS['zigzag-canyon'] = {
   theme: {
     uiClass:      'theme-zigzag',
     bgClear:      '#180a04',
-    bgFrom:       '#2a1208',
-    bgTo:         '#0e0603',
+    bgFrom:       '#2a1005',
+    bgTo:         '#0f0502',
     wallFill:     '#1c0e06',
-    wallStroke:   'rgba(166,94,59,0.55)',
-    wallGlow:     '#A65E3B',
-    funnelStroke: 'rgba(140,75,47,0.55)',
-    funnelColor:  '#8C4B2F',
-    goalFill:     'rgba(199,134,90,0.10)',
-    goalStroke:   '#C7865A',
-    scanLine:     '#C7865A',
+    wallStroke:   'rgba(255,115,0,0.6)',
+    wallGlow:     '#ff6600',
+    funnelStroke: 'transparent',
+    funnelColor:  'transparent',
+    goalFill:     'transparent',
+    goalStroke:   'transparent',
+    scanLine:     '#ffaa00',
   },
 };
