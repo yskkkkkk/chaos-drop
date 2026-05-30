@@ -30,6 +30,12 @@ class RacingBall {
     this.angle = Math.random() * Math.PI * 2;
     this.angularVelocity = 0;
     this.overtakeCooldown = 0;
+
+    this.shieldTimer = 0;
+    this.shieldActive = false;
+    this.boosterTimer = 0;
+    this.boosterActive = false;
+    this.immuneTimer = 0;
   }
 
   update() {
@@ -64,6 +70,15 @@ class RacingBall {
     if (this.nearMissCooldown > 0) this.nearMissCooldown--;
     if (this.superChargeTimer > 0) this.superChargeTimer--;
 
+    if (this.shieldTimer > 0) {
+      this.shieldTimer--;
+      if (this.shieldTimer <= 0) this.shieldActive = false;
+    }
+    if (this.boosterTimer > 0) {
+      this.boosterTimer--;
+      if (this.boosterTimer <= 0) this.boosterActive = false;
+    }
+
     if (this.nearMissTimer > 0) {
       this.nearMissTimer--;
       this.vy += this.gravity * 0.15;
@@ -93,7 +108,12 @@ class RacingBall {
     this.x += this.vx;
     this.y += this.vy;
 
-    const curMaxSpeed = this.superChargeTimer > 0 ? MAX_SPEED_BOOST : MAX_SPEED_NORMAL;
+    const curMaxSpeed = this.boosterActive ? 27 : (this.superChargeTimer > 0 ? MAX_SPEED_BOOST : MAX_SPEED_NORMAL);
+    if (this.boosterActive) {
+      this.vx *= 1.002;
+      this.vy += 0.2;
+    }
+
     if (speed > curMaxSpeed) {
       this.vx = (this.vx / speed) * curMaxSpeed;
       this.vy = (this.vy / speed) * curMaxSpeed;

@@ -243,6 +243,67 @@ function resolveObstacleCollisions() {
       }
     }
 
+    for (const item of pinballItems) {
+      if (item.state !== 'active') continue;
+      const dx = ball.x - item.x, dy = ball.y - item.y;
+      if (dx * dx + dy * dy < (ball.r + item.r) * (ball.r + item.r)) {
+        item.collect();
+        spawnNearMissSparks(item.x, item.y, item.type === 'shield' ? '#00ccff' : '#ffaa00');
+        if (item.type === 'shield') {
+          ball.shieldTimer = 600;
+          ball.shieldActive = true;
+          if (typeof pinballLog === 'function') pinballLog(`🛡 ${ball.name} 실드 획득! (10초)`);
+        } else {
+          if (!ball.boosterActive) {
+            ball.vx *= 1.5;
+            ball.vy *= 1.5;
+          }
+          ball.boosterTimer = 300;
+          ball.boosterActive = true;
+          if (typeof pinballLog === 'function') pinballLog(`⚡ ${ball.name} 부스터 획득! (5초)`);
+        }
+      }
+    }
+
+    if (ball.immuneTimer > 0) { ball.immuneTimer--; }
+    else {
+      for (const bar of pinballSpikeTraps) {
+        if (bar.currentLen < 8) continue;
+        if (Math.abs(ball.y - bar.y) > ball.r + bar.h * 0.5 + 2) continue;
+
+        const wBounds = getWallAtY(bar.y);
+        const dynamicWallX = bar.dirMult === -1 ? wBounds.rx : wBounds.lx;
+        const bx1 = bar.dirMult === -1 ? dynamicWallX - bar.currentLen : dynamicWallX;
+        const bx2 = bar.dirMult === -1 ? dynamicWallX : dynamicWallX + bar.currentLen;
+        const by1 = bar.y - bar.h * 0.5;
+        const by2 = bar.y + bar.h * 0.5;
+
+        const nearX = Math.max(bx1, Math.min(ball.x, bx2));
+        const nearY = Math.max(by1, Math.min(ball.y, by2));
+        const dx = ball.x - nearX, dy = ball.y - nearY;
+
+        if (dx * dx + dy * dy < ball.r * ball.r) {
+          if (ball.shieldActive) {
+            ball.shieldActive = false;
+            ball.shieldTimer = 0;
+            ball.immuneTimer = 60;
+            spawnNearMissSparks(ball.x, ball.y, '#00ccff');
+            if (typeof pinballLog === 'function') pinballLog(`🛡 ${ball.name} 실드 방어!`);
+          } else {
+            spawnNearMissSparks(ball.x, ball.y, '#ff3300');
+            ball.x = GAME_VWIDTH * 0.5 + (Math.random() - 0.5) * 140;
+            ball.y = bar.spawnY + (Math.random() - 0.5) * 20;
+            ball.vx = (Math.random() - 0.5) * 1;
+            ball.vy = 0.2;
+            ball.immuneTimer = 40;
+            spawnNearMissSparks(ball.x, ball.y, '#00ff99');
+            if (typeof pinballLog === 'function') pinballLog(`💀 ${ball.name} 창살 소멸 → 리스폰!`);
+          }
+          break;
+        }
+      }
+    }
+
     const _fw = getWallAtY(ball.y);
     if (ball.x - ball.r < _fw.lx) {
       ball.x = _fw.lx + ball.r;

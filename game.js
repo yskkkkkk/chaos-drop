@@ -20,6 +20,8 @@ let pinballPortals = [];
 let pinballVortexes = [];
 let pinballLaunchPads = [];
 let pinballSpeedPads = [];
+let pinballSpikeTraps = [];
+let pinballItems = [];
 let pinballFinishedBalls = [];
 let pinballAccelLane = 0;
 let speedPadRotateTimer = 300;
@@ -229,6 +231,14 @@ function animatePinball(currentTime) {
   });
   pinballSpeedPads.forEach(pad => {
     if (pad.y + pad.h/2 > visY0 - margin && pad.y - pad.h/2 < visY1 + margin) pad.draw(ctx);
+  });
+  pinballSpikeTraps.forEach(trap => {
+    trap.update();
+    if (trap.y > visY0 - margin && trap.y < visY1 + margin) trap.draw(ctx);
+  });
+  pinballItems.forEach(item => {
+    item.update();
+    if (item.y > visY0 - margin && item.y < visY1 + margin) item.draw(ctx);
   });
 
   // 구슬 물리
@@ -569,6 +579,8 @@ function resetPinball() {
   stopPinball();
   pinballFinishedBalls = [];
   pinballBalls = [];
+  pinballSpikeTraps = [];
+  pinballItems = [];
   hasAnnouncedWinners = false;
   pinballGameRunning = false;
   speedPadRotateTimer = 300;

@@ -339,10 +339,151 @@ class Peg {
       ctx.fillStyle = `rgba(255, 255, 255, ${0.4 + this.pulse * 0.6})`;
       ctx.shadowBlur = this.pulse * 12;
       ctx.shadowColor = '#00f0ff';
-    } else {
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-      ctx.shadowBlur = 0;
     }
     ctx.fill();
   }
 }
+
+class SpikeTrap {
+  constructor(y, wallX, dirMult, spawnY, timerOffset = 0) {
+    this.y = y;
+    this.wallX = wallX;
+    this.dirMult = dirMult; // 1 (left wall -> right), -1 (right wall -> left)
+    this.spawnY = spawnY;
+    this.currentLen = 0;
+    this.phase = 'paused';
+    this.timer = timerOffset;
+    this.maxLen = Math.round(220 * (typeof BOARD_XSCALE !== 'undefined' ? BOARD_XSCALE : 1));
+    this.speed = 5;
+    this.pauseDuration = 70;
+    this.holdDuration = 85;
+    this.h = 15;
+  }
+  update() {
+    this.timer++;
+    if (this.phase === 'paused') {
+      if (this.timer >= this.pauseDuration) { this.phase = 'extending'; this.timer = 0; }
+    } else if (this.phase === 'extending') {
+      this.currentLen = Math.min(this.currentLen + this.speed, this.maxLen);
+      if (this.currentLen >= this.maxLen) { this.phase = 'holding'; this.timer = 0; }
+    } else if (this.phase === 'holding') {
+      if (this.timer >= this.holdDuration) { this.phase = 'retracting'; this.timer = 0; }
+    } else {
+      this.currentLen = Math.max(this.currentLen - this.speed, 0);
+      if (this.currentLen <= 0) { this.phase = 'paused'; this.timer = 0; }
+    }
+  }
+  draw(ctx) {
+    if (this.currentLen < 1) return;
+    
+    // 동적 벽면 표면 위치 추적
+    const wBounds = getWallAtY(this.y);
+    const dynamicWallX = this.dirMult === -1 ? wBounds.rx : wBounds.lx;
+
+    const x1 = this.dirMult === -1 ? dynamicWallX - this.currentLen : dynamicWallX;
+    const x2 = this.dirMult === -1 ? dynamicWallX : dynamicWallX + this.currentLen;
+    const danger = this.currentLen / this.maxLen;
+    const gVal = Math.floor(180 * (1 - danger * 0.9));
+
+    ctx.save();
+    ctx.fillStyle = `rgb(255,${gVal},30)`;
+    ctx.shadowBlur = 8 + danger * 10;
+    ctx.shadowColor = '#ff4400';
+    ctx.fillRect(x1, this.y - this.h * 0.5, x2 - x1, this.h);
+    
+    const tipX = this.dirMult === -1 ? x1 : x2;
+    const tipD = this.dirMult === -1 ? -1 : 1;
+    ctx.fillStyle = '#ff6600';
+    ctx.shadowBlur = 14;
+    ctx.beginPath();
+    ctx.moveTo(tipX, this.y - this.h * 0.5);
+    ctx.lineTo(tipX + tipD * 12, this.y);
+    ctx.lineTo(tipX, this.y + this.h * 0.5);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+class ItemBase {
+  constructor(x, y, vx, type) {
+    this.x = x;
+    this.y = y;
+    this.vx = vx;
+    this.type = type; // 'shield' or 'booster'
+    this.r = 12; // BALL_R + 3
+    this.angle = Math.random() * Math.PI * 2;
+    this.state = 'active'; // 'active' or 'pending'
+    this.respawnTimer = 0;
+    this.respawnDuration = 180; // 3 seconds
+    this.rotSpeed = 0.028;
+    this.pulse = 0;
+  }
+  update() {
+    this.pulse += 0.055;
+    if (this.state === 'pending') {
+      if (--this.respawnTimer <= 0) {
+        this.state = 'active';
+        this.x = (this.vx > 0) ? -this.r - 5 : GAME_VWIDTH + this.r + 5;
+        this.y = 60 + Math.random() * (FUNNEL_TOP_Y - 120);
+      }
+      return;
+    }
+    this.x += this.vx;
+    this.angle += this.rotSpeed;
+    if (this.x < -this.r - 25 || this.x > GAME_VWIDTH + this.r + 25) {
+      this.collect(); // Just recycle it
+    }
+  }
+  collect() {
+    this.state = 'pending';
+    this.respawnTimer = this.respawnDuration;
+  }
+  draw(ctx) {
+    if (this.state !== 'active') return;
+    const glow = 0.55 + 0.45 * Math.cos(this.pulse);
+    const isShield = this.type === 'shield';
+    const col = isShield ? '#00ccff' : '#ffaa00';
+    const gcol = isShield ? '#0088ff' : '#ff6600';
+
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.angle);
+    ctx.shadowBlur = 8 + glow * 9;
+    ctx.shadowColor = gcol;
+
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(0, 0, this.r, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.fillStyle = col;
+    if (isShield) {
+      const r = this.r * 0.52;
+      ctx.beginPath();
+      ctx.moveTo(0, -r);
+      ctx.lineTo(r * 0.75, -r * 0.4);
+      ctx.lineTo(r * 0.75, r * 0.3);
+      ctx.lineTo(0, r);
+      ctx.lineTo(-r * 0.75, r * 0.3);
+      ctx.lineTo(-r * 0.75, -r * 0.4);
+      ctx.closePath();
+      ctx.fill();
+    } else {
+      const s = this.r * 0.42;
+      ctx.beginPath();
+      ctx.moveTo(s * 0.3, -s);
+      ctx.lineTo(-s * 0.1, 0);
+      ctx.lineTo(s * 0.4, 0);
+      ctx.lineTo(-s * 0.3, s);
+      ctx.lineTo(s * 0.1, 0);
+      ctx.lineTo(-s * 0.4, 0);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+class ShieldItem extends ItemBase { constructor(x, y, vx) { super(x, y, vx, 'shield'); } }
+class BoosterItem extends ItemBase { constructor(x, y, vx) { super(x, y, vx, 'booster'); } }
