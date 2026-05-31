@@ -347,7 +347,6 @@ class Peg {
 class SpikeTrap {
   constructor(y, wallX, dirMult, spawnY, timerOffset = 0) {
     this.y = y;
-    this.wallX = wallX;
     this.dirMult = dirMult; // 1 (left wall -> right), -1 (right wall -> left)
     this.spawnY = spawnY;
     this.currentLen = 0;
