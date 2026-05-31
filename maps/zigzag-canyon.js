@@ -14,9 +14,9 @@ const ZC_SECTIONS = [
 
 const ZC_FLUSH_SECTIONS = [
   { top: 2160, bot: 2400, baseTimer: 300, currentTimer: Math.random() * 300, activeTime: 0, jitter: 0 },
-  { top: 2400, bot: 2640, baseTimer: 240, currentTimer: Math.random() * 240, activeTime: 0, jitter: 0 },
-  { top: 2640, bot: 2880, baseTimer: 300, currentTimer: Math.random() * 300, activeTime: 0, jitter: 0 },
-  { top: 2880, bot: 3120, baseTimer: 240, currentTimer: Math.random() * 240, activeTime: 0, jitter: 0 },
+  { top: 2400, bot: 2640, baseTimer: 270, currentTimer: Math.random() * 270, activeTime: 0, jitter: 0 },
+  { top: 2640, bot: 2880, baseTimer: 240, currentTimer: Math.random() * 240, activeTime: 0, jitter: 0 },
+  { top: 2880, bot: 3120, baseTimer: 210, currentTimer: Math.random() * 210, activeTime: 0, jitter: 0 },
 ];
 
 const ZC_BARS_PER_SEC = 3;
@@ -105,7 +105,7 @@ function zigzagCanyon_init() {
 
 // ── 맵 훅: 동적 벽면 물리 ────────────────────────────────────
 function _zc_applyPhysics(ball) {
-  if (ball.shieldActive) return; // 무적 상태면 급류 역류 무시
+  if (ball.shieldActive || !gimmickEnabled) return; // 무적이거나 기믹이 꺼져있으면 역류 무시
 
   ZC_FLUSH_SECTIONS.forEach(sec => {
     if (sec.activeTime > 0 && ball.y >= sec.top && ball.y <= sec.bot) {
@@ -228,64 +228,76 @@ function _zc_drawLayer(ctx, visY0, visY1) {
     }
   });
 
-  // 역류 물결 이펙트 (Upstream Flush) 렌더링
-  ZC_FLUSH_SECTIONS.forEach(sec => {
-    if (visY1 < sec.top || visY0 > sec.bot) return;
-    
-    const isActive = sec.activeTime > 0;
-    const alpha = isActive ? Math.min(1, sec.activeTime / 15) : 0.05;
-    const color = isActive ? 'rgba(0, 200, 255' : 'rgba(0, 100, 150';
-    
-    ctx.save();
-    ctx.lineWidth = isActive ? 3 : 1;
-    ctx.shadowBlur = isActive ? 12 : 0;
-    ctx.shadowColor = '#00c8ff';
-    
-    const time = performance.now();
-    const speed = isActive ? 20 : 4;
-    const offset = (time * speed * 0.05) % (sec.bot - sec.top);
-    
-    // 강물을 가로지르는 리얼한 물결(Wave) 선 렌더링
-    for (let i = 0; i < 6; i++) {
-      const yPos = sec.bot - (offset + i * 60) % (sec.bot - sec.top);
-      if (yPos >= sec.top && yPos <= sec.bot) {
-        const wBounds = getWallAtY(yPos);
-        const width = wBounds.rx - wBounds.lx;
-        
-        ctx.beginPath();
-        ctx.strokeStyle = `${color}, ${alpha})`;
-        ctx.moveTo(wBounds.lx, yPos);
-        
-        for(let x = wBounds.lx; x <= wBounds.rx; x += 15) {
-           const t = (x - wBounds.lx) / width;
-           // 시간에 따라 출렁이는 잔물결(Wave) + 거슬러 올라가는 형태의 아치(Arch)
-           const wave = Math.sin(t * Math.PI * 4 + time * 0.01) * 12;
-           const arch = Math.sin(t * Math.PI) * -30; // 위로 볼록하게 굽어짐
-           ctx.lineTo(x, yPos + wave + arch);
+  // 역류 물결 이펙트 (Upstream Flush) 렌더링 - 기믹 켜져있을 때만
+  if (gimmickEnabled) {
+    ZC_FLUSH_SECTIONS.forEach(sec => {
+      if (visY1 < sec.top || visY0 > sec.bot) return;
+      
+      const isActive = sec.activeTime > 0;
+      const alpha = isActive ? Math.min(1, sec.activeTime / 15) : 0.05;
+      const color = isActive ? 'rgba(0, 200, 255' : 'rgba(0, 100, 150';
+      
+      ctx.save();
+      ctx.lineWidth = isActive ? 3 : 1;
+      ctx.shadowBlur = isActive ? 12 : 0;
+      ctx.shadowColor = '#00c8ff';
+      
+      const time = performance.now();
+      const speed = isActive ? 20 : 4;
+      const offset = (time * speed * 0.05) % (sec.bot - sec.top);
+      
+      const isMobileEnv = typeof BOARD_XSCALE !== 'undefined' && BOARD_XSCALE < 1.0;
+      const waveCount = isMobileEnv ? 3 : 6;
+      const waveStep = isMobileEnv ? 30 : 15;
+      const particleCount = isMobileEnv ? 8 : 15;
+      
+      // 강물을 가로지르는 리얼한 물결(Wave) 선 렌더링
+      for (let i = 0; i < waveCount; i++) {
+        const yPos = sec.bot - (offset + i * (60 * (6/waveCount))) % (sec.bot - sec.top);
+        if (yPos >= sec.top && yPos <= sec.bot) {
+          const wBounds = getWallAtY(yPos);
+          const width = wBounds.rx - wBounds.lx;
+          
+          ctx.beginPath();
+          ctx.strokeStyle = `${color}, ${alpha})`;
+          ctx.moveTo(wBounds.lx, yPos);
+          
+          for(let x = wBounds.lx; x <= wBounds.rx; x += waveStep) {
+             const t = (x - wBounds.lx) / width;
+             // 시간에 따라 출렁이는 잔물결(Wave) + 거슬러 올라가는 형태의 아치(Arch)
+             const wave = Math.sin(t * Math.PI * 4 + time * 0.01) * 12;
+             const arch = Math.sin(t * Math.PI) * -30; // 위로 볼록하게 굽어짐
+             ctx.lineTo(x, yPos + wave + arch);
+          }
+          // 끝점까지 닫아주기 (waveStep 때문에 끝이 비는 현상 방지)
+          if ((wBounds.rx - wBounds.lx) % waveStep !== 0) {
+             const wave = Math.sin(1 * Math.PI * 4 + time * 0.01) * 12;
+             ctx.lineTo(wBounds.rx, yPos + wave - 30);
+          }
+          ctx.stroke();
         }
-        ctx.stroke();
       }
-    }
-    
-    // 급류 활성화 시 물보라(거품) 파티클 효과 추가
-    if (isActive) {
-      ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.8})`;
-      ctx.beginPath();
-      for(let p = 0; p < 15; p++) {
-         const pOffset = (time * speed * 0.08 + p * 43) % (sec.bot - sec.top);
-         const py = sec.bot - pOffset;
-         if (py >= sec.top && py <= sec.bot) {
-            const wBounds = getWallAtY(py);
-            // 좌우로 무작위하게 요동치며 솟구치는 파티클
-            const px = wBounds.lx + (Math.sin(p * 99 + time * 0.005) * 0.4 + 0.5) * (wBounds.rx - wBounds.lx);
-            ctx.moveTo(px, py);
-            ctx.arc(px, py, Math.random() * 2 + 1, 0, Math.PI * 2);
-         }
+      
+      // 급류 활성화 시 물보라(거품) 파티클 효과 추가
+      if (isActive) {
+        ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 0.8})`;
+        ctx.beginPath();
+        for(let p = 0; p < particleCount; p++) {
+           const pOffset = (time * speed * 0.08 + p * 43) % (sec.bot - sec.top);
+           const py = sec.bot - pOffset;
+           if (py >= sec.top && py <= sec.bot) {
+              const wBounds = getWallAtY(py);
+              // 좌우로 무작위하게 요동치며 솟구치는 파티클
+              const px = wBounds.lx + (Math.sin(p * 99 + time * 0.005) * 0.4 + 0.5) * (wBounds.rx - wBounds.lx);
+              ctx.moveTo(px, py);
+              ctx.arc(px, py, Math.random() * 2 + 1, 0, Math.PI * 2);
+           }
+        }
+        ctx.fill();
       }
-      ctx.fill();
-    }
-    ctx.restore();
-  });
+      ctx.restore();
+    });
+  }
 
   // 거친 노이즈 텍스쳐의 결승선 (고정된 지그재그)
   if (visY1 >= GOAL_Y - 50 && visY0 <= GOAL_Y + 50) {

@@ -150,8 +150,8 @@ class RacingBall {
       }
     }
 
-    // Freeze Zone: 하단 30%, 극저속 or 극고속 공 랜덤 발동
-    if (freezeModeEnabled && !this.isFinished && this.nearMissTimer === 0 && this.nearMissCooldown === 0) {
+    // Freeze Zone: 하단 30% 구간에서 확률적으로 멈춤 (Map 1 전용 기믹)
+    if (gimmickEnabled && currentMapId === 'classic-chaos' && !this.isFinished && this.nearMissTimer === 0 && this.nearMissCooldown === 0) {
       if (this.y >= GAME_VHEIGHT * 0.70) {
         const _spd = Math.hypot(this.vx, this.vy);
         const _slow = _spd < 2.0;

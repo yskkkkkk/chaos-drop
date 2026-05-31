@@ -431,10 +431,10 @@ body {
   border-radius: 50%;
   font-size: 0.68rem;
   color: #00f0ff;
-  cursor: default;
+  cursor: pointer;
   flex-shrink: 0;
 }
-.freeze-hint .freeze-toast {
+.freeze-toast {
   position: fixed;
   top: 0; left: 0;
   transform: none;
@@ -586,7 +586,7 @@ body.theme-zigzag .shuffle-btn:hover {
   border-color: rgba(199,134,90,0.38);
 }
 
-body.theme-zigzag .freeze-hint .freeze-toast {
+body.theme-zigzag .freeze-toast {
   background: rgba(24, 10, 4, 0.97);
   border-color: rgba(166, 94, 59, 0.3);
   color: #D8B08C;
