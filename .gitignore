@@ -5,6 +5,7 @@
 
 # Backups and temporary files
 *backup*.html
+original_*.html
 .DS_Store
 Thumbs.db
 
