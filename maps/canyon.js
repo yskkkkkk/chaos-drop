@@ -39,6 +39,8 @@ function canyon_generateWallProfile() {
 function canyon_init() {
   canyon_generateWallProfile();
 
+  ZC_FLUSH_SECTIONS.forEach(sec => { sec.activeTime = 0; sec.currentTimer = 0; sec.jitter = 0; });
+
   pinballPegs       = [];
   pinballSpinners   = [];
   pinballBumpers    = [];
