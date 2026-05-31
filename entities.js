@@ -409,7 +409,7 @@ class ItemBase {
     this.y = y;
     this.vx = vx;
     this.type = type; // 'shield' or 'booster'
-    this.r = 12; // BALL_R + 3
+    this.r = BALL_R + 3;
     this.angle = Math.random() * Math.PI * 2;
     this.state = 'active'; // 'active' or 'pending'
     this.respawnTimer = 0;
