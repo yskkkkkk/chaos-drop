@@ -304,6 +304,14 @@ function resolveObstacleCollisions() {
       }
     }
 
+    for (const flipper of pinballFlippers) {
+      flipper.collide(ball);
+    }
+
+    for (const wall of pinballStaticWalls) {
+      wall.collide(ball);
+    }
+
     const _fw = getWallAtY(ball.y);
     if (ball.x - ball.r < _fw.lx) {
       ball.x = _fw.lx + ball.r;

@@ -46,7 +46,14 @@ let exitZoomLeaderTriggered = false; // 거리 기반 트리거 중복 방지
 
 function resetCamera() {
   const _initZoom = 1.0;
-  cameraY = 0;
+  
+  // 맵에 커스텀 시작 카메라 Y가 있다면 적용, 없으면 기본값 0
+  if (typeof MAPS !== 'undefined' && typeof currentMapId !== 'undefined' && MAPS[currentMapId] && MAPS[currentMapId].cameraStartY !== undefined) {
+    cameraY = MAPS[currentMapId].cameraStartY;
+  } else {
+    cameraY = 0;
+  }
+  
   cameraZoom = _initZoom;
   cameraZoomTarget = _initZoom;
   cameraZoomVel = 0;

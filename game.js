@@ -22,11 +22,15 @@ let pinballLaunchPads = [];
 let pinballSpeedPads = [];
 let pinballSpikeTraps = [];
 let pinballItems = [];
+let pinballStaticWalls = [];
+let pinballFlippers = [];
 let pinballFinishedBalls = [];
 let pinballAccelLane = 0;
 let speedPadRotateTimer = 300;
 
 let pinballGameRunning = false;
+let pinballLaunchTimer = 0;
+let pinballLaunchState = 0;
 let _lbUpdateFrame = 0;
 let pinballConfettiParticles = [];
 let pinballNearMissSparks = [];
@@ -76,6 +80,10 @@ function switchMap(mapId) {
       if (lbl) lbl.innerText = '🌊 UPSTREAM SURGE';
       if (desc) desc.innerText = '하단 협곡에 거센 역류 폭포수 발생';
       if (toast) toast.innerText = '하단 협곡 구간에 거친 역류 물결이 생성되어 공을 위로 튕겨냅니다.';
+    } else if (mapId === 'classic') {
+      if (lbl) lbl.innerText = '🕹️ SPACE CADET';
+      if (desc) desc.innerText = '스프링 플런저 론치 및 자동 플리퍼 가동';
+      if (toast) toast.innerText = '결승선 직전의 플리퍼가 무작위로 움직이며 공을 위로 튕겨냅니다.';
     }
   }
 }
@@ -258,6 +266,13 @@ function animatePinball(currentTime) {
     item.update();
     if (item.y > visY0 - margin && item.y < visY1 + margin) item.draw(ctx);
   });
+  pinballStaticWalls.forEach(wall => {
+    if (Math.max(wall.y1, wall.y2) > visY0 - margin && Math.min(wall.y1, wall.y2) < visY1 + margin) wall.draw(ctx);
+  });
+  pinballFlippers.forEach(flipper => {
+    flipper.update(now);
+    if (flipper.y > visY0 - margin && flipper.y < visY1 + margin) flipper.draw(ctx);
+  });
 
   // 구슬 물리
   if (pinballGameRunning && shouldRunPhysics) {
@@ -271,7 +286,32 @@ function animatePinball(currentTime) {
     // 맵 고유 섬 터널링 복구 — maps/neon.js
     recoverCurrentMapIslandTunnel();
 
+    const launchCharging = pinballLaunchTimer > 0 && pinballLaunchState === 1;
+
+    if (pinballGameRunning) {
+      if (pinballLaunchTimer > 0) {
+        pinballLaunchTimer--;
+        if (pinballLaunchTimer === 0 && pinballLaunchState === 1) {
+          pinballLaunchState = 0;
+          pinballBalls.forEach(b => {
+            b.isLaunching = true; // 초반 제한 해제를 위한 플래그
+            b.vy = -42 - Math.random() * 6;
+            b.vx = (Math.random() - 0.5) * 0.35;
+          });
+          cameraY += 15; // 타격감 흔들림
+        }
+      } else {
+        pinballBalls.forEach(ball => {
+          if (!ball.isFinished) {
+            applyPinballPhysics(ball);
+          }
+        });
+
+      }
+    }
+
     // E-1. 구슬 간 충돌
+    if (!launchCharging) {
     for (let _iter = 0; _iter < 2; _iter++) {
       for (let i = 0; i < pinballBalls.length; i++) {
         const b1 = pinballBalls[i];
@@ -299,11 +339,13 @@ function animatePinball(currentTime) {
 
     // E-2. 장애물 충돌 — collision.js
     resolveObstacleCollisions();
+    }
   }
 
   // 구슬 업데이트 & 드로잉
+  const launchChargingForDraw = pinballLaunchTimer > 0 && pinballLaunchState === 1;
   pinballBalls.forEach(ball => {
-    if (shouldRunPhysics) ball.update();
+    if (shouldRunPhysics && !launchChargingForDraw) ball.update();
     ball.draw(ctx);
   });
 

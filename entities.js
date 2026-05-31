@@ -486,3 +486,197 @@ class ItemBase {
 
 class ShieldItem extends ItemBase { constructor(x, y, vx) { super(x, y, vx, 'shield'); } }
 class BoosterItem extends ItemBase { constructor(x, y, vx) { super(x, y, vx, 'booster'); } }
+
+class AutoFlipper {
+  constructor(x, y, length, isLeft, restAngleDeg, activeAngleDeg, periodMs) {
+    this.x = x;
+    this.y = y;
+    this.length = length;
+    this.isLeft = isLeft;
+    this.restAngle = restAngleDeg * Math.PI / 180;
+    this.activeAngle = activeAngleDeg * Math.PI / 180;
+    this.period = periodMs;
+    this.angle = this.restAngle;
+    this.prevAngle = this.angle;
+    this.angularVelocity = 0;
+  }
+
+  update(time) {
+    this.prevAngle = this.angle;
+    const cycle = time % this.period;
+    const progress = cycle / this.period;
+    let target = this.restAngle;
+    if (progress < 0.15) { // 빠른 타격 (swing up)
+      target = this.restAngle + (this.activeAngle - this.restAngle) * (progress / 0.15);
+    } else if (progress < 0.35) { // 타격 유지 (hold)
+      target = this.activeAngle;
+    } else { // 서서히 복귀 (swing down)
+      target = this.activeAngle + (this.restAngle - this.activeAngle) * ((progress - 0.35) / 0.65);
+    }
+    this.angle = target;
+    this.angularVelocity = this.angle - this.prevAngle; 
+  }
+
+  draw(ctx) {
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.angle);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = 16;
+    ctx.strokeStyle = '#222';
+    ctx.shadowBlur = 8;
+    ctx.shadowColor = '#000';
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(this.isLeft ? this.length : -this.length, 0);
+    ctx.stroke();
+    
+    ctx.lineWidth = 10;
+    ctx.strokeStyle = this.isLeft ? '#ff0055' : '#0055ff'; // 좌측은 핑크, 우측은 블루
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  collide(ball) {
+    const L = this.isLeft ? this.length : -this.length;
+    const endX = this.x + L * Math.cos(this.angle);
+    const endY = this.y + L * Math.sin(this.angle);
+    
+    const dx = endX - this.x;
+    const dy = endY - this.y;
+    const lenSq = dx*dx + dy*dy;
+    if (lenSq === 0) return;
+    
+    let t = ((ball.x - this.x)*dx + (ball.y - this.y)*dy) / lenSq;
+    t = Math.max(0, Math.min(1, t));
+    
+    const nearX = this.x + t * dx;
+    const nearY = this.y + t * dy;
+    
+    const distSq = (ball.x - nearX)**2 + (ball.y - nearY)**2;
+    const hitRadius = ball.r + 8; // 플리퍼 두께 고려
+    
+    if (distSq < hitRadius**2) {
+      const dist = Math.sqrt(distSq) || 0.01;
+      const overlap = hitRadius - dist;
+      let nx = (ball.x - nearX) / dist;
+      let ny = (ball.y - nearY) / dist;
+      
+      ball.x += nx * overlap;
+      ball.y += ny * overlap;
+      
+      const rDist = t * this.length;
+      // 각속도(라디안/프레임)를 초당/프레임당 속도로 변환하여 선속도 계산
+      const pointVx = -rDist * this.angularVelocity * Math.sin(this.angle) * 1.5;
+      const pointVy = rDist * this.angularVelocity * Math.cos(this.angle) * 1.5;
+      
+      const relVx = ball.vx - pointVx;
+      const relVy = ball.vy - pointVy;
+      
+      const dot = relVx * nx + relVy * ny;
+      if (dot < 0) {
+        const restitution = 0.8;
+        ball.vx -= (1 + restitution) * dot * nx;
+        ball.vy -= (1 + restitution) * dot * ny;
+        
+        // 플리퍼가 강하게 치고 올라올 때 추가 반발력 (강스매시)
+        if (Math.abs(this.angularVelocity) > 0.05) {
+           const kick = Math.abs(this.angularVelocity) * 60;
+           ball.vx += nx * kick;
+           ball.vy += ny * kick;
+           
+           if (typeof spawnNearMissSparks === 'function') {
+             spawnNearMissSparks(ball.x, ball.y, this.isLeft ? '#ff0055' : '#0055ff');
+           }
+        }
+      }
+    }
+  }
+}
+
+class StaticWall {
+  constructor(x1, y1, x2, y2, color='#00ffff', thickness=4, glow=8, bounciness=0.6) {
+    this.x1 = x1;
+    this.y1 = y1;
+    this.x2 = x2;
+    this.y2 = y2;
+    this.color = color;
+    this.thickness = thickness;
+    this.glow = glow;
+    this.bounciness = bounciness;
+    
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    this.len = Math.hypot(dx, dy);
+    // 방향 벡터 (nx, ny)는 선분에서 수직인 노멀 벡터 중 하나
+    this.nx = -dy / this.len;
+    this.ny = dx / this.len;
+  }
+
+  draw(ctx) {
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = this.thickness;
+    ctx.strokeStyle = this.color;
+    ctx.shadowBlur = this.glow;
+    ctx.shadowColor = this.color;
+    ctx.beginPath();
+    ctx.moveTo(this.x1, this.y1);
+    ctx.lineTo(this.x2, this.y2);
+    ctx.stroke();
+    
+    // 이너 라인(화이트 톤)으로 네온관 느낌 강조
+    if (this.thickness > 3) {
+      ctx.lineWidth = this.thickness * 0.4;
+      ctx.strokeStyle = '#ffffff';
+      ctx.shadowBlur = 0;
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  collide(ball) {
+    const dx = this.x2 - this.x1;
+    const dy = this.y2 - this.y1;
+    if (this.len === 0) return;
+    
+    let t = ((ball.x - this.x1)*dx + (ball.y - this.y1)*dy) / (this.len * this.len);
+    t = Math.max(0, Math.min(1, t));
+    
+    const nearX = this.x1 + t * dx;
+    const nearY = this.y1 + t * dy;
+    
+    const distSq = (ball.x - nearX)**2 + (ball.y - nearY)**2;
+    const hitRadius = ball.r + this.thickness / 2;
+    
+    if (distSq < hitRadius**2 && distSq > 0.0001) {
+      const dist = Math.sqrt(distSq);
+      const overlap = hitRadius - dist;
+      
+      // 노멀 벡터
+      let nx = (ball.x - nearX) / dist;
+      let ny = (ball.y - nearY) / dist;
+      
+      // 밀어내기 (Penetration resolution)
+      ball.x += nx * overlap;
+      ball.y += ny * overlap;
+      
+      // 속도 반사
+      const dot = ball.vx * nx + ball.vy * ny;
+      if (dot < 0) {
+        // 반발계수(restitution) 적용
+        const restitution = Math.max(0.2, Math.min(1.5, ball.restitution * this.bounciness * 1.5));
+        ball.vx -= (1 + restitution) * dot * nx;
+        ball.vy -= (1 + restitution) * dot * ny;
+        
+        // 아주 약간의 덤 스피드
+        if (Math.hypot(ball.vx, ball.vy) < 2) {
+           ball.vx += nx * 2;
+           ball.vy += ny * 2;
+        }
+      }
+    }
+  }
+}

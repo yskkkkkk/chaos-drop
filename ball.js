@@ -92,7 +92,7 @@ class RacingBall {
         spawnNearMissSparks(this.x, this.y, this.color);
         pinballLog(`${this.name} REBOUNDS! Escape Velocity Active.`);
       }
-    } else {
+    } else if (!this.isLaunching) {
       this.vy += this.gravity;
     }
 
@@ -108,7 +108,7 @@ class RacingBall {
     this.x += this.vx;
     this.y += this.vy;
 
-    const curMaxSpeed = this.boosterActive ? 27 : (this.superChargeTimer > 0 ? MAX_SPEED_BOOST : MAX_SPEED_NORMAL);
+    const curMaxSpeed = this.isLaunching ? 90 : (this.boosterActive ? 27 : (this.superChargeTimer > 0 ? MAX_SPEED_BOOST : MAX_SPEED_NORMAL));
     if (this.boosterActive) {
       this.vx *= 1.002;
       this.vy += 0.2;
@@ -130,6 +130,7 @@ class RacingBall {
 
     if (this.y - this.r < 0) {
       this.y = this.r;
+      this.isLaunching = false;
       this.vy = Math.abs(this.vy) * this.restitution;
     }
 
