@@ -96,9 +96,8 @@ function canyon_init() {
   const itemCount = Math.max(pinballBalls.length, 2);
   for (let i = 0; i < itemCount; i++) {
     const type = i % 2 === 0 ? 'shield' : 'booster';
-    const fromLeft = Math.random() < 0.5;
-    const item = type === 'shield' ? new ShieldItem(0, 0, 1.8) : new BoosterItem(0, 0, 1.8);
-    item.vx = fromLeft ? 1.8 : -1.8;
+    const vx = Math.random() < 0.5 ? 1.8 : -1.8;
+    const item = type === 'shield' ? new ShieldItem(0, 0, vx) : new BoosterItem(0, 0, vx);
     item.x = 20 + Math.random() * (GAME_VWIDTH - 40);
     item.y = 60 + Math.random() * (FUNNEL_TOP_Y - 120);
     pinballItems.push(item);
