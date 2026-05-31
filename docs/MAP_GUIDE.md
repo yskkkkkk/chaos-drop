@@ -10,7 +10,7 @@
 
 ```
 maps/
-  classic-chaos.js   ← 기존 기본 맵
+  neon.js   ← 기존 기본 맵
   your-map.js        ← 신규 맵 (새로 만들 파일)
 ```
 
@@ -137,10 +137,10 @@ function initPinballMap() { yourMapName_init(); }  // ← 함수명 변경
 
 ## 4. index.html 수정 — script 태그 추가
 
-`maps/classic-chaos.js` 태그 아래에 새 맵 태그를 추가합니다.
+`maps/neon.js` 태그 아래에 새 맵 태그를 추가합니다.
 
 ```html
-<script src="maps/classic-chaos.js?v=1.1.0"></script>
+<script src="maps/neon.js?v=1.1.0"></script>
 <script src="maps/your-map.js?v=1.1.0"></script>  <!-- 추가 -->
 ```
 
@@ -218,11 +218,11 @@ new TeleportPortal(x1, y1, x2, y2, color, name)
 | `FUNNEL_TOP_Y` | `2720` | `2720` | 깔때기 시작 Y |
 | `GOAL_Y` | `3120` | `3120` | 골인선 Y |
 | `FUNNEL_BOTTOM_X` | `311` | `round(311 × xs)` | 깔때기 하단 좌측 제한 X |
-| `TUNNEL_TOP_Y` | `1500` | `1500` | Classic Chaos 터널 시작 Y |
-| `TUNNEL_BOTTOM_Y` | `1900` | `1900` | Classic Chaos 터널 종료 Y |
+| `TUNNEL_TOP_Y` | `1500` | `1500` | Neon Chaos 터널 시작 Y |
+| `TUNNEL_BOTTOM_Y` | `1900` | `1900` | Neon Chaos 터널 종료 Y |
 
 > Y 좌표 관련 상수(GOAL_Y, FUNNEL_TOP_Y 등)는 스케일하지 않습니다.  
-> `TUNNEL_*` 상수들은 Classic Chaos 맵 전용입니다.  
+> `TUNNEL_*` 상수들은 Neon Chaos 맵 전용입니다.  
 > 신규 맵에서 다른 Zone을 만들려면 맵 파일 내에 별도 상수를 선언하세요.
 
 ---
@@ -353,3 +353,23 @@ function myNewMap_init() {
   pinballPegs = pinballPegs.filter(() => Math.random() > 0.10);
 }
 ```
+
+---
+
+## 11. 현재 등록된 공식 맵 목록 및 특징
+
+### 11-1. Map 1: Neon Chaos (`neon.js`)
+- **컨셉**: 중앙 집중형 함정과 직선 주로를 중심으로 구성된 기본 맵
+- **특징**:
+  - `SlowVortex` (느려지는 블랙홀 함정) 사용
+  - 중앙에 커다란 고체 장벽(Island Tunnel) 존재
+  - 좌/우 좁은 우회로(터널) 존재
+
+### 11-2. Map 2: Zigzag Canyon (`canyon.js`)
+- **컨셉**: 울퉁불퉁한 바위 협곡과 거센 강물을 타고 내려오는 래프팅
+- **특징**:
+  - 기존의 보이지 않는 직선 물리벽(`wallProfile`) 자체를 S자 커브와 고주파 노이즈로 변형시켜, 네온 이펙트 렌더러가 거친 협곡 바위 지형을 그리도록 만듦 (`_zc_recoverTunnel` 후킹).
+  - 벽면이 다가와서 구슬을 밀어낼 때 즉사시키지 않고 통통 튕겨내며 중앙으로 몰아넣음.
+  - 최하단 4구간에는 역류 물길 타이머가 엇갈려 작동하며, 위로 치솟는 물결 효과와 함께 구슬을 상단으로 튕겨냄 (`_zc_applyPhysics` vy 감소).
+  - 직선형 깔때기와 결승선을 숨기고 노이즈가 들어간 자연스러운 지그재그 피니시 라인을 사용.
+  - 위험/예외 요소 방지: 협곡 폭이 극도로 좁아져도 화면 밖(0 이하 또는 GAME_VWIDTH 이상)으로 벽면 좌표가 나가지 않도록 `Math.max(0)`, `Math.min(W)` 안전장치(Clamping)가 완벽히 적용되어 구슬 탈출 위험이 없음.

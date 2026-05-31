@@ -20,6 +20,8 @@ let pinballPortals = [];
 let pinballVortexes = [];
 let pinballLaunchPads = [];
 let pinballSpeedPads = [];
+let pinballSpikeTraps = [];
+let pinballItems = [];
 let pinballFinishedBalls = [];
 let pinballAccelLane = 0;
 let speedPadRotateTimer = 300;
@@ -40,7 +42,7 @@ let funnelRightX = GAME_VWIDTH;
 let raceStartTime = 0;
 let hasAnnouncedWinners = false;
 let decisiveMomentActive = false;
-let freezeModeEnabled = true;
+let gimmickEnabled = true;
 let prevRankOrder = [];
 let overtakeParticles = [];
 let currentLeaderId = -1;
@@ -48,7 +50,7 @@ let crownFlashTimer = 0;
 
 // ── 맵 레지스트리 딜리게이터 ──────────────────────────────────
 // 각 맵 파일이 MAPS['id']에 훅을 등록합니다. (constants.js 에서 MAPS={} 선언)
-let currentMapId = 'classic-chaos';
+let currentMapId = 'neon';
 
 function _applyMapTheme() {
   Object.values(MAPS).forEach(m => { if (m.theme?.uiClass) document.body.classList.remove(m.theme.uiClass); });
@@ -57,7 +59,25 @@ function _applyMapTheme() {
 }
 
 function switchMap(mapId) {
-  if (MAPS[mapId]) { currentMapId = mapId; _applyMapTheme(); }
+  if (MAPS[mapId]) { 
+    currentMapId = mapId; 
+    _applyMapTheme(); 
+    
+    // UI 기믹 토글 텍스트 동적 변경
+    const lbl = document.getElementById('lbl-gimmick');
+    const desc = document.getElementById('desc-gimmick');
+    const toast = document.getElementById('toast-gimmick');
+    
+    if (mapId === 'neon') {
+      if (lbl) lbl.innerText = '❄️ FREEZE MODE';
+      if (desc) desc.innerText = '하단 30% 구간에서 공이 확률적으로 정지';
+      if (toast) toast.innerText = '하단 30% 구간에서 확률적으로 공이 정지됩니다.';
+    } else if (mapId === 'canyon') {
+      if (lbl) lbl.innerText = '🌊 UPSTREAM SURGE';
+      if (desc) desc.innerText = '하단 협곡에 거센 역류 폭포수 발생';
+      if (toast) toast.innerText = '하단 협곡 구간에 거친 역류 물결이 생성되어 공을 위로 튕겨냅니다.';
+    }
+  }
 }
 
 function applyMapZonePhysics(ball)        { MAPS[currentMapId]?.applyPhysics?.(ball); }
@@ -187,7 +207,7 @@ function animatePinball(currentTime) {
   ctx.strokeRect(FUNNEL_BOTTOM_X, GOAL_Y, VW - FUNNEL_BOTTOM_X * 2, 40);
   ctx.restore();
 
-  // 맵 고유 레이어 (터널, 섬 등) — maps/classic-chaos.js
+  // 맵 고유 레이어 (터널, 섬 등) — maps/neon.js
   drawCurrentMapLayer(ctx, visY0, visY1);
 
   // 구간 구분선
@@ -230,6 +250,14 @@ function animatePinball(currentTime) {
   pinballSpeedPads.forEach(pad => {
     if (pad.y + pad.h/2 > visY0 - margin && pad.y - pad.h/2 < visY1 + margin) pad.draw(ctx);
   });
+  pinballSpikeTraps.forEach(trap => {
+    trap.update();
+    if (trap.y > visY0 - margin && trap.y < visY1 + margin) trap.draw(ctx);
+  });
+  pinballItems.forEach(item => {
+    item.update();
+    if (item.y > visY0 - margin && item.y < visY1 + margin) item.draw(ctx);
+  });
 
   // 구슬 물리
   if (pinballGameRunning && shouldRunPhysics) {
@@ -240,7 +268,7 @@ function animatePinball(currentTime) {
       pinballLog("⚡ 가속 패드 방향 즉시 회전!");
     }
 
-    // 맵 고유 섬 터널링 복구 — maps/classic-chaos.js
+    // 맵 고유 섬 터널링 복구 — maps/neon.js
     recoverCurrentMapIslandTunnel();
 
     // E-1. 구슬 간 충돌
@@ -569,6 +597,8 @@ function resetPinball() {
   stopPinball();
   pinballFinishedBalls = [];
   pinballBalls = [];
+  pinballSpikeTraps = [];
+  pinballItems = [];
   hasAnnouncedWinners = false;
   pinballGameRunning = false;
   speedPadRotateTimer = 300;

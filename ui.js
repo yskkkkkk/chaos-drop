@@ -58,7 +58,7 @@ function setControlsEnabled(enabled) {
   const btnMinus = document.getElementById('btn-win-minus');
   const btnPlus = document.getElementById('btn-win-plus');
   const specRankSelect = document.getElementById('pinball-specific-rank');
-  const freezeToggle = document.getElementById('freeze-mode-toggle');
+  const gimmickToggle = document.getElementById('gimmick-mode-toggle');
   const mapSegBtns = document.querySelectorAll('.map-seg-btn');
 
   if (membersTA) membersTA.disabled = !enabled;
@@ -115,8 +115,8 @@ function setControlsEnabled(enabled) {
     }
   }
 
-  if (freezeToggle) {
-    freezeToggle.disabled = !enabled;
+  if (gimmickToggle) {
+    gimmickToggle.disabled = !enabled;
     const toggleRow = document.querySelector('.panel-toggle-row');
     if (toggleRow) {
       toggleRow.style.opacity = enabled ? '1.0' : '0.5';
@@ -381,8 +381,8 @@ window.addEventListener('DOMContentLoaded', () => {
     membersTA.addEventListener('input', updateSpecificRankSelect);
   }
 
-  const freezeToggle = document.getElementById('freeze-mode-toggle');
-  if (freezeToggle) freezeToggle.addEventListener('change', e => { freezeModeEnabled = e.target.checked; });
+  const gimmickToggle = document.getElementById('gimmick-mode-toggle');
+  if (gimmickToggle) gimmickToggle.addEventListener('change', e => { gimmickEnabled = e.target.checked; });
 
   const btnShuffle = document.getElementById('btn-shuffle-members');
   if (btnShuffle) btnShuffle.addEventListener('click', shuffleMembers);
@@ -452,15 +452,32 @@ window.addEventListener('DOMContentLoaded', () => {
   const _fhint = document.querySelector('.freeze-hint');
   if (_fhint) {
     const _ftoast = _fhint.querySelector('.freeze-toast');
-    _fhint.addEventListener('mouseenter', () => {
+    document.body.appendChild(_ftoast); // CSS backdrop-filter에 의한 fixed 포지션 버그 회피
+    
+    const showToast = () => {
       const r = _fhint.getBoundingClientRect();
       _ftoast.style.top  = (r.top + r.height / 2 - 40) + 'px';
       _ftoast.style.left = isMobile()
         ? Math.max(8, r.left - 218) + 'px'
         : (r.right + 8) + 'px';
       _ftoast.style.opacity = '1';
+    };
+    const hideToast = () => { _ftoast.style.opacity = '0'; };
+
+    _fhint.addEventListener('mouseenter', showToast);
+    _fhint.addEventListener('mouseleave', hideToast);
+    
+    // 모바일 터치 지원 및 토글 동작
+    _fhint.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (_ftoast.style.opacity === '1') hideToast();
+      else showToast();
     });
-    _fhint.addEventListener('mouseleave', () => { _ftoast.style.opacity = '0'; });
+
+    // 영역 밖 클릭 시 닫기
+    document.addEventListener('click', (e) => {
+      if (!_fhint.contains(e.target)) hideToast();
+    });
   }
 });
 
