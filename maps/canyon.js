@@ -1,6 +1,6 @@
 /**
  * =================================================================
- *   CHAOS-DROP — MAP: ZIGZAG CANYON (SURVIVAL CHAOS)
+ *   CHAOS-DROP — MAP: CANYON (SURVIVAL CHAOS)
  * =================================================================
  * 동적 움직이는 협곡 벽, 창살 함정, 실드/부스터 아이템 등
  * 생존과 리스크 중심의 고난도 카오스 맵입니다.
@@ -354,7 +354,7 @@ function _zc_drawLayer(ctx, visY0, visY1) {
 
 // ── 맵 레지스트리 등록 ────────────────────────────────────
 MAPS['canyon'] = {
-  label:         '🏜 Zigzag Canyon',
+  label:         '🏜 Canyon',
   init:          canyon_init,
   applyPhysics:  _zc_applyPhysics,
   drawLayer:     _zc_drawLayer,
