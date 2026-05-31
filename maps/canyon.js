@@ -26,7 +26,7 @@ const ZC_BAR_SEC_OFF = 72;
 const ZC_BAR_STAGGER = 18;
 
 // ── 벽 프로파일 ──────────────────────────────────────────────
-function zigzagCanyon_generateWallProfile() {
+function canyon_generateWallProfile() {
   wallProfile = [];
   wallProfile.push({ y: 0, lx: 0, rx: GAME_VWIDTH });
   
@@ -36,8 +36,8 @@ function zigzagCanyon_generateWallProfile() {
 }
 
 // ── 맵 초기화 ────────────────────────────────────────────────
-function zigzagCanyon_init() {
-  zigzagCanyon_generateWallProfile();
+function canyon_init() {
+  canyon_generateWallProfile();
 
   pinballPegs       = [];
   pinballSpinners   = [];
@@ -352,14 +352,14 @@ function _zc_drawLayer(ctx, visY0, visY1) {
 }
 
 // ── 맵 레지스트리 등록 ────────────────────────────────────
-MAPS['zigzag-canyon'] = {
+MAPS['canyon'] = {
   label:         '🏜 Zigzag Canyon',
-  init:          zigzagCanyon_init,
+  init:          canyon_init,
   applyPhysics:  _zc_applyPhysics,
   drawLayer:     _zc_drawLayer,
   recoverTunnel: _zc_recoverTunnel,
   theme: {
-    uiClass:      'theme-zigzag',
+    uiClass:      'theme-canyon',
     bgClear:      '#180a04',
     bgFrom:       '#2a1005',
     bgTo:         '#0f0502',

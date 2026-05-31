@@ -556,7 +556,7 @@ body {
 .btn-modal-close { padding: 8px 30px; font-size: 0.85rem; }
 
 /* ── Zigzag Canyon 바위 테마 ─────────────────────────────── */
-body.theme-zigzag {
+body.theme-canyon {
   --bg-dark:     #180a04;
   --bg-card:     rgba(28, 14, 6, 0.84);
   --border-card: rgba(140, 75, 47, 0.22);
@@ -566,43 +566,43 @@ body.theme-zigzag {
   background-color: var(--bg-dark) !important;
 }
 
-body.theme-zigzag #pinball-canvas {
+body.theme-canyon #pinball-canvas {
   background: radial-gradient(circle at 50% 30%, #2a1208 0%, #0e0603 80%);
 }
 
-body.theme-zigzag #pinball-terminal {
+body.theme-canyon #pinball-terminal {
   border-color: rgba(166, 94, 59, 0.3);
   color: #D8B08C;
 }
 
-body.theme-zigzag .freeze-hint {
+body.theme-canyon .freeze-hint {
   background: rgba(199, 134, 90, 0.12);
   border-color: rgba(199, 134, 90, 0.28);
   color: #D8B08C;
 }
 
-body.theme-zigzag .shuffle-btn:hover {
+body.theme-canyon .shuffle-btn:hover {
   background: rgba(199,134,90,0.16);
   border-color: rgba(199,134,90,0.38);
 }
 
-body.theme-zigzag .freeze-toast {
+body.theme-canyon .freeze-toast {
   background: rgba(24, 10, 4, 0.97);
   border-color: rgba(166, 94, 59, 0.3);
   color: #D8B08C;
   box-shadow: 0 4px 20px rgba(140, 75, 47, 0.15);
 }
 
-body.theme-zigzag .panel-toggle-row {
+body.theme-canyon .panel-toggle-row {
   background: rgba(140, 75, 47, 0.08);
   border-color: rgba(140, 75, 47, 0.2);
 }
 
-body.theme-zigzag .panel-toggle-checkbox { accent-color: #D8B08C; }
+body.theme-canyon .panel-toggle-checkbox { accent-color: #D8B08C; }
 
-body.theme-zigzag .panel-toggle-label { color: #D8B08C; }
+body.theme-canyon .panel-toggle-label { color: #D8B08C; }
 
-body.theme-zigzag .map-seg-btn.active {
+body.theme-canyon .map-seg-btn.active {
   background: rgba(199,134,90,0.2);
   color: var(--accent);
   box-shadow: inset 0 0 0 1px rgba(199,134,90,0.4);

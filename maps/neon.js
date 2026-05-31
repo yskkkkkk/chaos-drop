@@ -5,13 +5,13 @@
  * 벽 프로파일 생성, 장애물 배치, Zone 2.5 터널 물리/렌더링,
  * 고체 섬 터널링 복구.
  *
- * MAPS['classic-chaos'] 에 등록. game.js 딜리게이터가 훅을 호출합니다.
- *   classicChaos_init()  ← initPinballMap() 경유
+ * MAPS['neon'] 에 등록. game.js 딜리게이터가 훅을 호출합니다.
+ *   neon_init()  ← initPinballMap() 경유
  */
 
 // ── 벽 프로파일 생성 ─────────────────────────────────────────
 
-function classicChaos_generateWallProfile() {
+function neon_generateWallProfile() {
   wallProfile = [];
   wallProfile.push({ y: 0,   lx: 0, rx: GAME_VWIDTH });
   wallProfile.push({ y: 100, lx: 0, rx: GAME_VWIDTH });
@@ -218,8 +218,8 @@ function _cc_recoverTunnel() {
 
 // ── 맵 초기화 ─────────────────────────────────────────────────
 
-function classicChaos_init() {
-  classicChaos_generateWallProfile();
+function neon_init() {
+  neon_generateWallProfile();
   pinballPegs = [];
   pinballSpinners = [];
   pinballBumpers = [];
@@ -443,9 +443,9 @@ function classicChaos_init() {
 }
 
 // ── 맵 레지스트리 등록 ────────────────────────────────────
-MAPS['classic-chaos'] = {
-  label:         '🌀 Classic Chaos',
-  init:          classicChaos_init,
+MAPS['neon'] = {
+  label:         '🌀 Neon Chaos',
+  init:          neon_init,
   applyPhysics:  _cc_applyPhysics,
   drawLayer:     _cc_drawLayer,
   recoverTunnel: _cc_recoverTunnel,

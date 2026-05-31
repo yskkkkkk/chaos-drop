@@ -4,7 +4,7 @@
  * =================================================================
  * 물리 업데이트, Freeze Mode, 드로잉.
  * Zone 2.5 터널 물리는 applyMapZonePhysics(ball) 훅으로 위임 →
- * maps/classic-chaos.js 가 이 함수를 정의합니다.
+ * maps/neon.js 가 이 함수를 정의합니다.
  */
 
 class RacingBall {
@@ -133,7 +133,7 @@ class RacingBall {
       this.vy = Math.abs(this.vy) * this.restitution;
     }
 
-    // 맵별 Zone 물리 처리 (maps/classic-chaos.js → applyMapZonePhysics)
+    // 맵별 Zone 물리 처리 (maps/neon.js → applyMapZonePhysics)
     if (typeof applyMapZonePhysics === 'function') applyMapZonePhysics(this);
 
     if (this.y >= FUNNEL_TOP_Y && this.y <= GOAL_Y) {
@@ -151,7 +151,7 @@ class RacingBall {
     }
 
     // Freeze Zone: 하단 30% 구간에서 확률적으로 멈춤 (Map 1 전용 기믹)
-    if (gimmickEnabled && currentMapId === 'classic-chaos' && !this.isFinished && this.nearMissTimer === 0 && this.nearMissCooldown === 0) {
+    if (gimmickEnabled && currentMapId === 'neon' && !this.isFinished && this.nearMissTimer === 0 && this.nearMissCooldown === 0) {
       if (this.y >= GAME_VHEIGHT * 0.70) {
         const _spd = Math.hypot(this.vx, this.vy);
         const _slow = _spd < 2.0;

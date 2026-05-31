@@ -50,7 +50,7 @@ let crownFlashTimer = 0;
 
 // ── 맵 레지스트리 딜리게이터 ──────────────────────────────────
 // 각 맵 파일이 MAPS['id']에 훅을 등록합니다. (constants.js 에서 MAPS={} 선언)
-let currentMapId = 'classic-chaos';
+let currentMapId = 'neon';
 
 function _applyMapTheme() {
   Object.values(MAPS).forEach(m => { if (m.theme?.uiClass) document.body.classList.remove(m.theme.uiClass); });
@@ -68,11 +68,11 @@ function switchMap(mapId) {
     const desc = document.getElementById('desc-gimmick');
     const toast = document.getElementById('toast-gimmick');
     
-    if (mapId === 'classic-chaos') {
+    if (mapId === 'neon') {
       if (lbl) lbl.innerText = '❄️ FREEZE MODE';
       if (desc) desc.innerText = '하단 30% 구간에서 공이 확률적으로 정지';
       if (toast) toast.innerText = '하단 30% 구간에서 확률적으로 공이 정지됩니다.';
-    } else if (mapId === 'zigzag-canyon') {
+    } else if (mapId === 'canyon') {
       if (lbl) lbl.innerText = '🌊 UPSTREAM SURGE';
       if (desc) desc.innerText = '하단 협곡에 거센 역류 폭포수 발생';
       if (toast) toast.innerText = '하단 협곡 구간에 거친 역류 물결이 생성되어 공을 위로 튕겨냅니다.';
@@ -207,7 +207,7 @@ function animatePinball(currentTime) {
   ctx.strokeRect(FUNNEL_BOTTOM_X, GOAL_Y, VW - FUNNEL_BOTTOM_X * 2, 40);
   ctx.restore();
 
-  // 맵 고유 레이어 (터널, 섬 등) — maps/classic-chaos.js
+  // 맵 고유 레이어 (터널, 섬 등) — maps/neon.js
   drawCurrentMapLayer(ctx, visY0, visY1);
 
   // 구간 구분선
@@ -268,7 +268,7 @@ function animatePinball(currentTime) {
       pinballLog("⚡ 가속 패드 방향 즉시 회전!");
     }
 
-    // 맵 고유 섬 터널링 복구 — maps/classic-chaos.js
+    // 맵 고유 섬 터널링 복구 — maps/neon.js
     recoverCurrentMapIslandTunnel();
 
     // E-1. 구슬 간 충돌
