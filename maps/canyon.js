@@ -176,6 +176,7 @@ function _zc_recoverTunnel(isInit = false) {
     
     let targetLx = Math.max(0, canyonCenter - currentHalfWidth + bumpL + dynamicL);
     let targetRx = Math.min(W, canyonCenter + currentHalfWidth + bumpR - dynamicR);
+    if (targetLx > targetRx - 20) targetLx = targetRx - 20;
 
     // 상단 입구 깔때기 (y: 50 ~ 300)
     if (wp.y < 300) {
