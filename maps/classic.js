@@ -106,10 +106,18 @@ function classic_init() {
   pinballFlippers.push(new AutoFlipper(270, flipperY + 12, 138, true, 12, -30, 1500));
   pinballFlippers.push(new AutoFlipper(W - 270, flipperY + 12, 138, false, 168, 210, 1500));
 
-  pinballSpinners.push(new Spinner(bumperX, 805, 42, '#d6d9df'));
-  pinballItems.push(new BoosterItem(125, 1200, 0));
-  pinballItems.push(new ShieldItem(W / 2, 1040, 0));
-  pinballItems.push(new BoosterItem(W - 195, 860, 0));
+  pinballSpinners.push(new Spinner(bumperX, 750, 45, '#ffffff', true));
+  
+  for (let i = 0; i < 5; i++) {
+    const isShield = Math.random() < 0.3;
+    const ix = 50 + Math.random() * (W - 150);
+    const iy = 750 + Math.random() * (GOAL_Y - 900);
+    if (isShield) {
+      pinballItems.push(new ShieldItem(ix, iy, 0));
+    } else {
+      pinballItems.push(new BoosterItem(ix, iy, 0));
+    }
+  }
 }
 
 function classic_customPreviewSpawn(idx, total) {
