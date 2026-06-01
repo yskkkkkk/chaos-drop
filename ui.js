@@ -251,7 +251,10 @@ function launchPinballRacing() {
   // 경주 중 옵션 변경 불가능하도록 컨트롤 잠금
   setControlsEnabled(false);
 
+  if (typeof SoundSys !== 'undefined') SoundSys.playCharge();
+
   setTimeout(() => {
+    if (typeof SoundSys !== 'undefined') SoundSys.playLaunch();
     raceStartTime = Date.now();
     pinballGameRunning = true;
     enterMobileGameMode();
@@ -281,6 +284,23 @@ function launchPinballRacing() {
 // ── DOM 이벤트 리스너 등록 및 초기 기동 ──────────────────────
 
 window.addEventListener('DOMContentLoaded', () => {
+  document.body.addEventListener('click', () => {
+    if (typeof SoundSys !== 'undefined') SoundSys.init();
+  }, { once: true });
+
+  const soundBtn = document.getElementById('btn-sound-toggle');
+  if (soundBtn) {
+    soundBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (typeof SoundSys !== 'undefined') SoundSys.init();
+      if (typeof SoundSys !== 'undefined') {
+        const muted = SoundSys.toggleMute();
+        soundBtn.textContent = muted ? '🔇 SOUND OFF' : '🔊 SOUND ON';
+        soundBtn.className = muted ? 'badge sound-badge muted' : 'badge sound-badge active';
+      }
+    });
+  }
+
   pinballCanvas = document.getElementById('pinball-canvas');
   if (pinballCanvas) {
     pinballCtx = pinballCanvas.getContext('2d');
@@ -375,23 +395,33 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const membersTA = document.getElementById('pinball-members');
-  if (membersTA) {
-    membersTA.value = DEFAULT_MEMBERS;
-    membersTA.addEventListener('input', updateSpecificRankSelect);
+  const membersTextarea = document.getElementById('pinball-members');
+  if (membersTextarea) {
+    membersTextarea.value = DEFAULT_MEMBERS;
+    membersTextarea.addEventListener('input', () => {
+      if (typeof SoundSys !== 'undefined') SoundSys.playClick();
+      updatePreviewBalls();
+      updateSpecificRankSelect();
+    });
   }
-
   const gimmickToggle = document.getElementById('gimmick-mode-toggle');
   if (gimmickToggle) gimmickToggle.addEventListener('change', e => { gimmickEnabled = e.target.checked; });
 
   const btnShuffle = document.getElementById('btn-shuffle-members');
-  if (btnShuffle) btnShuffle.addEventListener('click', shuffleMembers);
+  if (btnShuffle) btnShuffle.addEventListener('click', () => {
+    if (typeof SoundSys !== 'undefined') SoundSys.playClick();
+    shuffleMembers();
+  });
 
   const btnLaunch = document.getElementById('btn-pinball-launch');
-  if (btnLaunch) btnLaunch.addEventListener('click', launchPinballRacing);
+  if (btnLaunch) btnLaunch.addEventListener('click', () => {
+    if (typeof SoundSys !== 'undefined') SoundSys.playClick();
+    launchPinballRacing();
+  });
 
   const btnReset = document.getElementById('btn-pinball-reset');
   if (btnReset) btnReset.addEventListener('click', () => {
+    if (typeof SoundSys !== 'undefined') SoundSys.playClick();
     exitMobileGameMode();
     resetPinball();
     if (pinballAnimId === null) animatePinball();

@@ -291,6 +291,7 @@ function animatePinball(currentTime) {
               const imp = rv * (1.1 + b1.restitution * 1.5) * 0.65;
               b1.vx -= nx*imp * 1.15; b1.vy -= ny*imp * 1.15;
               b2.vx += nx*imp * 1.15; b2.vy += ny*imp * 1.15;
+              if (rv > 1 && typeof SoundSys !== 'undefined') SoundSys.playBallHit(rv);
             }
           }
         }

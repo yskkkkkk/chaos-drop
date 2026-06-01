@@ -168,6 +168,7 @@ class RacingBall {
     }
 
     if (this.y + this.r >= GOAL_Y) {
+      if (!this.isFinished && typeof SoundSys !== 'undefined') SoundSys.playGoal();
       this.isFinished = true;
       this.finishTime = Date.now();
       registerFinishedBall(this);

@@ -72,6 +72,8 @@ function collideBallWithSegment(ball, x1, y1, x2, y2) {
       ball.vy -= (1 + ball.restitution) * vn * ny;
       ball.vx += nx * 0.15;
       ball.vy += ny * 0.15;
+      const impact = Math.abs(vn);
+      if (impact > 1 && typeof SoundSys !== 'undefined') SoundSys.playBounce(impact);
     }
   }
 }
@@ -307,10 +309,16 @@ function resolveObstacleCollisions() {
     const _fw = getWallAtY(ball.y);
     if (ball.x - ball.r < _fw.lx) {
       ball.x = _fw.lx + ball.r;
-      if (ball.vx < 0) ball.vx = Math.abs(ball.vx) * ball.restitution + 0.3;
+      if (ball.vx < 0) {
+        if (typeof SoundSys !== 'undefined') SoundSys.playBounce(Math.abs(ball.vx));
+        ball.vx = Math.abs(ball.vx) * ball.restitution + 0.3;
+      }
     } else if (ball.x + ball.r > _fw.rx) {
       ball.x = _fw.rx - ball.r;
-      if (ball.vx > 0) ball.vx = -Math.abs(ball.vx) * ball.restitution - 0.3;
+      if (ball.vx > 0) {
+        if (typeof SoundSys !== 'undefined') SoundSys.playBounce(ball.vx);
+        ball.vx = -Math.abs(ball.vx) * ball.restitution - 0.3;
+      }
     }
   });
 }

@@ -110,7 +110,10 @@ class SuperBumper {
     this.color = color;
     this.pulse = 0;
   }
-  trigger() { this.pulse = 1.0; }
+  trigger() { 
+    this.pulse = 1.0; 
+    if (typeof SoundSys !== 'undefined') SoundSys.playBumper();
+  }
   update() { this.pulse *= 0.9; }
   draw(ctx) {
     const radius = this.r + this.pulse * 5;
@@ -330,7 +333,10 @@ class Peg {
     this.r = r;
     this.pulse = 0;
   }
-  trigger() { this.pulse = 1.0; }
+  trigger() { 
+    this.pulse = 1.0; 
+    if (typeof SoundSys !== 'undefined') SoundSys.playPeg();
+  }
   update() { this.pulse *= 0.88; }
   draw(ctx) {
     ctx.beginPath();
@@ -484,5 +490,19 @@ class ItemBase {
   }
 }
 
-class ShieldItem extends ItemBase { constructor(x, y, vx) { super(x, y, vx, 'shield'); } }
-class BoosterItem extends ItemBase { constructor(x, y, vx) { super(x, y, vx, 'booster'); } }
+class ShieldItem extends ItemBase { 
+  constructor(x, y, vx) { super(x, y, vx, 'shield'); } 
+  applyEffect(ball) {
+    if (typeof SoundSys !== 'undefined') SoundSys.playItem();
+    ball.shieldActive = true;
+    ball.shieldTimer = 300;
+  }
+}
+class BoosterItem extends ItemBase { 
+  constructor(x, y, vx) { super(x, y, vx, 'booster'); } 
+  applyEffect(ball) {
+    if (typeof SoundSys !== 'undefined') SoundSys.playItem();
+    ball.vy -= 15;
+    ball.boostAnim = 30;
+  }
+}
