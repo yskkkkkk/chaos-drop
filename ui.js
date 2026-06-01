@@ -307,9 +307,25 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const resizeCanvas = () => {
       const _c = pinballCanvas.parentElement;
-      pinballCanvas.width  = _c.clientWidth;
-      pinballCanvas.height = _c.clientHeight;
-      GAME_X_OFFSET = isMobile() ? 0 : Math.max(415, Math.round((_c.clientWidth - 415) / 2));
+      const dpr = window.devicePixelRatio || 1;
+      
+      // 물리적 픽셀 해상도
+      pinballCanvas.width  = _c.clientWidth * dpr;
+      pinballCanvas.height = _c.clientHeight * dpr;
+      
+      // CSS 논리적 크기
+      pinballCanvas.style.width = _c.clientWidth + 'px';
+      pinballCanvas.style.height = _c.clientHeight + 'px';
+      
+      // 컨텍스트 스케일링 (Crisp 렌더링)
+      pinballCtx.scale(dpr, dpr);
+
+      // 화면 중앙 정렬 오프셋 보정: 패널 폭(415)과 맵 고정폭(GAME_VWIDTH)을 뺀 남은 여백의 중앙
+      if (isMobile()) {
+        GAME_X_OFFSET = 0;
+      } else {
+        GAME_X_OFFSET = Math.max(0, Math.round((_c.clientWidth - 415 - GAME_VWIDTH) / 2));
+      }
     };
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
