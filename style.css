@@ -893,3 +893,11 @@ body.theme-canyon .map-seg-btn.active {
 @media (max-width: 768px) and (orientation: landscape) {
   body:not(.mobile-game-active) #mobile-rotate-overlay { display: flex; }
 }
+
+.sound-toggle-btn {
+  background: none; border: none; cursor: pointer; font-size: 1.25rem; color: #fff;
+  opacity: 0.8; transition: opacity 0.2s, transform 0.2s;
+  margin-left: auto; margin-right: 15px;
+}
+.sound-toggle-btn:hover { opacity: 1; transform: scale(1.1); }
+
