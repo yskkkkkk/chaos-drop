@@ -230,6 +230,30 @@ function launchPinballRacing() {
   hasAnnouncedWinners = false;
   renderLeaderboard();
 
+  // ── Active Rule Indicator 갱신 및 표시 ──
+  const indicator = document.getElementById('active-rule-indicator');
+  const icon = document.getElementById('active-rule-icon');
+  const title = document.getElementById('active-rule-title');
+  const desc = document.getElementById('active-rule-desc');
+  if (indicator && icon && title && desc) {
+    if (currentRule === 'first') {
+      icon.textContent = '👑';
+      title.textContent = '선착순 생존';
+      title.style.color = '#ff9900';
+      desc.textContent = `가장 먼저 도착하는 ${winCount}명`;
+    } else if (currentRule === 'last') {
+      icon.textContent = '🛡️';
+      title.textContent = '후착순 생존';
+      title.style.color = '#33ff57';
+      desc.textContent = `끝까지 살아남는 ${winCount}명`;
+    } else if (currentRule === 'specific') {
+      icon.textContent = '🎯';
+      title.textContent = '특정 순위 단독';
+      title.style.color = '#ff3366';
+      desc.textContent = `정확히 ${specificRank}등으로 도착하는 1명`;
+    }
+    indicator.style.display = 'flex';
+  }
   const modal = document.getElementById('pinball-result-modal');
   if (modal) modal.style.display = 'none';
 

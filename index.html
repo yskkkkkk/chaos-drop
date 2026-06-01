@@ -18,6 +18,15 @@
   <!-- 핀볼 구슬 레이싱 렌더링 캔버스 -->
   <canvas id="pinball-canvas" width="1280" height="720"></canvas>
 
+  <!-- 현재 진행 중인 룰 인디케이터 (게임 중 표시) -->
+  <div id="active-rule-indicator" class="active-rule-indicator" style="display: none;">
+    <span id="active-rule-icon" class="rule-icon">👑</span>
+    <div class="rule-text-group">
+      <div id="active-rule-title" class="rule-title">선착순 생존</div>
+      <div id="active-rule-desc" class="rule-desc">가장 먼저 도착하는 N명</div>
+    </div>
+  </div>
+
   <!-- 홀로그램 제어 패널 카드 (UI) -->
   <div class="pinball-control-panel">
     <div class="panel-row panel-row--header">
