@@ -146,7 +146,13 @@ function updatePreviewBalls() {
   if (members.length === 0) return;
   const spacing = GAME_VWIDTH / (members.length + 1);
   members.forEach((name, idx) => {
-    pinballBalls.push(new RacingBall(idx, name, spacing * (idx + 1), 40, COLOR_SPECTRUM[idx % COLOR_SPECTRUM.length]));
+    let x = spacing * (idx + 1);
+    let y = 40;
+    if (typeof MAPS !== 'undefined' && MAPS[currentMapId] && MAPS[currentMapId].customPreviewSpawn) {
+      const pos = MAPS[currentMapId].customPreviewSpawn(idx, members.length);
+      if (pos) { x = pos.x; y = pos.y; }
+    }
+    pinballBalls.push(new RacingBall(idx, name, x, y, COLOR_SPECTRUM[idx % COLOR_SPECTRUM.length]));
   });
   renderLeaderboard();
 }
@@ -239,8 +245,12 @@ function launchPinballRacing() {
   const spacing = GAME_VWIDTH / (members.length + 1);
 
   members.forEach((name, idx) => {
-    const x = spacing * (idx + 1);
-    const y = 40;
+    let x = spacing * (idx + 1);
+    let y = 40;
+    if (typeof MAPS !== 'undefined' && MAPS[currentMapId] && MAPS[currentMapId].customPreviewSpawn) {
+      const pos = MAPS[currentMapId].customPreviewSpawn(idx, members.length);
+      if (pos) { x = pos.x; y = pos.y; }
+    }
     const color = COLOR_SPECTRUM[idx % COLOR_SPECTRUM.length];
     pinballBalls.push(new RacingBall(idx, name, x, y, color));
   });
@@ -266,13 +276,25 @@ function launchPinballRacing() {
     crownFlashTimer = 0;
     decisiveMomentActive = false;
 
-    pinballBalls.forEach(b => {
-      const _t = b.x / GAME_VWIDTH;
-      const _centerPull = (0.5 - _t) * 9;
-      const _jitter = (Math.random() - 0.5) * 2.5;
-      b.vx = _centerPull + _jitter;
-      b.vy = -Math.random() * 8.5 - 3.5;
-    });
+    let delayFrames = 0;
+    if (typeof MAPS !== 'undefined' && MAPS[currentMapId] && MAPS[currentMapId].customLaunch) {
+      delayFrames = MAPS[currentMapId].customLaunch(pinballBalls) || 0;
+    } else {
+      pinballBalls.forEach(b => {
+        const _t = b.x / GAME_VWIDTH;
+        const _centerPull = (0.5 - _t) * 9;
+        const _jitter = (Math.random() - 0.5) * 2.5;
+        b.vx = _centerPull + _jitter;
+        b.vy = -Math.random() * 8.5 - 3.5;
+      });
+    }
+
+    if (delayFrames > 0) {
+      if (typeof pinballLaunchTimer !== 'undefined') {
+         pinballLaunchTimer = delayFrames;
+         pinballLaunchState = 1; // 1: Charging
+      }
+    }
 
     pinballLog("RACE IN PROGRESS. QUANTUM ENTANGLEMENT ESTABLISHED.");
   }, 900);

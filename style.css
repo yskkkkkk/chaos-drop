@@ -24,7 +24,7 @@ body {
   height: 100%;
 }
 
-/* 핀볼 실시간 렌더링 캔버스 (전체 배경화) */
+/* ?蹂??ㅼ떆媛??뚮뜑留?罹붾쾭??(?꾩껜 諛곌꼍?? */
 #pinball-canvas {
   position: absolute;
   top: 0;
@@ -35,7 +35,7 @@ body {
   background: radial-gradient(circle at 50% 30%, #0d0f22 0%, #05060b 80%);
 }
 
-/* 홀로그램 플로팅 유리 제어판 (좌측 정렬) */
+/* ?濡쒓렇???뚮줈???좊━ ?쒖뼱??(醫뚯륫 ?뺣젹) */
 .pinball-control-panel {
   position: absolute;
   top: 30px;
@@ -63,7 +63,7 @@ body {
   background: rgba(255,255,255,0.12); border-radius: 99px;
 }
 
-/* 패널 브랜드 타이틀 */
+/* ?⑤꼸 釉뚮옖????댄? */
 .panel-brand-title {
   font-size: 1.05rem;
   font-weight: 800;
@@ -78,7 +78,7 @@ body {
   row-gap: 4px;
 }
 
-/* 맵 선택 세그먼트 */
+/* 留??좏깮 ?멸렇癒쇳듃 */
 .map-select-row { margin-top: -2px; }
 .map-select-label {
   font-size: 0.7rem;
@@ -118,9 +118,9 @@ body {
   opacity: 0.35;
   cursor: not-allowed;
 }
-.map-seg-btn.locked::after { content: " 🔒"; font-size: 0.6rem; }
+.map-seg-btn.locked::after { content: " ?뵏"; font-size: 0.6rem; }
 
-/* 셔플 아이콘 버튼 + 인원수 텍스트 */
+/* ?뷀뵆 ?꾩씠肄?踰꾪듉 + ?몄썝???띿뒪??*/
 .member-count {
   font-size: 0.7rem;
   font-weight: 600;
@@ -153,7 +153,7 @@ body {
 }
 .shuffle-ico { font-size: 0.82rem; line-height: 1; }
 
-/* 설정 타이틀 */
+/* ?ㅼ젙 ??댄? */
 .panel-section-title {
   font-size: 0.8rem;
   font-weight: 700;
@@ -162,7 +162,7 @@ body {
   margin-bottom: 2px;
 }
 
-/* 다크 입력 폼 */
+/* ?ㅽ겕 ?낅젰 ??*/
 .panel-textarea {
   width: 100%;
   height: 62px;
@@ -183,7 +183,7 @@ body {
   border-color: var(--accent);
 }
 
-/* 라디오 그룹 포맷 */
+/* ?쇰뵒??洹몃９ ?щ㎎ */
 .rule-radio-group {
   display: flex;
   flex-direction: column;
@@ -218,14 +218,14 @@ body {
   margin-left: 2px;
 }
 
-/* 브라우저 기본 스피너 제거 */
+/* 釉뚮씪?곗? 湲곕낯 ?ㅽ뵾???쒓굅 */
 .stepper-input::-webkit-outer-spin-button,
 .stepper-input::-webkit-inner-spin-button {
   -webkit-appearance: none; margin: 0;
 }
 .stepper-input[type=number] { -moz-appearance: textfield; }
 
-/* 일체형 스태퍼 박스 */
+/* ?쇱껜???ㅽ깭??諛뺤뒪 */
 .number-stepper {
   display: flex;
   align-items: center;
@@ -274,7 +274,7 @@ body {
   pointer-events: none;
 }
 
-/* 가상 코드가 흐르는 터미널 로그 */
+/* 媛??肄붾뱶媛 ?먮Ⅴ???곕???濡쒓렇 */
 #pinball-terminal {
   width: 100%;
   height: 72px;
@@ -290,7 +290,7 @@ body {
   line-height: 1.35;
 }
 
-/* 버튼 스타일 */
+/* 踰꾪듉 ?ㅽ???*/
 .panel-btn {
   padding: 10px;
   border: none;
@@ -337,7 +337,7 @@ body {
   color: var(--accent);
 }
 
-/* 실시간 리더보드 테이블 */
+/* ?ㅼ떆媛?由щ뜑蹂대뱶 ?뚯씠釉?*/
 .leaderboard-container {
   flex: 1;
   min-height: 0;
@@ -377,7 +377,7 @@ body {
   color: var(--accent);
 }
 
-/* 당첨 오버레이 팝업 카드 (중앙 플로팅 연출) */
+/* ?뱀꺼 ?ㅻ쾭?덉씠 ?앹뾽 移대뱶 (以묒븰 ?뚮줈???곗텧) */
 .pinball-modal {
   position: absolute;
   top: 50%;
@@ -419,7 +419,7 @@ body {
   line-height: 1.3;
 }
 
-/* ❄️ Freeze Mode 호버 토스트 */
+/* ?꾬툘 Freeze Mode ?몃쾭 ?좎뒪??*/
 .freeze-hint {
   position: relative;
   display: inline-flex;
@@ -454,7 +454,7 @@ body {
   box-shadow: 0 4px 20px rgba(0,240,255,0.12);
 }
 
-/* ── 패널 유틸리티 클래스 ────────────────────────────────── */
+/* ?? ?⑤꼸 ?좏떥由ы떚 ?대옒???????????????????????????????????? */
 
 .panel-row {
   display: flex;
@@ -555,7 +555,7 @@ body {
 }
 .btn-modal-close { padding: 8px 30px; font-size: 0.85rem; }
 
-/* ── Zigzag Canyon 바위 테마 ─────────────────────────────── */
+/* ?? Zigzag Canyon 諛붿쐞 ?뚮쭏 ??????????????????????????????? */
 body.theme-canyon {
   --bg-dark:     #180a04;
   --bg-card:     rgba(28, 14, 6, 0.84);
@@ -608,7 +608,7 @@ body.theme-canyon .map-seg-btn.active {
   box-shadow: inset 0 0 0 1px rgba(199,134,90,0.4);
 }
 
-/* 🔒 비활성화(잠금) 상태의 컨트롤 연출 */
+/* ?뵏 鍮꾪솢?깊솕(?좉툑) ?곹깭??而⑦듃濡??곗텧 */
 .pinball-control-panel input:disabled,
 .pinball-control-panel textarea:disabled,
 .pinball-control-panel select:disabled {
@@ -620,12 +620,12 @@ body.theme-canyon .map-seg-btn.active {
   background: rgba(0, 0, 0, 0.2) !important;
 }
 
-/* ── 소형 PC 화면 대응 (Issue #16) ──────────────────────────
-   대상: 1024px–1400px 범위의 작은 PC 화면
-   변경 범위: style.css 전용, game.js / camera.js / ui.js 무변경
-   ─────────────────────────────────────────────────────────── */
+/* ?? ?뚰삎 PC ?붾㈃ ???(Issue #16) ??????????????????????????
+   ??? 1024px??400px 踰붿쐞???묒? PC ?붾㈃
+   蹂寃?踰붿쐞: style.css ?꾩슜, game.js / camera.js / ui.js 臾대?寃?
+   ??????????????????????????????????????????????????????????? */
 
-/* 전 해상도 공통: 패널·모달 뷰포트 초과 방지 */
+/* ???댁긽??怨듯넻: ?⑤꼸쨌紐⑤떖 酉고룷??珥덇낵 諛⑹? */
 .pinball-control-panel {
   max-width: calc(100vw - 24px);
 }
@@ -634,14 +634,14 @@ body.theme-canyon .map-seg-btn.active {
   max-width: calc(100vw - 32px);
 }
 
-/* 1400px 이하: 제어 패널 폭 330px */
+/* 1400px ?댄븯: ?쒖뼱 ?⑤꼸 ??330px */
 @media (max-width: 1400px) {
   .pinball-control-panel {
     width: 330px;
   }
 }
 
-/* 1280px 이하: 패널 300px, 여백·폰트 축소, 모달 너비 조정 */
+/* 1280px ?댄븯: ?⑤꼸 300px, ?щ갚쨌?고듃 異뺤냼, 紐⑤떖 ?덈퉬 議곗젙 */
 @media (max-width: 1280px) {
   .pinball-control-panel {
     width: 300px;
@@ -669,7 +669,7 @@ body.theme-canyon .map-seg-btn.active {
   }
 }
 
-/* 1024px 이하: 패널 최소화, 모달 중앙 고정 */
+/* 1024px ?댄븯: ?⑤꼸 理쒖냼?? 紐⑤떖 以묒븰 怨좎젙 */
 @media (max-width: 1024px) {
   .pinball-control-panel {
     width: 260px;
@@ -693,18 +693,18 @@ body.theme-canyon .map-seg-btn.active {
   }
 }
 
-/* ── 모바일 UI (≤768px) ──────────────────────────────────────
-   Wizard 2-Step 패널, 게임 오버레이, 회전 안내
-   ─────────────────────────────────────────────────────────── */
+/* ?? 紐⑤컮??UI (??68px) ??????????????????????????????????????
+   Wizard 2-Step ?⑤꼸, 寃뚯엫 ?ㅻ쾭?덉씠, ?뚯쟾 ?덈궡
+   ??????????????????????????????????????????????????????????? */
 
-/* 데스크탑에서 모바일 전용 요소 숨김 */
+/* ?곗뒪?ы깙?먯꽌 紐⑤컮???꾩슜 ?붿냼 ?④? */
 .mobile-step-nav { display: none; }
 #mobile-game-overlay { display: none; }
 #mobile-rotate-overlay { display: none; }
 .float-home-btn { display: none; }
 
 @media (max-width: 768px) {
-  /* 전체화면 Wizard 패널 */
+  /* ?꾩껜?붾㈃ Wizard ?⑤꼸 */
   .pinball-control-panel {
     top: 0; left: 0; right: 0; bottom: 0;
     width: 100% !important;
@@ -717,10 +717,10 @@ body.theme-canyon .map-seg-btn.active {
     box-shadow: none;
   }
 
-  /* 단일 페이지 설정 (step 위저드 비활성) */
+  /* ?⑥씪 ?섏씠吏 ?ㅼ젙 (step ?꾩???鍮꾪솢?? */
   .pinball-control-panel .leaderboard-container { display: none; }
 
-  /* 스텝 내비게이션 — 단일 페이지 전환으로 숨김 */
+  /* ?ㅽ뀦 ?대퉬寃뚯씠?????⑥씪 ?섏씠吏 ?꾪솚?쇰줈 ?④? */
   .mobile-step-nav { display: none !important; }
   .mobile-step-indicator {
     font-size: 0.8rem;
@@ -741,15 +741,15 @@ body.theme-canyon .map-seg-btn.active {
   }
   .mobile-nav-btn:active { background: rgba(255,255,255,0.14); }
 
-  /* 게임 모드: Wizard 숨김, 모달 최상위 */
+  /* 寃뚯엫 紐⑤뱶: Wizard ?④?, 紐⑤떖 理쒖긽??*/
   body.mobile-game-active .pinball-control-panel { display: none; }
   body.mobile-game-active .pinball-modal { z-index: 30; }
 
-  /* 게임 오버레이 활성화 */
+  /* 寃뚯엫 ?ㅻ쾭?덉씠 ?쒖꽦??*/
   body.mobile-game-active #mobile-game-overlay { display: block; }
 }
 
-/* 게임 오버레이 — 화면 우측 상단 고정 */
+/* 寃뚯엫 ?ㅻ쾭?덉씠 ???붾㈃ ?곗륫 ?곷떒 怨좎젙 */
 #mobile-game-overlay {
   position: absolute;
   top: 12px; right: 12px;
@@ -757,7 +757,7 @@ body.theme-canyon .map-seg-btn.active {
   pointer-events: auto;
 }
 
-/* 미니 리더보드 칩 */
+/* 誘몃땲 由щ뜑蹂대뱶 移?*/
 .mobile-mini-lb {
   background: rgba(0,0,0,0.82);
   border: 1px solid rgba(255,220,80,0.35);
@@ -794,7 +794,7 @@ body.theme-canyon .map-seg-btn.active {
   flex-shrink: 0;
 }
 
-/* 전체 순위 오버레이 — flex column: 헤더 고정, 목록 스크롤, 버튼 sticky */
+/* ?꾩껜 ?쒖쐞 ?ㅻ쾭?덉씠 ??flex column: ?ㅻ뜑 怨좎젙, 紐⑸줉 ?ㅽ겕濡? 踰꾪듉 sticky */
 .mobile-full-lb {
   display: none;
   position: fixed;
@@ -851,7 +851,7 @@ body.theme-canyon .map-seg-btn.active {
 }
 .mobile-reset-btn:active { background: rgba(255,40,40,0.1); border-color: rgba(255,40,40,0.2); }
 
-/* 팝업 닫기 후 플로팅 홈 버튼 */
+/* ?앹뾽 ?リ린 ???뚮줈????踰꾪듉 */
 .float-home-btn {
   position: fixed;
   top: 22vh; left: 50%; transform: translateX(-50%);
@@ -871,7 +871,7 @@ body.theme-canyon .map-seg-btn.active {
 }
 .float-home-btn:active { background: rgba(255,255,255,0.08); }
 
-/* 회전 안내 오버레이 */
+/* ?뚯쟾 ?덈궡 ?ㅻ쾭?덉씠 */
 #mobile-rotate-overlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
@@ -893,3 +893,54 @@ body.theme-canyon .map-seg-btn.active {
 @media (max-width: 768px) and (orientation: landscape) {
   body:not(.mobile-game-active) #mobile-rotate-overlay { display: flex; }
 }
+
+/* 🕹️ Classic Pinball 테마 커스텀 */
+body.theme-classic {
+  --bg-dark:     #050710;
+  --bg-card:     rgba(20, 20, 25, 0.84);
+  --border-card: rgba(80, 80, 80, 0.5);
+  --accent:  #ffcc00;
+  --neon-violet: #bbbbbb;
+}
+
+body.theme-classic #pinball-canvas {
+  background: #050710;
+}
+
+body.theme-classic #pinball-terminal {
+  border-color: rgba(80, 80, 80, 0.5);
+  color: #dddddd;
+}
+
+body.theme-classic .freeze-hint {
+  background: rgba(0, 255, 255, 0.12);
+  border-color: rgba(0, 255, 255, 0.28);
+  color: #00ffff;
+}
+
+body.theme-classic .shuffle-btn:hover {
+  background: rgba(0, 255, 255, 0.16);
+  border-color: rgba(0, 255, 255, 0.38);
+}
+
+body.theme-classic .freeze-toast {
+  background: rgba(5, 5, 16, 0.97);
+  border-color: rgba(0, 255, 255, 0.3);
+  color: #00ffff;
+  box-shadow: 0 4px 20px rgba(0, 255, 255, 0.15);
+}
+
+body.theme-classic .panel-toggle-row {
+  background: rgba(0, 255, 255, 0.08);
+  border-color: rgba(0, 255, 255, 0.2);
+}
+
+body.theme-classic .panel-toggle-checkbox { accent-color: #00ffff; }
+body.theme-classic .panel-toggle-label { color: #00ffff; }
+
+body.theme-classic .map-seg-btn.active {
+  background: rgba(0, 255, 255, 0.2);
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1px rgba(0, 255, 255, 0.4);
+}
+
