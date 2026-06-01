@@ -92,14 +92,27 @@ function canyon_init() {
 
   pinballPegs = pinballPegs.filter(() => Math.random() > 0.10);
 
-  // 아이템 생성
-  const itemCount = Math.max(pinballBalls.length, 2);
-  for (let i = 0; i < itemCount; i++) {
-    const type = i % 2 === 0 ? 'shield' : 'booster';
+  // 아이템 생성 (하단 50% 구간 스폰율 50% 증가)
+  const baseItemCount = Math.max(pinballBalls.length, 2);
+  const bottomItemCount = Math.floor(baseItemCount * 1.5); // 하단 구간 아이템 50% 증가
+
+  // 상단 50% 구간 스폰 (기본 수량)
+  for (let i = 0; i < baseItemCount; i++) {
+    const type = Math.random() < 0.5 ? 'shield' : 'booster';
     const vx = Math.random() < 0.5 ? 1.8 : -1.8;
     const item = type === 'shield' ? new ShieldItem(0, 0, vx) : new BoosterItem(0, 0, vx);
     item.x = 20 + Math.random() * (GAME_VWIDTH - 40);
-    item.y = 60 + Math.random() * (FUNNEL_TOP_Y - 120);
+    item.y = 60 + Math.random() * (FUNNEL_TOP_Y / 2 - 60); // 상단 50%
+    pinballItems.push(item);
+  }
+
+  // 하단 50% 구간 스폰 (50% 증가된 수량)
+  for (let i = 0; i < bottomItemCount; i++) {
+    const type = Math.random() < 0.5 ? 'shield' : 'booster';
+    const vx = Math.random() < 0.5 ? 1.8 : -1.8;
+    const item = type === 'shield' ? new ShieldItem(0, 0, vx) : new BoosterItem(0, 0, vx);
+    item.x = 20 + Math.random() * (GAME_VWIDTH - 40);
+    item.y = (FUNNEL_TOP_Y / 2) + Math.random() * (FUNNEL_TOP_Y / 2 - 60); // 하단 50%
     pinballItems.push(item);
   }
 }
