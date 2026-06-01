@@ -40,6 +40,7 @@ window.SoundSys = {
   // 내부 유틸: 특정 주파수와 파형으로 소리 재생
   _playTone: (freq, type, duration, vol, freqDrop = 0) => {
     if (!audioCtx || isMuted) return;
+    if (audioCtx.state === 'suspended') audioCtx.resume();
     try {
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
