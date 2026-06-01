@@ -528,7 +528,7 @@ window.addEventListener('DOMContentLoaded', () => {
       if (modal) modal.style.display = 'none';
       if (isMobile()) {
         const btnFloatHome = document.getElementById('btn-float-home');
-        if (btnFloatHome) btnFloatHome.style.display = '';
+        if (btnFloatHome) btnFloatHome.style.display = 'block';
       }
     });
   }
