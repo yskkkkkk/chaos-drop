@@ -34,6 +34,7 @@ function registerFinishedBall(ball) {
     duration: duration,
     isFinished: true
   });
+  if (typeof SoundSys !== 'undefined') SoundSys.playGoal();
 
   ball.finishRank = finishedCount + 1;
 

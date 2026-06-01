@@ -22,7 +22,10 @@
   <div class="pinball-control-panel">
     <div class="panel-row panel-row--header">
       <div class="panel-brand-title">🎯 Pinball Rivals</div>
-      <span class="badge orange badge-sm">60FPS ENGINE</span>
+      <div style="display: flex; gap: 8px;">
+        <button id="btn-sound-toggle" class="sound-toggle-btn" title="사운드 켜기/끄기">🔊</button>
+        <span class="badge orange badge-sm">60FPS ENGINE</span>
+      </div>
     </div>
 
     <!-- 맵 선택 세그먼트 — Step 1 -->
@@ -164,6 +167,7 @@
   </div>
 
   <!-- ── 스크립트 파일 로드 ───────────────────────────────── -->
+  <script src="sound.js?v=1.0.0"></script>
   <script src="constants.js?v=1.1.0"></script>
   <script src="entities.js?v=1.1.0"></script>
   <script src="ball.js?v=1.1.0"></script>

@@ -235,6 +235,8 @@ function launchPinballRacing() {
   pinballBalls = [];
   hasAnnouncedWinners = false;
   renderLeaderboard();
+  
+  if (typeof SoundSys !== 'undefined') SoundSys.playClick();
 
   const modal = document.getElementById('pinball-result-modal');
   if (modal) modal.style.display = 'none';
@@ -303,6 +305,23 @@ function launchPinballRacing() {
 // ── DOM 이벤트 리스너 등록 및 초기 기동 ──────────────────────
 
 window.addEventListener('DOMContentLoaded', () => {
+  // 브라우저 자동재생 방지 해제를 위한 오디오 컨텍스트 초기화 훅
+  document.body.addEventListener('click', () => {
+    if (typeof initAudioContext === 'function') initAudioContext();
+  }, { once: true });
+
+  const soundBtn = document.getElementById('btn-sound-toggle');
+  if (soundBtn) {
+    soundBtn.addEventListener('click', (e) => {
+      e.stopPropagation(); // body click 트리거 방해 방지
+      if (typeof initAudioContext === 'function') initAudioContext();
+      if (typeof toggleMute === 'function') {
+        const muted = toggleMute();
+        soundBtn.textContent = muted ? '🔇' : '🔊';
+      }
+    });
+  }
+
   pinballCanvas = document.getElementById('pinball-canvas');
   if (pinballCanvas) {
     pinballCtx = pinballCanvas.getContext('2d');
@@ -400,7 +419,10 @@ window.addEventListener('DOMContentLoaded', () => {
   const membersTA = document.getElementById('pinball-members');
   if (membersTA) {
     membersTA.value = DEFAULT_MEMBERS;
-    membersTA.addEventListener('input', updateSpecificRankSelect);
+    membersTA.addEventListener('input', () => {
+      if (typeof SoundSys !== 'undefined') SoundSys.playClick();
+      updateSpecificRankSelect();
+    });
   }
 
   const gimmickToggle = document.getElementById('gimmick-mode-toggle');

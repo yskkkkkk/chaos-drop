@@ -290,9 +290,11 @@ function animatePinball(currentTime) {
 
     if (pinballGameRunning) {
       if (pinballLaunchTimer > 0) {
+        if (pinballLaunchTimer === 90 && typeof SoundSys !== 'undefined') SoundSys.playCharge();
         pinballLaunchTimer--;
         if (pinballLaunchTimer === 0 && pinballLaunchState === 1) {
           pinballLaunchState = 0;
+          if (typeof SoundSys !== 'undefined') SoundSys.playLaunch();
           pinballBalls.forEach(b => {
             b.isLaunching = true; // 초반 제한 해제를 위한 플래그
             b.vy = -42 - Math.random() * 6;
@@ -331,6 +333,7 @@ function animatePinball(currentTime) {
               const imp = rv * (1.1 + b1.restitution * 1.5) * 0.65;
               b1.vx -= nx*imp * 1.15; b1.vy -= ny*imp * 1.15;
               b2.vx += nx*imp * 1.15; b2.vy += ny*imp * 1.15;
+              if (rv > 1 && typeof SoundSys !== 'undefined') SoundSys.playBallHit(rv);
             }
           }
         }

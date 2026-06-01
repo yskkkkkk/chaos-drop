@@ -72,6 +72,8 @@ function collideBallWithSegment(ball, x1, y1, x2, y2) {
       ball.vy -= (1 + ball.restitution) * vn * ny;
       ball.vx += nx * 0.15;
       ball.vy += ny * 0.15;
+      const impact = Math.abs(vn);
+      if (impact > 1 && typeof SoundSys !== 'undefined') SoundSys.playBounce(impact);
     }
   }
 }

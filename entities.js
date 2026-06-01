@@ -110,7 +110,10 @@ class SuperBumper {
     this.color = color;
     this.pulse = 0;
   }
-  trigger() { this.pulse = 1.0; }
+  trigger() { 
+    this.pulse = 1.0; 
+    if (typeof SoundSys !== 'undefined') SoundSys.playBumper();
+  }
   update() { this.pulse *= 0.9; }
   draw(ctx) {
     const radius = this.r + this.pulse * 5;
@@ -330,7 +333,10 @@ class Peg {
     this.r = r;
     this.pulse = 0;
   }
-  trigger() { this.pulse = 1.0; }
+  trigger() { 
+    this.pulse = 1.0; 
+    if (typeof SoundSys !== 'undefined') SoundSys.playPeg();
+  }
   update() { this.pulse *= 0.88; }
   draw(ctx) {
     ctx.beginPath();
@@ -417,6 +423,9 @@ class ItemBase {
     this.rotSpeed = 0.028;
     this.pulse = 0;
   }
+  applyEffect(ball) {
+    if (typeof SoundSys !== 'undefined') SoundSys.playItem();
+  }
   update() {
     this.pulse += 0.055;
     if (this.state === 'pending') {
@@ -484,8 +493,22 @@ class ItemBase {
   }
 }
 
-class ShieldItem extends ItemBase { constructor(x, y, vx) { super(x, y, vx, 'shield'); } }
-class BoosterItem extends ItemBase { constructor(x, y, vx) { super(x, y, vx, 'booster'); } }
+class ShieldItem extends ItemBase { 
+  constructor(x, y, vx) { super(x, y, vx, 'shield'); } 
+  applyEffect(ball) {
+    super.applyEffect(ball);
+    ball.shieldActive = true;
+    ball.shieldTimer = 300;
+  }
+}
+class BoosterItem extends ItemBase { 
+  constructor(x, y, vx) { super(x, y, vx, 'booster'); } 
+  applyEffect(ball) {
+    super.applyEffect(ball);
+    ball.vy -= 15;
+    ball.boostAnim = 30;
+  }
+}
 
 class AutoFlipper {
   constructor(x, y, length, isLeft, restAngleDeg, activeAngleDeg, periodMs) {
@@ -589,6 +612,9 @@ class AutoFlipper {
            if (typeof spawnNearMissSparks === 'function') {
              spawnNearMissSparks(ball.x, ball.y, this.isLeft ? '#ff0055' : '#0055ff');
            }
+           if (typeof SoundSys !== 'undefined') SoundSys.playFlipper();
+        } else {
+           if (typeof SoundSys !== 'undefined') SoundSys.playBounce(Math.abs(dot));
         }
       }
     }
@@ -676,6 +702,7 @@ class StaticWall {
            ball.vx += nx * 2;
            ball.vy += ny * 2;
         }
+        if (typeof SoundSys !== 'undefined') SoundSys.playBounce(Math.abs(dot));
       }
     }
   }
