@@ -67,6 +67,12 @@ function setControlsEnabled(enabled) {
     btnShuffle.style.opacity = enabled ? '1.0' : '0.45';
     btnShuffle.style.pointerEvents = enabled ? 'auto' : 'none';
   }
+  const btnLotto = document.getElementById('btn-lotto-preset');
+  if (btnLotto) {
+    btnLotto.disabled = !enabled;
+    btnLotto.style.opacity = enabled ? '1.0' : '0.45';
+    btnLotto.style.pointerEvents = enabled ? 'auto' : 'none';
+  }
 
   ruleRadios.forEach(radio => {
     radio.disabled = !enabled;
@@ -454,6 +460,31 @@ window.addEventListener('DOMContentLoaded', () => {
   if (btnShuffle) btnShuffle.addEventListener('click', () => {
     if (typeof SoundSys !== 'undefined') SoundSys.playClick();
     shuffleMembers();
+  });
+
+  const btnLotto = document.getElementById('btn-lotto-preset');
+  if (btnLotto) btnLotto.addEventListener('click', () => {
+    if (typeof SoundSys !== 'undefined') SoundSys.playClick();
+    
+    // 1부터 45까지 배열 생성 후 셔플
+    const lottoNumbers = Array.from({length: 45}, (_, i) => String(i + 1));
+    for (let i = lottoNumbers.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [lottoNumbers[i], lottoNumbers[j]] = [lottoNumbers[j], lottoNumbers[i]];
+    }
+    
+    const membersTA = document.getElementById('pinball-members');
+    if (membersTA) membersTA.value = lottoNumbers.join(', ');
+    
+    const radioFirst = document.querySelector('input[name="pinball-rule"][value="first"]');
+    if (radioFirst) radioFirst.checked = true;
+    
+    const winCountInput = document.getElementById('pinball-win-count');
+    if (winCountInput) winCountInput.value = '6';
+    
+    updatePreviewBalls();
+    updateSpecificRankSelect();
+    pinballLog("Lotto 6/45 preset loaded!");
   });
 
   const btnLaunch = document.getElementById('btn-pinball-launch');
