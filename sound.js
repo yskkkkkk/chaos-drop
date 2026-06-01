@@ -103,12 +103,20 @@ window.SoundSys = {
   },
 
   playGoal: () => {
-    // 목표 통과 시 팡파르 느낌 (빠른 아르페지오)
     if (!audioCtx || isMuted) return;
-    const now = audioCtx.currentTime;
-    const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
-    notes.forEach((freq, i) => {
-      setTimeout(() => window.SoundSys._playTone(freq, 'square', 0.2, 0.2), i * 100);
+    // 경쾌하고 짜릿한 아케이드 승리 효과음 (빰-빰-빰-빠밤!)
+    const notes = [
+      { f: 523.25, t: 0, d: 0.15 },    // C5
+      { f: 659.25, t: 100, d: 0.15 },  // E5
+      { f: 783.99, t: 200, d: 0.15 },  // G5
+      { f: 1046.50, t: 350, d: 0.4 }   // C6 (조금 쉬고 길게)
+    ];
+    
+    notes.forEach(note => {
+      setTimeout(() => {
+        window.SoundSys._playTone(note.f, 'sine', note.d, 0.4);
+        window.SoundSys._playTone(note.f * 1.01, 'triangle', note.d, 0.2); // 약간의 화음(코러스) 추가
+      }, note.t);
     });
   }
 };
