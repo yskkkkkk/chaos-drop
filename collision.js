@@ -255,6 +255,7 @@ function resolveObstacleCollisions() {
       const dx = ball.x - item.x, dy = ball.y - item.y;
       if (dx * dx + dy * dy < (ball.r + item.r) * (ball.r + item.r)) {
         item.collect();
+        if (typeof SoundSys !== 'undefined') SoundSys.playItem();
         spawnNearMissSparks(item.x, item.y, item.type === 'shield' ? '#00ccff' : '#ffaa00');
         if (item.type === 'shield') {
           ball.shieldTimer = 300; // 5초 무적

@@ -103,7 +103,7 @@ function animatePinball(currentTime) {
   const ctx = pinballCtx;
   const VW = GAME_VWIDTH;
   const VH = GAME_VHEIGHT;
-  const CH = pinballCanvas.height;
+  const CH = pinballCanvas.clientHeight || pinballCanvas.height;
   // BOARD_XSCALE로 물리 보드폭 = 캔버스폭 → fitScale 불필요
   const _fitScale = 1.0;
   const _vCH = CH;

@@ -366,7 +366,7 @@ window.addEventListener('DOMContentLoaded', () => {
     pinballCanvas.addEventListener('wheel', (e) => {
       if (!pinballGameRunning) {
         e.preventDefault();
-        cameraY = Math.max(0, Math.min(cameraY + e.deltaY * 0.7, GAME_VHEIGHT - pinballCanvas.height));
+        cameraY = Math.max(0, Math.min(cameraY + e.deltaY * 0.7, GAME_VHEIGHT - (pinballCanvas.clientHeight || pinballCanvas.height)));
       }
     }, { passive: false });
   }
