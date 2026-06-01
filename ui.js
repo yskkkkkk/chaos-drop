@@ -295,7 +295,8 @@ window.addEventListener('DOMContentLoaded', () => {
       if (typeof SoundSys !== 'undefined') SoundSys.init();
       if (typeof SoundSys !== 'undefined') {
         const muted = SoundSys.toggleMute();
-        soundBtn.textContent = muted ? '🔇' : '🔊';
+        soundBtn.textContent = muted ? '🔇 SOUND OFF' : '🔊 SOUND ON';
+        soundBtn.className = muted ? 'badge sound-badge muted' : 'badge sound-badge active';
       }
     });
   }

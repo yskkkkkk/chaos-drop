@@ -894,10 +894,25 @@ body.theme-canyon .map-seg-btn.active {
   body:not(.mobile-game-active) #mobile-rotate-overlay { display: flex; }
 }
 
-.sound-toggle-btn {
-  background: none; border: none; cursor: pointer; font-size: 1.25rem; color: #fff;
-  opacity: 0.8; transition: opacity 0.2s, transform 0.2s;
-  margin-left: auto; margin-right: 15px;
+.sound-badge {
+  margin-left: auto;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
 }
-.sound-toggle-btn:hover { opacity: 1; transform: scale(1.1); }
-
+.sound-badge.active {
+  background: rgba(0, 240, 255, 0.15);
+  color: var(--neon-blue);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
+}
+.sound-badge.muted {
+  background: rgba(255, 51, 102, 0.15);
+  color: #ff3366;
+  border: 1px solid rgba(255, 51, 102, 0.3);
+  opacity: 0.7;
+}
+.sound-badge:hover {
+  transform: scale(1.05);
+  opacity: 1;
+}
