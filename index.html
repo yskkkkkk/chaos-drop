@@ -38,7 +38,10 @@
     <div data-ms="1">
       <div class="panel-row panel-row--mb2">
         <div class="panel-section-title panel-title-flush">참전 팀원 명단 <span id="member-count" class="member-count">0명</span></div>
-        <button id="btn-shuffle-members" class="shuffle-btn" title="명단 순서 섞기" aria-label="명단 순서 섞기"><span class="shuffle-ico">🔀</span> 순서 섞기</button>
+        <div style="display: flex; gap: 6px;">
+          <button id="btn-lotto-preset" class="shuffle-btn" title="로또 6/45 프리셋" aria-label="로또 프리셋"><span class="shuffle-ico">💰</span> 6/45</button>
+          <button id="btn-shuffle-members" class="shuffle-btn" title="명단 순서 섞기" aria-label="명단 순서 섞기"><span class="shuffle-ico">🔀</span> 순서 섞기</button>
+        </div>
       </div>
       <textarea id="pinball-members" class="panel-textarea" placeholder="쉼표로 구분하여 입력"></textarea>
     </div>
@@ -46,7 +49,17 @@
     <!-- 당첨 룰 설정 라디오 버튼 — Step 2 -->
     <div data-ms="2">
       <div class="panel-section-title">당첨 순위 규칙 선택</div>
-      <div class="rule-radio-group">
+      <div class="rule-radio-group" style="position: relative;">
+        
+        <!-- 게임 중 규칙을 덮어버리는 오버레이 인디케이터 -->
+        <div id="active-rule-indicator" class="active-rule-indicator" style="display: none;">
+          <span id="active-rule-icon" class="rule-icon">👑</span>
+          <div class="rule-text-group">
+            <div id="active-rule-title" class="rule-title">선착순 당첨</div>
+            <div id="active-rule-desc" class="rule-desc">가장 먼저 도착하는 N명</div>
+          </div>
+        </div>
+
         <label class="rule-radio-item">
           <input type="radio" name="pinball-rule" value="first" checked>
           👑 선착순 당첨 <span id="lbl-first-desc" class="rule-desc">(2명까지)</span>
@@ -130,10 +143,10 @@
 
   <!-- 공중 플로팅 당첨 팝업 모달 -->
   <div id="pinball-result-modal" class="pinball-modal">
-    <div class="modal-icon">🏆☕🎉</div>
+    <div class="modal-icon" id="modal-icon">🏆☕🎉</div>
     <div class="modal-winner-badge" id="modal-rule-title">Synapse Attention Winner</div>
-    <h2 class="modal-winner-names" id="pinball-winner-text">홍길동, 김철수</h2>
-    <p class="modal-subtext">축하합니다!</p>
+    <h2 class="modal-winner-names" id="pinball-winner-text">홍길동, 아무개</h2>
+    <p class="modal-subtext" id="modal-subtext">축하합니다!</p>
     <button id="btn-modal-close" class="panel-btn btn-reset btn-modal-close">확인 및 닫기</button>
   </div>
 

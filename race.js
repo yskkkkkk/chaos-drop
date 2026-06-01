@@ -202,21 +202,41 @@ function showWinningPopup(winners) {
   const modal = document.getElementById('pinball-result-modal');
   const textEl = document.getElementById('pinball-winner-text');
   const badgeEl = document.getElementById('modal-rule-title');
+  const iconEl = document.getElementById('modal-icon');
+  const subtextEl = document.getElementById('modal-subtext');
 
   if (!modal || !textEl || !badgeEl) return;
 
   const names = winners.map(w => w.name).join(', ');
   textEl.innerText = names;
 
-  if (currentRule === 'first') {
-    badgeEl.innerText = `선착순 ${winCount}명 당첨!`;
-    badgeEl.style.color = 'var(--accent)';
-  } else if (currentRule === 'last') {
-    badgeEl.innerText = `후착순(꼴찌) ${winCount}명 당첨!`;
-    badgeEl.style.color = '#8c52ff';
+  // 로또 모드 판별: 전체 45명, 이름 1~45, 선착순 룰, 당첨자 6명일 때만
+  const isLottoGame = pinballBalls.length === 45 && pinballBalls.every(b => {
+    const n = parseInt(b.name);
+    return !isNaN(n) && String(n) === b.name.trim() && n >= 1 && n <= 45;
+  });
+
+  if (isLottoGame && currentRule === 'first' && winCount === 6) {
+    if (iconEl) iconEl.innerText = '🍀💰🍀';
+    badgeEl.innerText = '행운번호';
+    badgeEl.style.color = '#ff9900';
+    if (subtextEl) subtextEl.style.display = 'none'; // "축하합니다!" 문구 숨김
   } else {
-    badgeEl.innerText = `단독 ${specificRank}순위 당첨!`;
-    badgeEl.style.color = '#00f0ff';
+    if (iconEl) iconEl.innerText = '🏆☕🎉';
+    if (subtextEl) {
+      subtextEl.style.display = 'block';
+      subtextEl.innerText = '축하합니다!';
+    }
+    if (currentRule === 'first') {
+      badgeEl.innerText = `선착순 ${winCount}명 당첨!`;
+      badgeEl.style.color = 'var(--accent)';
+    } else if (currentRule === 'last') {
+      badgeEl.innerText = `후착순(꼴찌) ${winCount}명 당첨!`;
+      badgeEl.style.color = '#8c52ff';
+    } else {
+      badgeEl.innerText = `단독 ${specificRank}순위 당첨!`;
+      badgeEl.style.color = '#00f0ff';
+    }
   }
 
   modal.style.display = 'block';

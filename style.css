@@ -916,3 +916,31 @@ body.theme-canyon .map-seg-btn.active {
   transform: scale(1.05);
   opacity: 1;
 }
+
+/* ── Active Rule Indicator (게임 중 규칙 표시 오버레이) ── */
+.active-rule-indicator {
+  position: absolute;
+  top: -4px; left: -4px; right: -4px; bottom: -4px;
+  background: rgba(15, 20, 35, 0.92);
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(0,240,255,0.15);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  z-index: 100;
+  pointer-events: auto; /* 라디오 버튼 클릭 원천 차단 */
+  animation: fadeInOverlay 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.rule-icon { font-size: 2rem; filter: drop-shadow(0 0 8px rgba(255,255,255,0.4)); }
+.rule-text-group { display: flex; flex-direction: column; justify-content: center; }
+.rule-title { font-size: 1.15rem; font-weight: 800; color: #fff; letter-spacing: 0.5px; margin-bottom: 2px; }
+.rule-desc { font-size: 0.9rem; font-weight: 500; color: rgba(255,255,255,0.8); }
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}

@@ -67,6 +67,12 @@ function setControlsEnabled(enabled) {
     btnShuffle.style.opacity = enabled ? '1.0' : '0.45';
     btnShuffle.style.pointerEvents = enabled ? 'auto' : 'none';
   }
+  const btnLotto = document.getElementById('btn-lotto-preset');
+  if (btnLotto) {
+    btnLotto.disabled = !enabled;
+    btnLotto.style.opacity = enabled ? '1.0' : '0.45';
+    btnLotto.style.pointerEvents = enabled ? 'auto' : 'none';
+  }
 
   ruleRadios.forEach(radio => {
     radio.disabled = !enabled;
@@ -230,6 +236,30 @@ function launchPinballRacing() {
   hasAnnouncedWinners = false;
   renderLeaderboard();
 
+  // ── Active Rule Indicator 갱신 및 표시 ──
+  const indicator = document.getElementById('active-rule-indicator');
+  const icon = document.getElementById('active-rule-icon');
+  const title = document.getElementById('active-rule-title');
+  const desc = document.getElementById('active-rule-desc');
+  if (indicator && icon && title && desc) {
+    if (currentRule === 'first') {
+      icon.textContent = '👑';
+      title.textContent = '선착순 생존';
+      title.style.color = '#ff9900';
+      desc.textContent = `가장 먼저 도착하는 ${winCount}명`;
+    } else if (currentRule === 'last') {
+      icon.textContent = '🛡️';
+      title.textContent = '후착순 생존';
+      title.style.color = '#33ff57';
+      desc.textContent = `끝까지 살아남는 ${winCount}명`;
+    } else if (currentRule === 'specific') {
+      icon.textContent = '🎯';
+      title.textContent = '특정 순위 단독';
+      title.style.color = '#ff3366';
+      desc.textContent = `정확히 ${specificRank}등으로 도착하는 1명`;
+    }
+    indicator.style.display = 'flex';
+  }
   const modal = document.getElementById('pinball-result-modal');
   if (modal) modal.style.display = 'none';
 
@@ -307,9 +337,28 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const resizeCanvas = () => {
       const _c = pinballCanvas.parentElement;
-      pinballCanvas.width  = _c.clientWidth;
-      pinballCanvas.height = _c.clientHeight;
-      GAME_X_OFFSET = isMobile() ? 0 : Math.max(415, Math.round((_c.clientWidth - 415) / 2));
+      
+      // 모바일 기기(폭 768px 이하)일 경우 프레임(60FPS) 최우선을 위해 1x 고정, PC는 고해상도 배율 적용
+      const dpr = isMobile() ? 1 : (window.devicePixelRatio || 1);
+      
+      // 물리적 픽셀 해상도
+      pinballCanvas.width  = _c.clientWidth * dpr;
+      pinballCanvas.height = _c.clientHeight * dpr;
+      
+      // CSS 논리적 크기
+      pinballCanvas.style.width = _c.clientWidth + 'px';
+      pinballCanvas.style.height = _c.clientHeight + 'px';
+      
+      // 컨텍스트 스케일링 (Crisp 렌더링)
+      pinballCtx.scale(dpr, dpr);
+
+      // 화면 중앙 정렬 오프셋 보정: 좌측 패널(415px)을 제외한 우측 여백의 중앙에 맵 배치
+      if (isMobile()) {
+        GAME_X_OFFSET = 0;
+      } else {
+        const remainingSpace = Math.max(0, _c.clientWidth - 415);
+        GAME_X_OFFSET = 415 + Math.max(0, Math.round((remainingSpace - GAME_VWIDTH) / 2));
+      }
     };
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
@@ -411,6 +460,31 @@ window.addEventListener('DOMContentLoaded', () => {
   if (btnShuffle) btnShuffle.addEventListener('click', () => {
     if (typeof SoundSys !== 'undefined') SoundSys.playClick();
     shuffleMembers();
+  });
+
+  const btnLotto = document.getElementById('btn-lotto-preset');
+  if (btnLotto) btnLotto.addEventListener('click', () => {
+    if (typeof SoundSys !== 'undefined') SoundSys.playClick();
+    
+    // 1부터 45까지 배열 생성 후 셔플
+    const lottoNumbers = Array.from({length: 45}, (_, i) => String(i + 1));
+    for (let i = lottoNumbers.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [lottoNumbers[i], lottoNumbers[j]] = [lottoNumbers[j], lottoNumbers[i]];
+    }
+    
+    const membersTA = document.getElementById('pinball-members');
+    if (membersTA) membersTA.value = lottoNumbers.join(', ');
+    
+    const radioFirst = document.querySelector('input[name="pinball-rule"][value="first"]');
+    if (radioFirst) radioFirst.checked = true;
+    
+    const winCountInput = document.getElementById('pinball-win-count');
+    if (winCountInput) winCountInput.value = '6';
+    
+    updatePreviewBalls();
+    updateSpecificRankSelect();
+    pinballLog("Lotto 6/45 preset loaded!");
   });
 
   const btnLaunch = document.getElementById('btn-pinball-launch');

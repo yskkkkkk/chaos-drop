@@ -600,6 +600,9 @@ function resetPinball() {
   pinballBalls = [];
   pinballSpikeTraps = [];
   pinballItems = [];
+  
+  const indicator = document.getElementById('active-rule-indicator');
+  if (indicator) indicator.style.display = 'none';
   hasAnnouncedWinners = false;
   pinballGameRunning = false;
   speedPadRotateTimer = 300;
