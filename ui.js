@@ -344,11 +344,12 @@ window.addEventListener('DOMContentLoaded', () => {
       // 컨텍스트 스케일링 (Crisp 렌더링)
       pinballCtx.scale(dpr, dpr);
 
-      // 화면 중앙 정렬 오프셋 보정: 패널 폭(415)과 맵 고정폭(GAME_VWIDTH)을 뺀 남은 여백의 중앙
+      // 화면 중앙 정렬 오프셋 보정: 좌측 패널(415px)을 제외한 우측 여백의 중앙에 맵 배치
       if (isMobile()) {
         GAME_X_OFFSET = 0;
       } else {
-        GAME_X_OFFSET = Math.max(0, Math.round((_c.clientWidth - 415 - GAME_VWIDTH) / 2));
+        const remainingSpace = Math.max(0, _c.clientWidth - 415);
+        GAME_X_OFFSET = 415 + Math.max(0, Math.round((remainingSpace - GAME_VWIDTH) / 2));
       }
     };
     resizeCanvas();
