@@ -366,7 +366,7 @@ window.addEventListener('DOMContentLoaded', () => {
     pinballCanvas.addEventListener('wheel', (e) => {
       if (!pinballGameRunning) {
         e.preventDefault();
-        cameraY = Math.max(0, Math.min(cameraY + e.deltaY * 0.7, GAME_VHEIGHT - pinballCanvas.height));
+        cameraY = Math.max(0, Math.min(cameraY + e.deltaY * 0.7, GAME_VHEIGHT - (pinballCanvas.clientHeight || pinballCanvas.height)));
       }
     }, { passive: false });
   }
@@ -477,14 +477,14 @@ window.addEventListener('DOMContentLoaded', () => {
     if (membersTA) membersTA.value = lottoNumbers.join(', ');
     
     const radioFirst = document.querySelector('input[name="pinball-rule"][value="first"]');
-    if (radioFirst) radioFirst.checked = true;
-    
+    if (radioFirst) { radioFirst.checked = true; radioFirst.dispatchEvent(new Event('change')); }
+
     const winCountInput = document.getElementById('pinball-win-count');
-    if (winCountInput) winCountInput.value = '6';
-    
+    if (winCountInput) { winCountInput.value = '6'; winCountInput.dispatchEvent(new Event('input')); }
+
     updatePreviewBalls();
     updateSpecificRankSelect();
-    pinballLog("Lotto 6/45 preset loaded!");
+    pinballLog("✅ 로또 6/45 프리셋 적용! (45명 / 선착순 6명)");
   });
 
   const btnLaunch = document.getElementById('btn-pinball-launch');
@@ -526,9 +526,10 @@ window.addEventListener('DOMContentLoaded', () => {
     btnModalClose.addEventListener('click', () => {
       const modal = document.getElementById('pinball-result-modal');
       if (modal) modal.style.display = 'none';
+      if (typeof setControlsEnabled === 'function') setControlsEnabled(true);
       if (isMobile()) {
         const btnFloatHome = document.getElementById('btn-float-home');
-        if (btnFloatHome) btnFloatHome.style.display = '';
+        if (btnFloatHome) btnFloatHome.style.display = 'block';
       }
     });
   }
