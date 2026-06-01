@@ -16,8 +16,10 @@ window.SoundSys = {
       const AudioContext = window.AudioContext || window.webkitAudioContext;
       audioCtx = new AudioContext();
       masterGain = audioCtx.createGain();
-      masterGain.gain.value = 0.5; // 기본 볼륨
+      masterGain.gain.value = 0.5;
       masterGain.connect(audioCtx.destination);
+      // iOS: context가 suspended 상태로 생성될 수 있으므로 제스처 핸들러 내부에서 즉시 resume
+      if (audioCtx.state === 'suspended') audioCtx.resume();
     } catch (e) {
       console.warn("Web Audio API is not supported in this browser.");
     }
