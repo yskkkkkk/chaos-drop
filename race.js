@@ -210,13 +210,13 @@ function showWinningPopup(winners) {
   const names = winners.map(w => w.name).join(', ');
   textEl.innerText = names;
 
-  // 로또 모드 판별: 전체 45명이며 이름이 "1"~"45"로만 구성되어 있는지 확인
+  // 로또 모드 판별: 전체 45명, 이름 1~45, 선착순 룰, 당첨자 6명일 때만
   const isLottoGame = pinballBalls.length === 45 && pinballBalls.every(b => {
     const n = parseInt(b.name);
     return !isNaN(n) && String(n) === b.name.trim() && n >= 1 && n <= 45;
   });
 
-  if (isLottoGame && currentRule === 'first') {
+  if (isLottoGame && currentRule === 'first' && winCount === 6) {
     if (iconEl) iconEl.innerText = '🍀💰🍀';
     badgeEl.innerText = '행운번호';
     badgeEl.style.color = '#ff9900';
