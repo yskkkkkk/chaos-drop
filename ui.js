@@ -331,7 +331,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
     const resizeCanvas = () => {
       const _c = pinballCanvas.parentElement;
-      const dpr = window.devicePixelRatio || 1;
+      
+      // 모바일 기기(폭 768px 이하)일 경우 프레임(60FPS) 최우선을 위해 1x 고정, PC는 고해상도 배율 적용
+      const dpr = isMobile() ? 1 : (window.devicePixelRatio || 1);
       
       // 물리적 픽셀 해상도
       pinballCanvas.width  = _c.clientWidth * dpr;
