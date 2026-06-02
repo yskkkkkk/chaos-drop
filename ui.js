@@ -42,7 +42,7 @@ function addMember(name) {
 }
 
 function addMembersFromText(csv) {
-  const names = csv.split(/[,\n]/).map(n => n.trim()).filter(n => n.length > 0);
+  const names = csv.split(/[,\n\r]+/).map(n => n.trim()).filter(n => n.length > 0);
   names.forEach(n => memberList.push(n));
   renderMemberTags();
   updateSpecificRankSelect();
@@ -295,7 +295,7 @@ function launchPinballRacing() {
     if (currentRule === 'first') {
       icon.textContent = '👑';
       title.textContent = '선착순 생존';
-      title.style.color = '#ff9900';
+      title.style.color = 'var(--accent)';
       desc.textContent = `가장 먼저 도착하는 ${winCount}명`;
     } else if (currentRule === 'last') {
       icon.textContent = '🛡️';
