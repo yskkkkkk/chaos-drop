@@ -6,6 +6,54 @@
  * DOM 이벤트 리스너 등록 및 초기 기동
  */
 
+// ── 멤버 태그 데이터 모델 ─────────────────────────────────────
+let memberList = [];
+
+function getMemberNames() {
+  return memberList.slice();
+}
+
+function renderMemberTags() {
+  const container = document.getElementById('member-tag-container');
+  if (!container) return;
+  container.innerHTML = '';
+  memberList.forEach((name, idx) => {
+    const tag = document.createElement('div');
+    tag.className = 'member-tag';
+    const span = document.createElement('span');
+    span.textContent = name;
+    const del = document.createElement('button');
+    del.className = 'member-tag-del';
+    del.textContent = '×';
+    del.setAttribute('aria-label', `${name} 제거`);
+    del.addEventListener('click', () => removeMember(idx));
+    tag.appendChild(span);
+    tag.appendChild(del);
+    container.appendChild(tag);
+  });
+}
+
+function addMember(name) {
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  memberList.push(trimmed);
+  renderMemberTags();
+  updateSpecificRankSelect();
+}
+
+function addMembersFromText(csv) {
+  const names = csv.split(/[,\n]/).map(n => n.trim()).filter(n => n.length > 0);
+  names.forEach(n => memberList.push(n));
+  renderMemberTags();
+  updateSpecificRankSelect();
+}
+
+function removeMember(idx) {
+  memberList.splice(idx, 1);
+  renderMemberTags();
+  updateSpecificRankSelect();
+}
+
 function pinballLog(msg) {
   const term = document.getElementById('pinball-terminal');
   if (!term) return;
@@ -51,7 +99,8 @@ function updateRuleLabels() {
 }
 
 function setControlsEnabled(enabled) {
-  const membersTA = document.getElementById('pinball-members');
+  const memberInput = document.getElementById('member-input-field');
+  const btnMemberAdd = document.getElementById('btn-member-add');
   const btnShuffle = document.getElementById('btn-shuffle-members');
   const ruleRadios = document.querySelectorAll('input[name="pinball-rule"]');
   const winCountInput = document.getElementById('pinball-win-count');
@@ -61,7 +110,19 @@ function setControlsEnabled(enabled) {
   const gimmickToggle = document.getElementById('gimmick-mode-toggle');
   const mapSegBtns = document.querySelectorAll('.map-seg-btn');
 
-  if (membersTA) membersTA.disabled = !enabled;
+  if (memberInput) {
+    memberInput.disabled = !enabled;
+    memberInput.style.opacity = enabled ? '1' : '0.45';
+  }
+  if (btnMemberAdd) {
+    btnMemberAdd.disabled = !enabled;
+    btnMemberAdd.style.pointerEvents = enabled ? 'auto' : 'none';
+  }
+  const tagContainer = document.getElementById('member-tag-container');
+  if (tagContainer) {
+    tagContainer.style.opacity = enabled ? '1' : '0.55';
+    tagContainer.style.pointerEvents = enabled ? 'auto' : 'none';
+  }
   if (btnShuffle) {
     btnShuffle.disabled = !enabled;
     btnShuffle.style.opacity = enabled ? '1.0' : '0.45';
@@ -141,9 +202,7 @@ function setControlsEnabled(enabled) {
 
 function updatePreviewBalls() {
   if (pinballGameRunning) return;
-  const ta = document.getElementById('pinball-members');
-  if (!ta) return;
-  const members = ta.value.split(',').map(n => n.trim()).filter(n => n.length > 0);
+  const members = getMemberNames();
   pinballBalls = [];
 
   const cnt = document.getElementById('member-count');
@@ -158,10 +217,9 @@ function updatePreviewBalls() {
 }
 
 function updateSpecificRankSelect() {
-  const ta  = document.getElementById('pinball-members');
   const sel = document.getElementById('pinball-specific-rank');
-  if (!ta || !sel) return;
-  const names = ta.value.split(',').map(n => n.trim()).filter(n => n.length > 0);
+  if (!sel) return;
+  const names = getMemberNames();
   const count = Math.max(names.length, 1);
 
   const winInput = document.getElementById('pinball-win-count');
@@ -185,26 +243,18 @@ function updateSpecificRankSelect() {
 }
 
 function shuffleMembers() {
-  const ta = document.getElementById('pinball-members');
-  if (!ta) return;
-  const names = ta.value.split(',').map(n => n.trim()).filter(n => n.length > 0);
-  for (let i = names.length - 1; i > 0; i--) {
+  for (let i = memberList.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [names[i], names[j]] = [names[j], names[i]];
+    [memberList[i], memberList[j]] = [memberList[j], memberList[i]];
   }
-  ta.value = names.join(', ');
+  renderMemberTags();
   updateSpecificRankSelect();
 }
 
 function launchPinballRacing() {
   if (pinballGameRunning) return;
 
-  const membersTextarea = document.getElementById('pinball-members');
-  if (!membersTextarea) return;
-
-  const members = membersTextarea.value.split(',')
-                                       .map(name => name.trim())
-                                       .filter(name => name.length > 0);
+  const members = getMemberNames();
 
   if (members.length === 0) {
     alert("최소 한 명 이상의 팀원 이름을 입력해주세요!");
@@ -448,14 +498,33 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  const membersTextarea = document.getElementById('pinball-members');
-  if (membersTextarea) {
-    membersTextarea.value = DEFAULT_MEMBERS;
-    membersTextarea.addEventListener('input', () => {
-      if (typeof SoundSys !== 'undefined') SoundSys.playClick();
-      updatePreviewBalls();
-      updateSpecificRankSelect();
+  // 태그 입력: 초기 DEFAULT_MEMBERS 로드
+  addMembersFromText(DEFAULT_MEMBERS);
+
+  const memberInputField = document.getElementById('member-input-field');
+  const btnMemberAddEl = document.getElementById('btn-member-add');
+
+  function _commitMemberInput() {
+    const val = memberInputField ? memberInputField.value : '';
+    if (!val.trim()) return;
+    if (typeof SoundSys !== 'undefined') SoundSys.playClick();
+    addMember(val);
+    if (memberInputField) memberInputField.value = '';
+  }
+
+  if (memberInputField) {
+    memberInputField.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); _commitMemberInput(); }
     });
+    memberInputField.addEventListener('paste', e => {
+      e.preventDefault();
+      const text = e.clipboardData.getData('text');
+      if (typeof SoundSys !== 'undefined') SoundSys.playClick();
+      addMembersFromText(text);
+    });
+  }
+  if (btnMemberAddEl) {
+    btnMemberAddEl.addEventListener('click', () => _commitMemberInput());
   }
   const gimmickToggle = document.getElementById('gimmick-mode-toggle');
   if (gimmickToggle) gimmickToggle.addEventListener('change', e => { gimmickEnabled = e.target.checked; });
@@ -477,9 +546,9 @@ window.addEventListener('DOMContentLoaded', () => {
       [lottoNumbers[i], lottoNumbers[j]] = [lottoNumbers[j], lottoNumbers[i]];
     }
     
-    const membersTA = document.getElementById('pinball-members');
-    if (membersTA) membersTA.value = lottoNumbers.join(', ');
-    
+    memberList = lottoNumbers;
+    renderMemberTags();
+
     const radioFirst = document.querySelector('input[name="pinball-rule"][value="first"]');
     if (radioFirst) { radioFirst.checked = true; radioFirst.dispatchEvent(new Event('change')); }
 
