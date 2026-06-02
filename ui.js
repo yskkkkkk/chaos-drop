@@ -314,8 +314,12 @@ function launchPinballRacing() {
 // ── DOM 이벤트 리스너 등록 및 초기 기동 ──────────────────────
 
 window.addEventListener('DOMContentLoaded', () => {
+  // iOS Web Audio 언락: touchstart는 iOS에서 AudioContext 해제에 필요한 주요 제스처 이벤트
+  document.body.addEventListener('touchstart', () => {
+    if (typeof SoundSys !== 'undefined') { SoundSys.init(); SoundSys.resume(); }
+  }, { once: true, passive: true });
   document.body.addEventListener('click', () => {
-    if (typeof SoundSys !== 'undefined') SoundSys.init();
+    if (typeof SoundSys !== 'undefined') { SoundSys.init(); SoundSys.resume(); }
   }, { once: true });
 
   const soundBtn = document.getElementById('btn-sound-toggle');
@@ -527,7 +531,9 @@ window.addEventListener('DOMContentLoaded', () => {
       const modal = document.getElementById('pinball-result-modal');
       if (modal) modal.style.display = 'none';
       if (typeof setControlsEnabled === 'function') setControlsEnabled(true);
-      if (isMobile()) {
+      // isMobile() 대신 mobile-game-active 클래스로 판별
+      // (가로 전환 시 window.innerWidth > 768 이 되어 isMobile()이 false를 반환하는 문제 방지)
+      if (document.body.classList.contains('mobile-game-active')) {
         const btnFloatHome = document.getElementById('btn-float-home');
         if (btnFloatHome) btnFloatHome.style.display = 'block';
       }

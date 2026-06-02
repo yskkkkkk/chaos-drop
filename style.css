@@ -855,7 +855,7 @@ body.theme-canyon .map-seg-btn.active {
 .float-home-btn {
   position: fixed;
   top: 22vh; left: 50%; transform: translateX(-50%);
-  z-index: 300;
+  z-index: 14;
   padding: 10px 24px;
   background: transparent;
   border: 1.5px solid rgba(255,255,255,0.55);
