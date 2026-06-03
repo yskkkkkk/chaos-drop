@@ -43,6 +43,16 @@ let raceStartTime = 0;
 let hasAnnouncedWinners = false;
 let decisiveMomentActive = false;
 let gimmickEnabled = true;
+
+// ── 캔버스 인게임 중계 HUD ────────────────────────────────────
+const _COMMENTARY_TTL = 4000; // 표시 유지 시간(ms)
+const _COMMENTARY_MAX = 4;    // 최대 동시 표시 수
+window.commentaryQueue = [];
+
+window.addCommentary = (msg) => {
+  window.commentaryQueue.push({ text: msg, born: Date.now() });
+  if (window.commentaryQueue.length > _COMMENTARY_MAX) window.commentaryQueue.shift();
+};
 let prevRankOrder = [];
 let overtakeParticles = [];
 let currentLeaderId = -1;
@@ -545,6 +555,37 @@ function animatePinball(currentTime) {
   }
 
   ctx.restore();
+
+  // G-1. 인게임 중계 HUD (좌하단, 화면 좌표 기준)
+  if (pinballGameRunning && window.commentaryQueue && window.commentaryQueue.length > 0) {
+    const now = Date.now();
+    window.commentaryQueue = window.commentaryQueue.filter(m => now - m.born < _COMMENTARY_TTL);
+    if (window.commentaryQueue.length > 0) {
+      const hudX = GAME_X_OFFSET + 10;
+      const hudBaseY = (pinballCanvas.clientHeight || pinballCanvas.height) - 14;
+      const lineH = 22;
+      ctx.save();
+      ctx.font = `700 11px 'Outfit', 'Noto Sans KR', sans-serif`;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'bottom';
+      window.commentaryQueue.slice().reverse().forEach((m, i) => {
+        const age = now - m.born;
+        const fadeStart = _COMMENTARY_TTL * 0.7;
+        const alpha = age > fadeStart
+          ? 1 - (age - fadeStart) / (_COMMENTARY_TTL - fadeStart)
+          : 1;
+        const y = hudBaseY - i * lineH;
+        ctx.globalAlpha = Math.max(0, alpha) * 0.92;
+        ctx.fillStyle = 'rgba(0,0,0,0.55)';
+        const tw = ctx.measureText(m.text).width;
+        ctx.fillRect(hudX - 4, y - 14, tw + 12, 18);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(m.text, hudX, y);
+      });
+      ctx.globalAlpha = 1;
+      ctx.restore();
+    }
+  }
 
   // H. HUD 진행 바 (모바일에서는 화면 밖으로 벗어나므로 생략)
   if (!_DEVICE_MOBILE) {

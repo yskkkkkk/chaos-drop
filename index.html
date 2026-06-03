@@ -43,7 +43,12 @@
           <button id="btn-shuffle-members" class="shuffle-btn" title="명단 순서 섞기" aria-label="명단 순서 섞기"><span class="shuffle-ico">🔀</span> 순서 섞기</button>
         </div>
       </div>
-      <textarea id="pinball-members" class="panel-textarea" placeholder="쉼표로 구분하여 입력"></textarea>
+      <!-- 태그(칩) 방식 이름 입력 -->
+      <div id="member-tag-container" class="member-tag-container"></div>
+      <div class="member-input-row">
+        <input id="member-input-field" type="text" class="member-input-field" placeholder="이름 입력 후 Enter 또는 +" autocomplete="off" maxlength="30">
+        <button id="btn-member-add" class="member-add-btn" title="참가자 추가">+</button>
+      </div>
     </div>
 
     <!-- 당첨 룰 설정 라디오 버튼 — Step 2 -->
