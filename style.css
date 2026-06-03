@@ -151,6 +151,8 @@ body {
   border-color: rgba(255,153,0,0.35);
   color: #fff;
 }
+.shuffle-btn--danger { padding: 5px 9px; color: rgba(255,255,255,0.45); }
+.shuffle-btn--danger:hover { background: rgba(255,60,60,0.18); border-color: rgba(255,60,60,0.4); color: #ff6060; }
 .shuffle-ico { font-size: 0.82rem; line-height: 1; }
 
 /* 설정 타이틀 */
@@ -388,6 +390,7 @@ body.theme-canyon .member-add-btn:hover { background: rgba(199,134,90,0.3); }
 
 /* 가상 코드가 흐르는 터미널 로그 */
 #pinball-terminal {
+  display: none;
   width: 100%;
   height: 72px;
   background: rgba(0, 0, 0, 0.6);
@@ -1051,6 +1054,12 @@ body.theme-canyon .map-seg-btn.active {
 .rule-text-group { display: flex; flex-direction: column; justify-content: center; }
 .rule-title { font-size: 1.15rem; font-weight: 800; color: #fff; letter-spacing: 0.5px; margin-bottom: 2px; }
 .rule-desc { font-size: 0.9rem; font-weight: 500; color: rgba(255,255,255,0.8); }
+
+body.theme-canyon .active-rule-indicator {
+  background: rgba(24, 10, 4, 0.92);
+  border-color: rgba(199, 134, 90, 0.35);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(199, 134, 90, 0.15);
+}
 
 @keyframes fadeInOverlay {
   from { opacity: 0; transform: scale(0.95); }

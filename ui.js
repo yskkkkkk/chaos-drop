@@ -101,6 +101,7 @@ function updateRuleLabels() {
 function setControlsEnabled(enabled) {
   const memberInput = document.getElementById('member-input-field');
   const btnMemberAdd = document.getElementById('btn-member-add');
+  const btnClearMembersCtrl = document.getElementById('btn-clear-members');
   const btnShuffle = document.getElementById('btn-shuffle-members');
   const ruleRadios = document.querySelectorAll('input[name="pinball-rule"]');
   const winCountInput = document.getElementById('pinball-win-count');
@@ -117,6 +118,11 @@ function setControlsEnabled(enabled) {
   if (btnMemberAdd) {
     btnMemberAdd.disabled = !enabled;
     btnMemberAdd.style.pointerEvents = enabled ? 'auto' : 'none';
+  }
+  if (btnClearMembersCtrl) {
+    btnClearMembersCtrl.disabled = !enabled;
+    btnClearMembersCtrl.style.opacity = enabled ? '1' : '0.45';
+    btnClearMembersCtrl.style.pointerEvents = enabled ? 'auto' : 'none';
   }
   const tagContainer = document.getElementById('member-tag-container');
   if (tagContainer) {
@@ -525,6 +531,16 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   if (btnMemberAddEl) {
     btnMemberAddEl.addEventListener('click', () => _commitMemberInput());
+  }
+  const btnClearMembers = document.getElementById('btn-clear-members');
+  if (btnClearMembers) {
+    btnClearMembers.addEventListener('click', () => {
+      if (memberList.length === 0) return;
+      if (typeof SoundSys !== 'undefined') SoundSys.playClick();
+      memberList = [];
+      renderMemberTags();
+      updateSpecificRankSelect();
+    });
   }
   const gimmickToggle = document.getElementById('gimmick-mode-toggle');
   if (gimmickToggle) gimmickToggle.addEventListener('change', e => { gimmickEnabled = e.target.checked; });
