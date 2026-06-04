@@ -16,19 +16,18 @@ maps/
 
 ---
 
-## 2. 필수 구현 함수 4개
+## 2. 필수 구현 훅 4개 및 레지스트리 등록
 
-각 함수는 게임 엔진이 호출하는 **훅(hook)** 입니다.  
-함수 이름은 반드시 아래와 동일해야 합니다.
+각 함수는 게임 엔진이 런타임에 동적으로 호출하는 **훅(hook)** 입니다. 
+여러 맵이 동시에 로드되므로 함수 이름이 충돌하지 않도록 고유한 접두사(예: `_yourMapName_`)를 붙여 작성하고, 파일 하단에서 **`MAPS['your-map-id']` 객체에 등록**해야 합니다.
 
-### 2-1. `applyMapZonePhysics(ball)` — 맵 고유 구역 물리
+### 2-1. `applyPhysics(ball)` — 맵 고유 구역 물리
 
-`ball.js` → `RacingBall.update()` 에서 매 프레임 호출됩니다.  
-공이 맵 고유 특수 구역(터널, 장벽, 레인 등)에 들어갔을 때 적용할 물리를 작성합니다.
+공이 맵 고유 특수 구역(터널, 장벽, 레인 등)에 들어갔을 때 적용할 물리를 작성합니다. `ball.js` → `RacingBall.update()` 에서 매 프레임 호출됩니다.
 
 ```js
-function applyMapZonePhysics(ball) {
-  // 특수 구역이 없으면 빈 함수로 두어도 됩니다
+function _yourMapName_applyPhysics(ball) {
+  // 특수 구역이 없으면 빈 함수로 두거나 훅 등록 시 생략 가능합니다
   if (ball.y < MY_ZONE_TOP || ball.y > MY_ZONE_BOTTOM) return;
 
   // collideBallWithSegment: collision.js 제공 선분-원 충돌 헬퍼
@@ -45,13 +44,13 @@ function applyMapZonePhysics(ball) {
 
 ---
 
-### 2-2. `drawCurrentMapLayer(ctx, visY0, visY1)` — 맵 고유 배경 렌더링
+### 2-2. `drawLayer(ctx, visY0, visY1)` — 맵 고유 배경 렌더링
 
 `game.js` → `animatePinball()` 루프에서 깔때기/골인선 다음에 호출됩니다.  
 터널 배경, 섬, 구역 표시 등 **이 맵에만 있는 시각 요소**를 여기서 그립니다.
 
 ```js
-function drawCurrentMapLayer(ctx, visY0, visY1) {
+function _yourMapName_drawLayer(ctx, visY0, visY1) {
   // 뷰포트 밖이면 스킵 (성능 최적화)
   if (visY1 < MY_ZONE_TOP || visY0 > MY_ZONE_BOTTOM) return;
 
@@ -72,14 +71,14 @@ function drawCurrentMapLayer(ctx, visY0, visY1) {
 
 ---
 
-### 2-3. `recoverCurrentMapIslandTunnel()` — 터널링 복구
+### 2-3. `recoverTunnel()` — 터널링 복구
 
 `game.js` → `animatePinball()` 물리 블록에서 매 프레임 호출됩니다.  
 공이 고체 장벽 내부로 통과(터널링)했을 때 강제로 사출하는 복구 로직입니다.  
-섬/장벽이 없는 맵이라면 빈 함수를 두면 됩니다.
+섬/장벽이 없는 맵이라면 빈 함수로 두거나 훅 등록 시 생략 가능합니다.
 
 ```js
-function recoverCurrentMapIslandTunnel() {
+function _yourMapName_recoverTunnel() {
   pinballBalls.forEach(ball => {
     if (ball.isFinished) return;
     // 장벽 침범 감지 → 강제 사출
@@ -93,9 +92,9 @@ function recoverCurrentMapIslandTunnel() {
 
 ---
 
-### 2-4. `yourMapName_init()` — 맵 초기화
+### 2-4. `init()` — 맵 초기화
 
-장애물 배치, 벽 프로파일 생성, 가속 레인 설정 등 **맵 시작 시 1회** 실행됩니다.  
+장애물 배치, 벽 프로파일 생성, 가속 레인 설정 등 **맵 선택 및 시작 시 1회** 실행됩니다.  
 `game.js`의 `initPinballMap()`이 이 함수를 호출합니다.
 
 ```js
@@ -124,30 +123,62 @@ function yourMapName_init() {
 
 ---
 
-## 3. game.js 수정 — 맵 브리지 교체
+### 2-5. 맵 레지스트리 등록 (중요)
 
-`game.js` 51번째 줄 `initPinballMap()` 브리지를 새 맵 init으로 변경합니다.
+파일 최하단에 다음 형식으로 글로벌 `MAPS` 객체에 맵 정보를 등록해야 엔진이 인식할 수 있습니다.
 
 ```js
-// game.js
-function initPinballMap() { yourMapName_init(); }  // ← 함수명 변경
+MAPS['your-map-id'] = {
+  label:         '🏝️ 맵 표시 이름',
+  init:          yourMapName_init,
+  applyPhysics:  _yourMapName_applyPhysics, // (선택)
+  drawLayer:     _yourMapName_drawLayer,     // (선택)
+  recoverTunnel: _yourMapName_recoverTunnel, // (선택)
+  theme: {
+    uiClass:      'theme-your-map',          // body에 지정할 CSS 클래스
+    bgClear:      '#06070d',
+    bgFrom:       '#10122e',
+    bgTo:         '#05060b',
+    wallFill:     '#07080f',
+    wallStroke:   'rgba(0,240,255,0.5)',
+    wallGlow:     '#00f0ff',
+    funnelStroke: 'rgba(140,82,255,0.5)',
+    funnelColor:  '#8c52ff',
+    goalFill:     'rgba(0,240,255,0.07)',
+    goalStroke:   '#00f0ff',
+    scanLine:     '#ff9900',
+  },
+};
 ```
 
 ---
 
-## 4. index.html 수정 — script 태그 추가
+## 3. game.js 수정 — 필요 없음
 
-`maps/neon.js` 태그 아래에 새 맵 태그를 추가합니다.
+맵 레지스트리 자동화가 되어 있어 `game.js`는 수정할 필요가 없습니다. `game.js` 내의 `switchMap` 기능이 등록된 `MAPS['your-map-id']`를 찾아 필요한 훅을 자동으로 대리 실행합니다.
+
+---
+
+## 4. index.html 수정 — script 태그 및 맵 버튼 추가
+
+### 4-1. script 태그 추가
+`maps/neon.js` 태그 아래에 새 맵 스크립트를 로드하도록 추가합니다.
 
 ```html
 <script src="maps/neon.js?v=1.1.0"></script>
 <script src="maps/your-map.js?v=1.1.0"></script>  <!-- 추가 -->
 ```
 
-> **주의**: 함수 이름(`applyMapZonePhysics`, `drawCurrentMapLayer`, `recoverCurrentMapIslandTunnel`)이  
-> 두 맵에 동시에 선언되면 **나중에 로드된 파일의 함수가 앞선 것을 덮어씁니다**.  
-> 현재 아키텍처는 단일 활성 맵을 전제합니다.  
-> 맵 전환 기능이 필요해지면 `let currentMap = null` 변수 패턴으로 교체하면 됩니다.
+### 4-2. UI 선택 버튼 추가
+`index.html` 내의 `.map-segment` 컨테이너에 새 맵으로 전환하기 위한 버튼을 추가합니다. 버튼의 `data-map` 속성값은 레지스트리에 등록한 `your-map-id`와 정확히 일치해야 합니다.
+
+```html
+<div class="map-segment" role="tablist" aria-label="맵 선택">
+  <button type="button" class="map-seg-btn active" data-map="neon" role="tab" aria-selected="true">🌀 Neon</button>
+  <button type="button" class="map-seg-btn" data-map="canyon" role="tab" aria-selected="false">⛰️ Canyon</button>
+  <button type="button" class="map-seg-btn" data-map="your-map-id" role="tab" aria-selected="false">🏝️ Your Map</button> <!-- 추가 -->
+</div>
+```
 
 ---
 
