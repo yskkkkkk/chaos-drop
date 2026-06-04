@@ -24,7 +24,7 @@ class TeleportPortal {
     ctx.save();
     ctx.strokeStyle = this.color;
     ctx.lineWidth = 2;
-    ctx.shadowBlur = 6;
+    ctx.shadowBlur = 6 * QUALITY;
     ctx.shadowColor = this.color;
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
@@ -42,7 +42,7 @@ class TeleportPortal {
     ctx.save();
     ctx.strokeStyle = '#ffcc00';
     ctx.lineWidth = 2;
-    ctx.shadowBlur = 6;
+    ctx.shadowBlur = 6 * QUALITY;
     ctx.shadowColor = '#ffcc00';
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
@@ -82,11 +82,11 @@ class Spinner {
     ctx.beginPath();
     ctx.arc(0, 0, 8, 0, Math.PI*2);
     ctx.fillStyle = '#fff';
-    ctx.shadowBlur = 6;
+    ctx.shadowBlur = 6 * QUALITY;
     ctx.shadowColor = this.color;
     ctx.fill();
 
-    ctx.shadowBlur = 8;
+    ctx.shadowBlur = 8 * QUALITY;
     for (let i = 0; i < this.bladeCount; i++) {
       const theta = (i * 2 * Math.PI) / this.bladeCount;
       ctx.beginPath();
@@ -123,7 +123,7 @@ class SuperBumper {
     grad.addColorStop(1, 'rgba(255, 255, 255, 0.0)');
 
     ctx.save();
-    ctx.shadowBlur = this.pulse > 0.05 ? 8 + this.pulse * 10 : 4;
+    ctx.shadowBlur = (this.pulse > 0.05 ? 8 + this.pulse * 10 : 4) * QUALITY;
     ctx.shadowColor = this.color;
     ctx.fillStyle = grad;
     ctx.beginPath();
@@ -153,7 +153,7 @@ class SlowVortex {
     ctx.strokeStyle = this.color;
     ctx.lineWidth = 1.5;
     ctx.setLineDash([5, 8]);
-    ctx.shadowBlur = 10;
+    ctx.shadowBlur = 10 * QUALITY;
     ctx.shadowColor = this.color;
 
     ctx.beginPath();
@@ -215,7 +215,7 @@ class SpeedPad {
     ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
     ctx.strokeStyle = this.color;
     ctx.lineWidth = 1.8;
-    ctx.shadowBlur = 8;
+    ctx.shadowBlur = 8 * QUALITY;
     ctx.shadowColor = this.color;
     ctx.beginPath();
     ctx.roundRect(this.x - this.w/2, this.y - this.h/2, this.w, this.h, 4);
@@ -226,7 +226,7 @@ class SpeedPad {
     ctx.lineWidth = 2.4;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.shadowBlur = 3;
+    ctx.shadowBlur = 3 * QUALITY;
     ctx.shadowColor = '#fff';
 
     const speed = this.pulse % 1.0;
@@ -305,7 +305,7 @@ class LaunchPad {
     ctx.translate(this.x, this.y);
     ctx.rotate(this.angle);
 
-    ctx.shadowBlur = this.pulse > 0.05 ? 6 + this.pulse * 12 : 4;
+    ctx.shadowBlur = (this.pulse > 0.05 ? 6 + this.pulse * 12 : 4) * QUALITY;
     ctx.shadowColor = this.color;
 
     const grad = ctx.createLinearGradient(0, 0, 0, this.h);
@@ -343,7 +343,7 @@ class Peg {
     ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
     if (this.pulse > 0.05) {
       ctx.fillStyle = `rgba(255, 255, 255, ${0.4 + this.pulse * 0.6})`;
-      ctx.shadowBlur = this.pulse * 12;
+      ctx.shadowBlur = (this.pulse * 12) * QUALITY;
       ctx.shadowColor = '#00f0ff';
     }
     ctx.fill();
@@ -392,14 +392,14 @@ class SpikeTrap {
 
     ctx.save();
     ctx.fillStyle = `rgb(255,${gVal},30)`;
-    ctx.shadowBlur = 8 + danger * 10;
+    ctx.shadowBlur = (8 + danger * 10) * QUALITY;
     ctx.shadowColor = '#ff4400';
     ctx.fillRect(x1, this.y - this.h * 0.5, x2 - x1, this.h);
     
     const tipX = this.dirMult === -1 ? x1 : x2;
     const tipD = this.dirMult === -1 ? -1 : 1;
     ctx.fillStyle = '#ff6600';
-    ctx.shadowBlur = 14;
+    ctx.shadowBlur = 14 * QUALITY;
     ctx.beginPath();
     ctx.moveTo(tipX, this.y - this.h * 0.5);
     ctx.lineTo(tipX + tipD * 12, this.y);
@@ -453,7 +453,7 @@ class ItemBase {
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.angle);
-    ctx.shadowBlur = 8 + glow * 9;
+    ctx.shadowBlur = (8 + glow * 9) * QUALITY;
     ctx.shadowColor = gcol;
 
     ctx.strokeStyle = col;

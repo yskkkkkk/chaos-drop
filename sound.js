@@ -8,6 +8,17 @@ let audioCtx = null;
 let masterGain = null;
 let isMuted = false;
 
+// [Optimization] Audio Voice Limiter & Throttling
+let activeVoices = 0;
+const MAX_VOICES = 15;
+let lastPlayTime = {
+  peg: 0,
+  bounce: 0,
+  ballHit: 0,
+  bumper: 0
+};
+const THROTTLE_MS = 32; // ~2 frames at 60fps
+
 window.SoundSys = {
   // 브라우저 AudioContext 초기화 (사용자 첫 클릭 시 호출)
   init: () => {
@@ -42,6 +53,7 @@ window.SoundSys = {
   // 내부 유틸: 특정 주파수와 파형으로 소리 재생
   _playTone: (freq, type, duration, vol, freqDrop = 0) => {
     if (!audioCtx || isMuted) return;
+    if (activeVoices >= MAX_VOICES) return; // Voice Limit
     if (audioCtx.state === 'suspended') audioCtx.resume();
     try {
       const osc = audioCtx.createOscillator();
@@ -64,6 +76,11 @@ window.SoundSys = {
 
       osc.start();
       osc.stop(audioCtx.currentTime + duration);
+
+      activeVoices++;
+      osc.onended = () => {
+        activeVoices = Math.max(0, activeVoices - 1);
+      };
     } catch (e) {}
   },
 
@@ -74,6 +91,10 @@ window.SoundSys = {
   },
 
   playBounce: (impact) => {
+    const now = performance.now();
+    if (now - lastPlayTime.bounce < THROTTLE_MS) return;
+    lastPlayTime.bounce = now;
+
     // 충돌 강도(impact)에 비례해서 소리 크기와 톤 결정
     const vol = Math.min(0.6, impact * 0.05);
     const freq = 300 + Math.min(500, impact * 20);
@@ -81,6 +102,10 @@ window.SoundSys = {
   },
 
   playBallHit: (impact) => {
+    const now = performance.now();
+    if (now - lastPlayTime.ballHit < THROTTLE_MS) return;
+    lastPlayTime.ballHit = now;
+
     const vol = Math.min(0.5, impact * 0.08);
     window.SoundSys._playTone(1200, 'sine', 0.1, vol);
   },
@@ -94,10 +119,18 @@ window.SoundSys = {
   },
 
   playBumper: () => {
+    const now = performance.now();
+    if (now - lastPlayTime.bumper < THROTTLE_MS) return;
+    lastPlayTime.bumper = now;
+
     window.SoundSys._playTone(200, 'sawtooth', 0.2, 0.5, 600);
   },
 
   playPeg: () => {
+    const now = performance.now();
+    if (now - lastPlayTime.peg < THROTTLE_MS) return;
+    lastPlayTime.peg = now;
+
     window.SoundSys._playTone(900 + Math.random() * 200, 'sine', 0.1, 0.4);
   },
 

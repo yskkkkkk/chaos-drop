@@ -287,6 +287,7 @@ function animatePinball(currentTime) {
         const b1 = pinballBalls[i];
         for (let j = i + 1; j < pinballBalls.length; j++) {
           const b2 = pinballBalls[j];
+          if (b1.isFinished && b2.isFinished) continue; // [Optimization] Skip collisions between finished balls
           const dx = b2.x - b1.x, dy = b2.y - b1.y;
           const distSq = dx*dx + dy*dy;
           const minD = b1.r + b2.r;

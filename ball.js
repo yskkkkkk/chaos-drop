@@ -7,6 +7,30 @@
  * maps/neon.js 가 이 함수를 정의합니다.
  */
 
+// [Optimization] Cache gradient for finished balls
+let _cachedFinishedGradient = null;
+function getFinishedGradient(ctx, r) {
+  if (_cachedFinishedGradient) return _cachedFinishedGradient;
+  const g = ctx.createRadialGradient(0, 0, 1, 0, 0, r);
+  g.addColorStop(0,    'rgba(235,238,245,0.85)');
+  g.addColorStop(0.35, 'rgba(120,126,142,0.9)');
+  g.addColorStop(1,    'rgba(0,0,0,0.45)');
+  _cachedFinishedGradient = g;
+  return g;
+}
+
+// [Optimization] Cache gradient for active balls per color
+let _cachedActiveGradients = {};
+function getActiveGradient(ctx, r, color) {
+  if (_cachedActiveGradients[color]) return _cachedActiveGradients[color];
+  const g = ctx.createRadialGradient(0, 0, 1, 0, 0, r);
+  g.addColorStop(0, '#fff');
+  g.addColorStop(0.3, color);
+  g.addColorStop(1, 'rgba(0,0,0,0.6)');
+  _cachedActiveGradients[color] = g;
+  return g;
+}
+
 class RacingBall {
   constructor(id, name, x, y, color) {
     this.id = id;
@@ -180,16 +204,13 @@ class RacingBall {
     if (this.isFinished) {
       // 1) 반투명 그레이 본체 (색 제거 → 모든 도착 공 동일)
       ctx.save();
+      ctx.translate(this.x, this.y); // [Optimization] Use translation for cached gradient
       ctx.globalAlpha = 0.5;
       ctx.shadowBlur = 3 * QUALITY;
       ctx.shadowColor = 'rgba(160,165,180,0.5)';
-      const g = ctx.createRadialGradient(this.x, this.y, 1, this.x, this.y, this.r);
-      g.addColorStop(0,    'rgba(235,238,245,0.85)');
-      g.addColorStop(0.35, 'rgba(120,126,142,0.9)');
-      g.addColorStop(1,    'rgba(0,0,0,0.45)');
-      ctx.fillStyle = g;
+      ctx.fillStyle = getFinishedGradient(ctx, this.r);
       ctx.beginPath();
-      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.arc(0, 0, this.r, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
 
@@ -285,17 +306,13 @@ class RacingBall {
     }
 
     ctx.save();
+    ctx.translate(this.x, this.y);
     ctx.shadowBlur = (this.nearMissTimer > 0 ? 12 : 6) * QUALITY;
     ctx.shadowColor = this.color;
 
-    let grad = ctx.createRadialGradient(this.x, this.y, 1, this.x, this.y, this.r);
-    grad.addColorStop(0, '#fff');
-    grad.addColorStop(0.3, this.color);
-    grad.addColorStop(1, 'rgba(0,0,0,0.6)');
-
-    ctx.fillStyle = grad;
+    ctx.fillStyle = getActiveGradient(ctx, this.r, this.color);
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+    ctx.arc(0, 0, this.r, 0, Math.PI*2);
     ctx.fill();
     ctx.restore();
 
