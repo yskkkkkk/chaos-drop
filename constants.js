@@ -11,10 +11,11 @@
 // 데스크탑 기준값은 각 섹션의 원본 상수를 참조하세요.
 // ─────────────────────────────────────────────────────────────
 const _DEVICE_MOBILE = window.innerWidth <= 768;
+let LOW_END_MODE = false;
 
 //  항목             모바일          데스크탑
 const BOARD_XSCALE = _DEVICE_MOBILE ? (window.innerWidth / 825) : 1.0; // 물리 보드폭 스케일
-const QUALITY      = _DEVICE_MOBILE ? 0.45                      : 1.0; // 렌더링 해상도
+let QUALITY      = _DEVICE_MOBILE ? 0.45                      : 1.0; // 렌더링 해상도
 const BALL_R       = _DEVICE_MOBILE ? 6                         : 9;   // 구슬 반지름(px)
 // ─────────────────────────────────────────────────────────────
 
