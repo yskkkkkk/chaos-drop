@@ -24,7 +24,7 @@ class TeleportPortal {
     ctx.save();
     ctx.strokeStyle = this.color;
     ctx.lineWidth = 2;
-    ctx.shadowBlur = (6) * QUALITY;
+    ctx.shadowBlur = 6 * QUALITY;
     ctx.shadowColor = this.color;
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
@@ -42,7 +42,7 @@ class TeleportPortal {
     ctx.save();
     ctx.strokeStyle = '#ffcc00';
     ctx.lineWidth = 2;
-    ctx.shadowBlur = (6) * QUALITY;
+    ctx.shadowBlur = 6 * QUALITY;
     ctx.shadowColor = '#ffcc00';
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
@@ -82,11 +82,11 @@ class Spinner {
     ctx.beginPath();
     ctx.arc(0, 0, 8, 0, Math.PI*2);
     ctx.fillStyle = '#fff';
-    ctx.shadowBlur = (6) * QUALITY;
+    ctx.shadowBlur = 6 * QUALITY;
     ctx.shadowColor = this.color;
     ctx.fill();
 
-    ctx.shadowBlur = (8) * QUALITY;
+    ctx.shadowBlur = 8 * QUALITY;
     for (let i = 0; i < this.bladeCount; i++) {
       const theta = (i * 2 * Math.PI) / this.bladeCount;
       ctx.beginPath();
@@ -153,7 +153,7 @@ class SlowVortex {
     ctx.strokeStyle = this.color;
     ctx.lineWidth = 1.5;
     ctx.setLineDash([5, 8]);
-    ctx.shadowBlur = (10) * QUALITY;
+    ctx.shadowBlur = 10 * QUALITY;
     ctx.shadowColor = this.color;
 
     ctx.beginPath();
@@ -215,7 +215,7 @@ class SpeedPad {
     ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
     ctx.strokeStyle = this.color;
     ctx.lineWidth = 1.8;
-    ctx.shadowBlur = (8) * QUALITY;
+    ctx.shadowBlur = 8 * QUALITY;
     ctx.shadowColor = this.color;
     ctx.beginPath();
     ctx.roundRect(this.x - this.w/2, this.y - this.h/2, this.w, this.h, 4);
@@ -226,7 +226,7 @@ class SpeedPad {
     ctx.lineWidth = 2.4;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.shadowBlur = (3) * QUALITY;
+    ctx.shadowBlur = 3 * QUALITY;
     ctx.shadowColor = '#fff';
 
     const speed = this.pulse % 1.0;
@@ -399,7 +399,7 @@ class SpikeTrap {
     const tipX = this.dirMult === -1 ? x1 : x2;
     const tipD = this.dirMult === -1 ? -1 : 1;
     ctx.fillStyle = '#ff6600';
-    ctx.shadowBlur = (14) * QUALITY;
+    ctx.shadowBlur = 14 * QUALITY;
     ctx.beginPath();
     ctx.moveTo(tipX, this.y - this.h * 0.5);
     ctx.lineTo(tipX + tipD * 12, this.y);
