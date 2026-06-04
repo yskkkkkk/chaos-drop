@@ -19,6 +19,18 @@ function getFinishedGradient(ctx, r) {
   return g;
 }
 
+// [Optimization] Cache gradient for active balls per color
+let _cachedActiveGradients = {};
+function getActiveGradient(ctx, r, color) {
+  if (_cachedActiveGradients[color]) return _cachedActiveGradients[color];
+  const g = ctx.createRadialGradient(0, 0, 1, 0, 0, r);
+  g.addColorStop(0, '#fff');
+  g.addColorStop(0.3, color);
+  g.addColorStop(1, 'rgba(0,0,0,0.6)');
+  _cachedActiveGradients[color] = g;
+  return g;
+}
+
 class RacingBall {
   constructor(id, name, x, y, color) {
     this.id = id;
@@ -294,17 +306,13 @@ class RacingBall {
     }
 
     ctx.save();
+    ctx.translate(this.x, this.y);
     ctx.shadowBlur = (this.nearMissTimer > 0 ? 12 : 6) * QUALITY;
     ctx.shadowColor = this.color;
 
-    let grad = ctx.createRadialGradient(this.x, this.y, 1, this.x, this.y, this.r);
-    grad.addColorStop(0, '#fff');
-    grad.addColorStop(0.3, this.color);
-    grad.addColorStop(1, 'rgba(0,0,0,0.6)');
-
-    ctx.fillStyle = grad;
+    ctx.fillStyle = getActiveGradient(ctx, this.r, this.color);
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+    ctx.arc(0, 0, this.r, 0, Math.PI*2);
     ctx.fill();
     ctx.restore();
 
