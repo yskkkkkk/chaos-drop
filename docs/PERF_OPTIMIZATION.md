@@ -34,9 +34,10 @@
    * 내용: 위 1~5번 최적화 후에도 CPU 병목이 발생할 경우, 캔버스를 격자로 분할하여 인접한 객체끼리만 충돌을 검사하도록 O(N) 최적화 도입.
 
 ## 3. 진행 상황 (체크리스트)
+## 3. 진행 상황 (체크리스트)
 * [x] 1. Audio Voice Limiter 구현
 * [x] 2. Low-end QUALITY mode 구현
 * [x] 3. `isFinished` mutual exclusion 구현
-* [ ] 4. `isFinished` ball gradient caching 구현
+* [x] 4. `isFinished` ball gradient caching 구현
 * [ ] 5. Active ball texture bitmap caching 구현
 * [ ] 6. Spatial Hash Grid 구현 (필요시)
