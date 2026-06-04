@@ -14,7 +14,8 @@ const MAX_VOICES = 15;
 let lastPlayTime = {
   peg: 0,
   bounce: 0,
-  ballHit: 0
+  ballHit: 0,
+  bumper: 0
 };
 const THROTTLE_MS = 32; // ~2 frames at 60fps
 
@@ -118,6 +119,10 @@ window.SoundSys = {
   },
 
   playBumper: () => {
+    const now = performance.now();
+    if (now - lastPlayTime.bumper < THROTTLE_MS) return;
+    lastPlayTime.bumper = now;
+
     window.SoundSys._playTone(200, 'sawtooth', 0.2, 0.5, 600);
   },
 
