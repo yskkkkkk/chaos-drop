@@ -585,11 +585,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const gimmickToggle = document.getElementById('gimmick-mode-toggle');
   if (gimmickToggle) gimmickToggle.addEventListener('change', e => { gimmickEnabled = e.target.checked; });
 
-  const lowEndToggle = document.getElementById('low-end-mode-toggle');
-  if (lowEndToggle) lowEndToggle.addEventListener('change', e => {
-    LOW_END_MODE = e.target.checked;
-    QUALITY = LOW_END_MODE ? 0 : (_DEVICE_MOBILE ? 0.45 : 1.0);
-  });
+
 
   const btnShuffle = document.getElementById('btn-shuffle-members');
   if (btnShuffle) btnShuffle.addEventListener('click', () => {
