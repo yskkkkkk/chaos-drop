@@ -206,7 +206,7 @@ class RacingBall {
       ctx.save();
       ctx.translate(this.x, this.y); // [Optimization] Use translation for cached gradient
       ctx.globalAlpha = 0.5;
-      ctx.shadowBlur = 3 * QUALITY;
+      ctx.shadowBlur = LOW_END_MODE ? 0 : (3 * QUALITY);
       ctx.shadowColor = 'rgba(160,165,180,0.5)';
       ctx.fillStyle = getFinishedGradient(ctx, this.r);
       ctx.beginPath();
@@ -240,7 +240,7 @@ class RacingBall {
         ctx.font = `900 ${fontSize} Outfit, sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.shadowBlur = 4 * QUALITY;
+        ctx.shadowBlur = LOW_END_MODE ? 0 : (4 * QUALITY);
         ctx.shadowColor = 'rgba(0,0,0,0.95)';
         
         ctx.translate(this.x, this.y);
@@ -252,7 +252,7 @@ class RacingBall {
       // 4) 이름표 (기존과 동일, 살짝 흐리게)
       ctx.save();
       ctx.globalAlpha = 0.8;
-      ctx.shadowBlur = 2 * QUALITY;
+      ctx.shadowBlur = LOW_END_MODE ? 0 : (2 * QUALITY);
       ctx.shadowColor = 'rgba(0,0,0,0.9)';
       ctx.fillStyle = 'rgba(255,255,255,0.95)';
       ctx.font = 'bold 10px Outfit, sans-serif';
@@ -272,7 +272,7 @@ class RacingBall {
       ctx.strokeStyle = this.color;
       ctx.lineWidth = this.r * 1.3;
       ctx.lineCap = 'round';
-      ctx.shadowBlur = 8 * QUALITY;
+      ctx.shadowBlur = LOW_END_MODE ? 0 : (8 * QUALITY);
       ctx.shadowColor = this.color;
       ctx.globalAlpha = (this.superChargeTimer / 65) * 0.45;
       ctx.beginPath();
@@ -289,7 +289,7 @@ class RacingBall {
       ctx.globalAlpha = 1 - wavePhase;
 
       ctx.strokeStyle = '#ff9900';
-      ctx.shadowBlur = 8 * QUALITY;
+      ctx.shadowBlur = LOW_END_MODE ? 0 : (8 * QUALITY);
       ctx.shadowColor = '#ff9900';
       ctx.beginPath();
       ctx.arc(this.x, this.y, this.r + wavePhase * 35, 0, Math.PI * 2);
@@ -307,7 +307,7 @@ class RacingBall {
 
     ctx.save();
     ctx.translate(this.x, this.y);
-    ctx.shadowBlur = (this.nearMissTimer > 0 ? 12 : 6) * QUALITY;
+    ctx.shadowBlur = LOW_END_MODE ? 0 : ((this.nearMissTimer > 0 ? 12 : 6) * QUALITY);
     ctx.shadowColor = this.color;
 
     ctx.fillStyle = getActiveGradient(ctx, this.r, this.color);
@@ -330,12 +330,12 @@ class RacingBall {
     ctx.restore();
 
     ctx.save();
-    ctx.shadowBlur = 2 * QUALITY;
+    ctx.shadowBlur = LOW_END_MODE ? 0 : (2 * QUALITY);
     ctx.shadowColor = 'rgba(0,0,0,0.9)';
     if (this.nearMissTimer > 0) {
       const blink = Math.floor(Date.now() / 90) % 2 === 0;
       ctx.fillStyle = blink ? '#00f0ff' : '#ffffff';
-      ctx.shadowBlur = (blink ? 8 : 4) * QUALITY;
+      ctx.shadowBlur = LOW_END_MODE ? 0 : ((blink ? 8 : 4) * QUALITY);
       ctx.shadowColor = '#00f0ff';
       ctx.font = 'bold 12px Outfit, sans-serif';
       ctx.textAlign = 'center';
@@ -356,7 +356,7 @@ class RacingBall {
       ctx.textBaseline = 'middle';
       ctx.font = 'bold 7px Outfit, sans-serif';
       ctx.fillStyle = 'rgba(255,255,255,0.72)';
-      ctx.shadowBlur = 2 * QUALITY;
+      ctx.shadowBlur = LOW_END_MODE ? 0 : (2 * QUALITY);
       ctx.shadowColor = 'rgba(0,0,0,0.6)';
       ctx.fillText('SLOW', this.x, this.y + 2);
       ctx.restore();

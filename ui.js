@@ -398,7 +398,12 @@ function launchPinballRacing() {
 // ── DOM 이벤트 리스너 등록 및 초기 기동 ──────────────────────
 
 window.addEventListener('DOMContentLoaded', () => {
-  // iOS Web Audio 언락: touchstart는 iOS에서 AudioContext 해제에 필요한 주요 제스처 이벤트
+  // 모바일 기기는 무거운 렌더링을 피하기 위해 최초 진입 시부터 글로우 차단 (사전 방지)
+  if (isMobile()) {
+    LOW_END_MODE = true;
+  }
+
+  // iOS Web Audio 락: touchstart로 iOS의 AudioContext 등 초기화에 필요한 최초 사용자 이벤트 
   document.body.addEventListener('touchstart', () => {
     if (typeof SoundSys !== 'undefined') { SoundSys.init(); SoundSys.resume(); }
   }, { once: true, passive: true });
