@@ -583,7 +583,10 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
   const gimmickToggle = document.getElementById('gimmick-mode-toggle');
-  if (gimmickToggle) gimmickToggle.addEventListener('change', e => { gimmickEnabled = e.target.checked; });
+  if (gimmickToggle) gimmickToggle.addEventListener('change', e => { 
+    gimmickEnabled = e.target.checked; 
+    if (typeof updateGimmickUI === 'function') updateGimmickUI();
+  });
 
 
 

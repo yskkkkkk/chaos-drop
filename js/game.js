@@ -77,25 +77,39 @@ function _applyMapTheme() {
   if (cls) document.body.classList.add(cls);
 }
 
+function updateGimmickUI() {
+  const lbl = document.getElementById('lbl-gimmick');
+  const desc = document.getElementById('desc-gimmick');
+  const toast = document.getElementById('toast-gimmick');
+  
+  const icon = currentMapId === 'neon' ? '❄️' : '🌊';
+  
+  if (lbl) {
+    lbl.innerText = `${icon} 역전 기믹 ${gimmickEnabled ? 'ON' : 'OFF'}`;
+  }
+  
+  if (desc) {
+    desc.innerText = gimmickEnabled 
+      ? '역전 기믹 활성화 — 선두 공이 갑자기 멈추거나 역류에 밀릴 수 있습니다'
+      : '순수 물리 모드 — 공정한 추첨/선발에 적합';
+  }
+  
+  if (toast) {
+    if (gimmickEnabled) {
+      toast.innerText = currentMapId === 'neon' 
+        ? '하단 30% 구간에서 확률적으로 공이 정지됩니다.' 
+        : '하단 협곡 구간에 거친 역류 물결이 생성되어 공을 위로 튕겨냅니다.';
+    } else {
+      toast.innerText = '기믹 OFF: 순수 물리 모드가 적용되었습니다.';
+    }
+  }
+}
+
 function switchMap(mapId) {
   if (MAPS[mapId]) { 
     currentMapId = mapId; 
     _applyMapTheme(); 
-    
-    // UI 기믹 토글 텍스트 동적 변경
-    const lbl = document.getElementById('lbl-gimmick');
-    const desc = document.getElementById('desc-gimmick');
-    const toast = document.getElementById('toast-gimmick');
-    
-    if (mapId === 'neon') {
-      if (lbl) lbl.innerText = '❄️ FREEZE MODE';
-      if (desc) desc.innerText = '하단 30% 구간에서 공이 확률적으로 정지';
-      if (toast) toast.innerText = '하단 30% 구간에서 확률적으로 공이 정지됩니다.';
-    } else if (mapId === 'canyon') {
-      if (lbl) lbl.innerText = '🌊 UPSTREAM SURGE';
-      if (desc) desc.innerText = '하단 협곡에 거센 역류 폭포수 발생';
-      if (toast) toast.innerText = '하단 협곡 구간에 거친 역류 물결이 생성되어 공을 위로 튕겨냅니다.';
-    }
+    updateGimmickUI();
   }
 }
 
