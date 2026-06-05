@@ -82,20 +82,25 @@ function switchMap(mapId) {
     currentMapId = mapId; 
     _applyMapTheme(); 
     
-    // UI 기믹 토글 텍스트 동적 변경
-    const lbl = document.getElementById('lbl-gimmick');
-    const desc = document.getElementById('desc-gimmick');
-    const toast = document.getElementById('toast-gimmick');
-    
-    if (mapId === 'neon') {
-      if (lbl) lbl.innerText = '❄️ FREEZE MODE';
-      if (desc) desc.innerText = '하단 30% 구간에서 공이 확률적으로 정지';
-      if (toast) toast.innerText = '하단 30% 구간에서 확률적으로 공이 정지됩니다.';
-    } else if (mapId === 'canyon') {
-      if (lbl) lbl.innerText = '🌊 UPSTREAM SURGE';
-      if (desc) desc.innerText = '하단 협곡에 거센 역류 폭포수 발생';
-      if (toast) toast.innerText = '하단 협곡 구간에 거친 역류 물결이 생성되어 공을 위로 튕겨냅니다.';
-    }
+    /*
+     * [POLICY SUSPENDED: 2026-06-06]
+     * 기믹 ON/OFF 기능 임시 보류로 인해 UI 토글 텍스트 동적 변경 로직도 주석 처리함.
+     * (추후 토글이 부활하거나 제거 확정 시 대응)
+     *
+     * const lbl = document.getElementById('lbl-gimmick');
+     * const desc = document.getElementById('desc-gimmick');
+     * const toast = document.getElementById('toast-gimmick');
+     *
+     * if (mapId === 'neon') {
+     *   if (lbl) lbl.innerText = '❄️ FREEZE MODE';
+     *   if (desc) desc.innerText = '하단 30% 구간에서 공이 확률적으로 정지';
+     *   if (toast) toast.innerText = '하단 30% 구간에서 확률적으로 공이 정지됩니다.';
+     * } else if (mapId === 'canyon') {
+     *   if (lbl) lbl.innerText = '🌊 UPSTREAM SURGE';
+     *   if (desc) desc.innerText = '하단 협곡에 거센 역류 폭포수 발생';
+     *   if (toast) toast.innerText = '하단 협곡 구간에 거친 역류 물결이 생성되어 공을 위로 튕겨냅니다.';
+     * }
+     */
   }
 }
 

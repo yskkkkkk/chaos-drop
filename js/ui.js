@@ -582,14 +582,14 @@ window.addEventListener('DOMContentLoaded', () => {
       updateSpecificRankSelect();
     });
   }
-  const gimmickToggle = document.getElementById('gimmick-mode-toggle');
-  if (gimmickToggle) gimmickToggle.addEventListener('change', e => { gimmickEnabled = e.target.checked; });
+  /* 
+   * [POLICY SUSPENDED: 2026-06-06]
+   * 기믹 ON/OFF 토글 보류 처리. (언제 다시 살릴지 모르는 코드이므로 삭제하지 않음)
+   * const gimmickToggle = document.getElementById('gimmick-mode-toggle');
+   * if (gimmickToggle) gimmickToggle.addEventListener('change', e => { gimmickEnabled = e.target.checked; });
+   */
 
-  const lowEndToggle = document.getElementById('low-end-mode-toggle');
-  if (lowEndToggle) lowEndToggle.addEventListener('change', e => {
-    LOW_END_MODE = e.target.checked;
-    QUALITY = LOW_END_MODE ? 0 : (_DEVICE_MOBILE ? 0.45 : 1.0);
-  });
+
 
   const btnShuffle = document.getElementById('btn-shuffle-members');
   if (btnShuffle) btnShuffle.addEventListener('click', () => {

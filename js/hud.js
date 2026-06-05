@@ -49,7 +49,7 @@ function updatePcHud() {
   // 정지 버튼 라벨: 결과 모달이 떴거나 경주가 끝났으면 '처음으로'
   const quitBtn = document.getElementById('hud-btn-quit');
   const modal = document.getElementById('pinball-result-modal');
-  const isGameFinished = !pinballGameRunning || (modal && modal.style.display === 'block');
+  const isGameFinished = !pinballGameRunning || (typeof hasAnnouncedWinners !== 'undefined' && hasAnnouncedWinners) || (modal && modal.style.display === 'block');
   
   if (quitBtn) {
     quitBtn.innerHTML = !isGameFinished
@@ -67,7 +67,8 @@ function updatePcHud() {
   // 완주자 우선 + 진행 중(진행도=y 내림차순)
   const finished = (typeof pinballFinishedBalls !== 'undefined') ? pinballFinishedBalls : [];
   const active = balls.filter(b => !b.isFinished).sort((a, b) => b.y - a.y);
-  const allRanked = [...finished, ...active];
+  // 원본 전체 순위를 미리 매핑
+  const allRanked = [...finished, ...active].map((b, i) => ({ ...b, originalRank: i + 1 }));
 
   // 룰에 따른 랭킹 필터링 최적화
   let rows = [];
@@ -92,8 +93,8 @@ function updatePcHud() {
     return;
   }
 
-  list.innerHTML = rows.map((b, idx) => {
-    const rank = idx + 1;
+  list.innerHTML = rows.map((b) => {
+    const rank = b.originalRank;
     const isTop = (currentRule === 'first'    && rank <= winCount)
                || (currentRule === 'last'     && rank > total - winCount)
                || (currentRule === 'specific' && rank === specificRank);
@@ -179,7 +180,7 @@ window.addEventListener('DOMContentLoaded', () => {
   if (quitBtn) {
     quitBtn.addEventListener('click', () => {
       const modal = document.getElementById('pinball-result-modal');
-      const isGameFinished = !pinballGameRunning || (modal && modal.style.display === 'block');
+      const isGameFinished = !pinballGameRunning || (typeof hasAnnouncedWinners !== 'undefined' && hasAnnouncedWinners) || (modal && modal.style.display === 'block');
       if (!isGameFinished) {
         showQuitConfirm();
       } else {
@@ -201,5 +202,4 @@ window.addEventListener('DOMContentLoaded', () => {
     if (e.key === 'Escape') hideQuitConfirm();
   });
 
-  });
 });
