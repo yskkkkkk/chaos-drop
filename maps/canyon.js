@@ -257,7 +257,7 @@ function _zc_drawLayer(ctx, visY0, visY1) {
       ctx.shadowColor = '#00c8ff';
       
       const time = performance.now();
-      const speed = isActive ? 20 : 4;
+      const speed = isActive ? 5 : 1;
       const offset = (time * speed * 0.05) % (sec.bot - sec.top);
       
       const isMobileEnv = typeof BOARD_XSCALE !== 'undefined' && BOARD_XSCALE < 1.0;
@@ -279,13 +279,13 @@ function _zc_drawLayer(ctx, visY0, visY1) {
           for(let x = wBounds.lx; x <= wBounds.rx; x += waveStep) {
              const t = (x - wBounds.lx) / width;
              // 시간에 따라 출렁이는 잔물결(Wave) + 거슬러 올라가는 형태의 아치(Arch)
-             const wave = Math.sin(t * Math.PI * 4 + time * 0.01) * 12;
+             const wave = Math.sin(t * Math.PI * 4 + time * 0.0025) * 12;
              const arch = Math.sin(t * Math.PI) * -30; // 위로 볼록하게 굽어짐
              ctx.lineTo(x, yPos + wave + arch);
           }
           // 끝점까지 닫아주기 (waveStep 때문에 끝이 비는 현상 방지)
           if ((wBounds.rx - wBounds.lx) % waveStep !== 0) {
-             const wave = Math.sin(1 * Math.PI * 4 + time * 0.01) * 12;
+             const wave = Math.sin(1 * Math.PI * 4 + time * 0.0025) * 12;
              ctx.lineTo(wBounds.rx, yPos + wave - 30);
           }
           ctx.stroke();
@@ -302,7 +302,7 @@ function _zc_drawLayer(ctx, visY0, visY1) {
            if (py >= sec.top && py <= sec.bot) {
               const wBounds = getWallAtY(py);
               // 좌우로 무작위하게 요동치며 솟구치는 파티클
-              const px = wBounds.lx + (Math.sin(p * 99 + time * 0.005) * 0.4 + 0.5) * (wBounds.rx - wBounds.lx);
+              const px = wBounds.lx + (Math.sin(p * 99 + time * 0.0012) * 0.4 + 0.5) * (wBounds.rx - wBounds.lx);
               ctx.moveTo(px, py);
               ctx.arc(px, py, Math.random() * 2 + 1, 0, Math.PI * 2);
            }
