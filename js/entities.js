@@ -209,7 +209,7 @@ class SpeedPad {
     }
   }
   draw(ctx) {
-    this.pulse += 0.12;
+    this.pulse += 0.04;
     ctx.save();
 
     ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';

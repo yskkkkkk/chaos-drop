@@ -49,7 +49,7 @@ function updatePcHud() {
   // 정지 버튼 라벨: 결과 모달이 떴거나 경주가 끝났으면 '처음으로'
   const quitBtn = document.getElementById('hud-btn-quit');
   const modal = document.getElementById('pinball-result-modal');
-  const isGameFinished = !pinballGameRunning || (modal && modal.style.display === 'block');
+  const isGameFinished = !pinballGameRunning || (typeof hasAnnouncedWinners !== 'undefined' && hasAnnouncedWinners) || (modal && modal.style.display === 'block');
   
   if (quitBtn) {
     quitBtn.innerHTML = !isGameFinished
@@ -179,7 +179,7 @@ window.addEventListener('DOMContentLoaded', () => {
   if (quitBtn) {
     quitBtn.addEventListener('click', () => {
       const modal = document.getElementById('pinball-result-modal');
-      const isGameFinished = !pinballGameRunning || (modal && modal.style.display === 'block');
+      const isGameFinished = !pinballGameRunning || (typeof hasAnnouncedWinners !== 'undefined' && hasAnnouncedWinners) || (modal && modal.style.display === 'block');
       if (!isGameFinished) {
         showQuitConfirm();
       } else {
