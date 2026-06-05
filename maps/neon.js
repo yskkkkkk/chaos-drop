@@ -118,8 +118,8 @@ function _cc_drawLayer(ctx, visY0, visY1) {
   ctx.clip();
 
   const laneWidth = Math.round((TUNNEL_RIGHT_X - TUNNEL_LEFT_X - 2 * TUNNEL_BARRIER_W) / 3);
-  const flowDownSpeed = (Date.now() / 20) % 80;
-  const flowUpSpeed   = (Date.now() / 20) % 80;
+  const flowDownSpeed = (Date.now() / 80) % 80;
+  const flowUpSpeed   = (Date.now() / 80) % 80;
 
   for (let laneIdx = 0; laneIdx < 3; laneIdx++) {
     const lx    = TUNNEL_LEFT_X + laneIdx * (laneWidth + TUNNEL_BARRIER_W);
