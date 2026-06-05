@@ -242,9 +242,7 @@ function animatePinball(currentTime) {
   const now = currentTime || performance.now();
   if (!lastTime) lastTime = now;
   let frameTime = now - lastTime;
-
-  if (frameTime < FPS_INTERVAL) return;
-  lastTime = now - (frameTime % FPS_INTERVAL);
+  lastTime = now;
 
   if (frameTime > 250) frameTime = 250;
   accumulator += frameTime;

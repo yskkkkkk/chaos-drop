@@ -215,10 +215,27 @@ function updatePreviewBalls() {
   if (cnt) cnt.textContent = `${members.length}명`;
 
   if (members.length === 0) return;
-  const spacing = GAME_VWIDTH / (members.length + 1);
+
+  const minSpacing = typeof BALL_R !== 'undefined' ? Math.max(20, BALL_R * 2.8) : 26;
+  const maxCols = Math.floor(GAME_VWIDTH / minSpacing);
+  const rows = Math.ceil(members.length / maxCols);
+  const cols = Math.ceil(members.length / rows);
+  const spacingX = GAME_VWIDTH / (cols + 1);
+
   members.forEach((name, idx) => {
-    pinballBalls.push(new RacingBall(idx, name, spacing * (idx + 1), 40, COLOR_SPECTRUM[idx % COLOR_SPECTRUM.length]));
+    const row = Math.floor(idx / cols);
+    const col = idx % cols;
+    const offsetX = (row % 2 !== 0) ? (spacingX * 0.4) : 0;
+
+    let x = spacingX * (col + 1) + offsetX;
+    x = Math.max(15, Math.min(GAME_VWIDTH - 15, x));
+    
+    const y = 40 + row * 28;
+
+    const color = COLOR_SPECTRUM[idx % COLOR_SPECTRUM.length];
+    pinballBalls.push(new RacingBall(idx, name, x, y, color));
   });
+
   renderLeaderboard();
 }
 
