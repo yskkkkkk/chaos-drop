@@ -82,9 +82,10 @@ function canyon_init() {
     const offset   = rowIndex % 2 === 0 ? 0 : 44;
     const cols     = Math.floor((rx - lx - offset) / 82);
     for (let c = 0; c < cols; c++) {
-      const x = lx + offset + c * 82 + 18;
+      const x = lx + offset + c * 82 + 18 + (Math.random() - 0.5) * 28;
+      const py = y + (Math.random() - 0.5) * 18;
       if (x < lx || x > rx) continue;
-      pinballPegs.push(new Peg(x, y, 5));
+      pinballPegs.push(new Peg(x, py, 5));
     }
   }
 

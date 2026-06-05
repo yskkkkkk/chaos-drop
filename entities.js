@@ -339,14 +339,14 @@ class Peg {
   }
   update() { this.pulse *= 0.88; }
   draw(ctx) {
+    ctx.save();
     ctx.beginPath();
-    ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
-    if (this.pulse > 0.05) {
-      ctx.fillStyle = `rgba(255, 255, 255, ${0.4 + this.pulse * 0.6})`;
-      ctx.shadowBlur = (this.pulse * 12) * QUALITY;
-      ctx.shadowColor = '#00f0ff';
-    }
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255, 255, 255, ${0.4 + this.pulse * 0.6})`;
+    ctx.shadowBlur = (this.pulse * 12) * QUALITY;
+    ctx.shadowColor = '#00f0ff';
     ctx.fill();
+    ctx.restore();
   }
 }
 

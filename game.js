@@ -354,9 +354,18 @@ function animatePinball(currentTime) {
   });
   pinballSpinners.forEach(s => { if (s.y + s.r > visY0 - margin && s.y - s.r < visY1 + margin) s.draw(ctx);
   });
+  // [Opt] Render Bucket: 비활성 펙 일괄 처리(단일 fill), 활성 펙만 개별 glow
+  const _py0 = visY0 - 20, _py1 = visY1 + 20;
+  ctx.beginPath();
   pinballPegs.forEach(p => {
-    if (p.y + p.r > visY0 - 20 && p.y - p.r < visY1 + 20) {
-      
+    if (p.pulse <= 0.05 && p.y + p.r > _py0 && p.y - p.r < _py1) {
+      ctx.moveTo(p.x + p.r, p.y);
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    }
+  });
+  ctx.fill();
+  pinballPegs.forEach(p => {
+    if (p.pulse > 0.05 && p.y + p.r > _py0 && p.y - p.r < _py1) {
       p.draw(ctx);
     }
   });
