@@ -365,6 +365,9 @@ function launchPinballRacing() {
   // 경주 중 옵션 변경 불가능하도록 컨트롤 잠금
   setControlsEnabled(false);
 
+  // PC 인게임 HUD 진입 (세팅 패널 슬라이드 아웃 → HUD 표시)
+  if (typeof enterPcGameMode === 'function') enterPcGameMode();
+
   if (typeof SoundSys !== 'undefined') SoundSys.playCharge();
 
   setTimeout(() => {
@@ -418,8 +421,12 @@ window.addEventListener('DOMContentLoaded', () => {
       if (typeof SoundSys !== 'undefined') SoundSys.init();
       if (typeof SoundSys !== 'undefined') {
         const muted = SoundSys.toggleMute();
-        soundBtn.textContent = muted ? '🔇 SOUND OFF' : '🔊 SOUND ON';
-        soundBtn.className = muted ? 'badge sound-badge muted' : 'badge sound-badge active';
+        if (typeof syncSoundButtons === 'function') {
+          syncSoundButtons(muted);
+        } else {
+          soundBtn.textContent = muted ? '🔇 SOUND OFF' : '🔊 SOUND ON';
+          soundBtn.className = muted ? 'badge sound-badge muted' : 'badge sound-badge active';
+        }
       }
     });
   }

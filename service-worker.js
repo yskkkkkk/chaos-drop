@@ -1,23 +1,24 @@
-const CACHE_NAME = 'pinball-rivals-cache-v1';
+const CACHE_NAME = 'pinball-rivals-cache-v3';
 const urlsToCache = [
   './',
   './index.html',
-  './style.css',
-  './constants.js',
-  './entities.js',
-  './ball.js',
-  './collision.js',
-  './camera.js',
-  './effects.js',
-  './race.js',
+  './css/style.css',
+  './js/constants.js',
+  './js/entities.js',
+  './js/ball.js',
+  './js/collision.js',
+  './js/camera.js',
+  './js/effects.js',
+  './js/race.js',
   './maps/neon.js',
   './maps/canyon.js',
-  './sound.js',
-  './ui.js',
-  './game.js',
+  './js/sound.js',
+  './js/ui.js',
+  './js/game.js',
+  './js/hud.js',
   './manifest.json',
-  './icon-192.png',
-  './icon-512.png'
+  './assets/icon-192.png',
+  './assets/icon-512.png'
 ];
 
 self.addEventListener('install', event => {

@@ -79,6 +79,7 @@ function registerFinishedBall(ball) {
     pinballLog("ALL RUNNERS FINISHED! Race Complete.");
     const btnLaunch = document.getElementById('btn-pinball-launch');
     if (btnLaunch) { btnLaunch.disabled = false; btnLaunch.style.opacity = '1'; }
+    if (typeof updatePcHud === 'function') updatePcHud();
   }
 }
 
@@ -134,6 +135,7 @@ function renderLeaderboard() {
     });
     tbody.innerHTML = html;
     if (typeof updateMobileMiniLB === 'function') updateMobileMiniLB();
+    if (typeof updatePcHud === 'function') updatePcHud();
     return;
   }
 
@@ -158,6 +160,7 @@ function renderLeaderboard() {
   });
   tbody.innerHTML = html;
   if (typeof updateMobileMiniLB === 'function') updateMobileMiniLB();
+  if (typeof updatePcHud === 'function') updatePcHud();
 }
 
 function checkWinningConditions() {

@@ -8,7 +8,7 @@
   <!-- Open Graph (카카오톡, SNS 공유 미리보기) -->
   <meta property="og:title" content="Pinball Rivals">
   <meta property="og:description" content="우당탕탕 무작위 핀볼 당첨 레이싱 게임! 지금 바로 참가자를 입력하고 굴려보세요.">
-  <meta property="og:image" content="https://yskkkkkk.github.io/chaos-drop/og-image.png">
+  <meta property="og:image" content="https://yskkkkkk.github.io/chaos-drop/assets/og-image.png">
   <meta property="og:url" content="https://yskkkkkk.github.io/chaos-drop/">
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
@@ -16,7 +16,7 @@
   <!-- PWA Manifest & Icons -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#06070d">
-  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
 
   <!-- Google Fonts (Outfit & Noto Sans KR & Inter) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,7 +24,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Noto+Sans+KR:wght@300;400;700;900&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
   <!-- 통합 모듈화 스타일시트 로드 -->
-  <link rel="stylesheet" href="style.css?v=1.0.2">
+  <link rel="stylesheet" href="css/style.css?v=1.0.2">
 </head>
 <body>
 
@@ -181,6 +181,43 @@
   <!-- 팝업 닫기 후 플로팅 홈 버튼 -->
   <button id="btn-float-home" class="float-home-btn" style="display:none">🏠 홈으로 이동</button>
 
+  <!-- ════════ PC 인게임 HUD (데스크탑 전용 · 경주 중 표시) ════════ -->
+  <div id="pc-game-hud" class="pc-hud">
+
+    <!-- ① 당첨 조건 (목표) -->
+    <div class="hud-goal" id="hud-goal">
+      <span class="hud-goal-icon" id="hud-goal-icon">👑</span>
+      <span class="hud-goal-main">
+        <span class="hud-goal-eyebrow">이번 판 목표</span>
+        <span class="hud-goal-text" id="hud-goal-text">선착순 2명 당첨</span>
+      </span>
+    </div>
+
+    <!-- ② 실시간 순위표 -->
+    <div class="hud-board" id="hud-board">
+      <div class="hud-board-title">LIVE RANK</div>
+      <ol class="hud-board-list" id="hud-board-list"></ol>
+    </div>
+
+    <!-- ③④ 정지 / 음소거 컨트롤 -->
+    <div class="hud-controls">
+      <button id="hud-btn-mute" class="hud-icon-btn hud-icon-btn--square" title="음소거" aria-label="사운드 음소거">🔊</button>
+      <button id="hud-btn-quit" class="hud-icon-btn hud-icon-btn--quit" title="경주 종료하고 돌아가기" aria-label="경주 종료"><span>⏹</span> 정지</button>
+    </div>
+  </div>
+
+  <!-- 경주 종료 확인 다이얼로그 -->
+  <div id="hud-quit-confirm" class="hud-confirm">
+    <div class="hud-confirm-card">
+      <div class="hud-confirm-title">정말 종료할까요?</div>
+      <div class="hud-confirm-desc">진행 중인 경주가 중단되고 설정 화면으로 돌아갑니다.</div>
+      <div class="hud-confirm-actions">
+        <button id="hud-confirm-cancel" type="button" class="hud-confirm-btn cancel">취소</button>
+        <button id="hud-confirm-ok" type="button" class="hud-confirm-btn ok">종료하기</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 모바일 게임 오버레이 (미니 리더보드 + 전체 순위) -->
   <div id="mobile-game-overlay">
     <div id="mobile-mini-lb" class="mobile-mini-lb">
@@ -204,18 +241,19 @@
   </div>
 
   <!-- ── 스크립트 파일 로드 ───────────────────────────────── -->
-  <script src="constants.js?v=1.1.0"></script>
-  <script src="entities.js?v=1.1.0"></script>
-  <script src="ball.js?v=1.1.0"></script>
-  <script src="collision.js?v=1.1.0"></script>
-  <script src="camera.js?v=1.1.0"></script>
-  <script src="effects.js?v=1.1.0"></script>
-  <script src="race.js?v=1.1.0"></script>
+  <script src="js/constants.js?v=1.1.0"></script>
+  <script src="js/entities.js?v=1.1.0"></script>
+  <script src="js/ball.js?v=1.1.0"></script>
+  <script src="js/collision.js?v=1.1.0"></script>
+  <script src="js/camera.js?v=1.1.0"></script>
+  <script src="js/effects.js?v=1.1.0"></script>
+  <script src="js/race.js?v=1.1.0"></script>
   <script src="maps/neon.js?v=1.1.0"></script>
   <script src="maps/canyon.js?v=1.0.0"></script>
-  <script src="sound.js?v=1.1.0"></script>
-  <script src="ui.js?v=1.1.0"></script>
-  <script src="game.js?v=1.1.0"></script>
+  <script src="js/sound.js?v=1.1.0"></script>
+  <script src="js/ui.js?v=1.1.0"></script>
+  <script src="js/game.js?v=1.1.0"></script>
+  <script src="js/hud.js?v=1.0.0"></script>
 
   <!-- PWA Service Worker Registration -->
   <script>
