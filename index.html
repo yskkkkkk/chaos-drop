@@ -124,7 +124,14 @@
       </span>
     </div>
 
-
+    <!-- ⚡ 저사양 모드 토글 -->
+    <div class="panel-toggle-row" data-ms="2" style="margin-top: 8px;">
+      <input type="checkbox" id="low-end-mode-toggle" class="panel-toggle-checkbox">
+      <div class="freeze-mode-label-group">
+        <label for="low-end-mode-toggle" class="panel-toggle-label" style="color: #ffaa00;">⚡ LOW-END MODE</label>
+        <span class="freeze-mode-hint-text">네온 글로우 효과 비활성화 (렉 방지)</span>
+      </div>
+    </div>
 
     <!-- 터미널 모니터 로그 — Step 2 -->
     <div id="pinball-terminal" data-ms="2">> Pinball System initialized. Awaiting Launch...</div>
@@ -174,6 +181,43 @@
   <!-- 팝업 닫기 후 플로팅 홈 버튼 -->
   <button id="btn-float-home" class="float-home-btn" style="display:none">🏠 홈으로 이동</button>
 
+  <!-- ════════ PC 인게임 HUD (데스크탑 전용 · 경주 중 표시) ════════ -->
+  <div id="pc-game-hud" class="pc-hud">
+
+    <!-- ① 당첨 조건 (목표) -->
+    <div class="hud-goal" id="hud-goal">
+      <span class="hud-goal-icon" id="hud-goal-icon">👑</span>
+      <span class="hud-goal-main">
+        <span class="hud-goal-eyebrow">이번 판 목표</span>
+        <span class="hud-goal-text" id="hud-goal-text">선착순 2명 당첨</span>
+      </span>
+    </div>
+
+    <!-- ② 실시간 순위표 -->
+    <div class="hud-board" id="hud-board">
+      <div class="hud-board-title">LIVE RANK</div>
+      <ol class="hud-board-list" id="hud-board-list"></ol>
+    </div>
+
+    <!-- ③④ 정지 / 음소거 컨트롤 -->
+    <div class="hud-controls">
+      <button id="hud-btn-mute" class="hud-icon-btn hud-icon-btn--square" title="음소거" aria-label="사운드 음소거">🔊</button>
+      <button id="hud-btn-quit" class="hud-icon-btn hud-icon-btn--quit" title="경주 종료하고 돌아가기" aria-label="경주 종료"><span>⏹</span> 정지</button>
+    </div>
+  </div>
+
+  <!-- 경주 종료 확인 다이얼로그 -->
+  <div id="hud-quit-confirm" class="hud-confirm">
+    <div class="hud-confirm-card">
+      <div class="hud-confirm-title">정말 종료할까요?</div>
+      <div class="hud-confirm-desc">진행 중인 경주가 중단되고 설정 화면으로 돌아갑니다.</div>
+      <div class="hud-confirm-actions">
+        <button id="hud-confirm-cancel" type="button" class="hud-confirm-btn cancel">취소</button>
+        <button id="hud-confirm-ok" type="button" class="hud-confirm-btn ok">종료하기</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 모바일 게임 오버레이 (미니 리더보드 + 전체 순위) -->
   <div id="mobile-game-overlay">
     <div id="mobile-mini-lb" class="mobile-mini-lb">
@@ -209,6 +253,7 @@
   <script src="sound.js?v=1.1.0"></script>
   <script src="ui.js?v=1.1.0"></script>
   <script src="game.js?v=1.1.0"></script>
+  <script src="hud.js?v=1.0.0"></script>
 
   <!-- PWA Service Worker Registration -->
   <script>

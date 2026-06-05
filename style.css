@@ -1065,3 +1065,287 @@ body.theme-canyon .active-rule-indicator {
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   PC 인게임 HUD — 경주 중 좌측 패널을 치우고 핵심 정보만 표시
+   ═══════════════════════════════════════════════════════════════ */
+
+/* 세팅 패널: 게임 시작 시 왼쪽으로 부드럽게 슬라이드 아웃 */
+.pinball-control-panel {
+  transition: transform 0.55s cubic-bezier(0.7, 0, 0.2, 1),
+              opacity 0.4s ease;
+}
+body.pc-game-active .pinball-control-panel {
+  transform: translateX(calc(-100% - 60px));
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* HUD 컨테이너 — 기본 숨김, 경주 중에만 표시 */
+.pc-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: none;
+  pointer-events: none;
+  font-family: 'Outfit', 'Noto Sans KR', sans-serif;
+}
+.pc-hud > * { pointer-events: auto; }
+body.pc-game-active .pc-hud { display: block; }
+
+/* HUD 요소 등장 페이드 — 모션 선호 시에만, 기본 상태는 항상 표시 */
+@keyframes hudFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  body.pc-game-active .hud-goal,
+  body.pc-game-active .hud-board,
+  body.pc-game-active .hud-controls {
+    animation: hudFadeIn 0.45s ease;
+  }
+}
+
+/* ① 당첨 조건(목표) */
+.hud-goal {
+  position: absolute;
+  top: 38px;
+  left: 38px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+.hud-goal-icon {
+  font-size: 1.7rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.7));
+}
+.hud-goal-main { display: flex; flex-direction: column; gap: 3px; }
+.hud-goal-eyebrow {
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+}
+.hud-goal-text {
+  font-size: 1.32rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.2px;
+  line-height: 1.15;
+  white-space: nowrap;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.85);
+}
+
+/* ② 실시간 순위표 */
+.hud-board {
+  position: absolute;
+  top: 108px;
+  left: 38px;
+  width: 326px;
+}
+.hud-board-title {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: rgba(255, 255, 255, 0.38);
+  margin-bottom: 12px;
+}
+.hud-board-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.hud-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 7px;
+  transition: background 0.2s ease;
+}
+.hud-row--empty {
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.32);
+  font-size: 0.85rem;
+  border-bottom: none;
+}
+.hud-row.progress { opacity: 0.74; }
+.hud-row-rank {
+  font-size: 0.98rem;
+  font-weight: 800;
+  width: 22px;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-variant-numeric: tabular-nums;
+}
+.hud-row-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 9px currentColor;
+}
+.hud-row-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #f3f4f6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 7px rgba(0, 0, 0, 0.85);
+}
+.hud-row-time {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--neon-blue);
+  font-variant-numeric: tabular-nums;
+}
+.hud-row-time--live { color: rgba(255, 255, 255, 0.34); }
+
+/* 당첨권 진입 강조 — 좌측 보더 대신 은은한 틴트 + 컬러 */
+.hud-row.is-top {
+  background: linear-gradient(90deg, rgba(255, 153, 0, 0.14), rgba(255, 153, 0, 0));
+}
+.hud-row.is-top .hud-row-rank { color: var(--accent); }
+.hud-row.is-top .hud-row-name { color: #fff; }
+body.theme-canyon .hud-row.is-top {
+  background: linear-gradient(90deg, rgba(199, 134, 90, 0.18), rgba(199, 134, 90, 0));
+}
+
+/* ③④ 컨트롤 (정지 / 음소거) */
+.hud-controls {
+  position: absolute;
+  left: 38px;
+  bottom: 38px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hud-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(10, 12, 26, 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #e5e7eb;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+.hud-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+.hud-icon-btn--square {
+  width: 42px;
+  padding: 0;
+  font-size: 1.15rem;
+}
+.hud-icon-btn.muted {
+  color: #ff3366;
+  border-color: rgba(255, 51, 102, 0.35);
+  background: rgba(255, 51, 102, 0.12);
+}
+.hud-icon-btn--quit:hover {
+  background: rgba(255, 51, 102, 0.16);
+  border-color: rgba(255, 51, 102, 0.5);
+  color: #ff8aa6;
+}
+.hud-icon-btn--home:hover {
+  background: rgba(0, 240, 255, 0.14);
+  border-color: rgba(0, 240, 255, 0.45);
+  color: #9decff;
+}
+
+/* 종료 확인 다이얼로그 */
+.hud-confirm {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(3, 5, 12, 0.6);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+.hud-confirm.open { display: flex; }
+.hud-confirm-card {
+  width: 360px;
+  max-width: calc(100vw - 40px);
+  background: rgba(16, 19, 34, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  padding: 28px 26px 22px;
+  text-align: center;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  animation: hudCardPop 0.28s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes hudCardPop {
+  0%   { opacity: 0; transform: scale(0.82) translateY(12px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.hud-confirm-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 8px;
+}
+.hud-confirm-desc {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.5;
+  margin-bottom: 22px;
+}
+.hud-confirm-actions {
+  display: flex;
+  gap: 10px;
+}
+.hud-confirm-btn {
+  flex: 1;
+  height: 46px;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+.hud-confirm-btn.cancel {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #e5e7eb;
+}
+.hud-confirm-btn.cancel:hover { background: rgba(255, 255, 255, 0.12); }
+.hud-confirm-btn.ok {
+  background: #ff3366;
+  border: 1px solid #ff3366;
+  color: #fff;
+}
+.hud-confirm-btn.ok:hover { background: #ff1f55; box-shadow: 0 6px 20px rgba(255, 51, 102, 0.35); }
+
+/* 모바일에서는 PC HUD 완전 비활성 (모바일 오버레이 사용) */
+@media (max-width: 768px) {
+  .pc-hud,
+  .hud-confirm { display: none !important; }
+  body.pc-game-active .pinball-control-panel {
+    transform: none;
+    opacity: 1;
+  }
+}

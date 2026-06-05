@@ -695,6 +695,7 @@ function stopPinball() {
 
 function resetPinball() {
   stopPinball();
+  if (typeof exitPcGameMode === 'function') exitPcGameMode();
   pinballFinishedBalls = [];
   pinballBalls = [];
   pinballSpikeTraps = [];
