@@ -99,27 +99,10 @@ function initPinballMap()                 { MAPS[currentMapId]?.init?.(); _apply
 
 let lastTime = 0;
 
-function animatePinball(currentTime) {
-  pinballAnimId = requestAnimationFrame(animatePinball);
+let accumulator = 0;
+const FIXED_DT = 1000 / TARGET_FPS;
 
-  const now = currentTime || performance.now();
-  if (!lastTime) lastTime = now;
-  const elapsed = now - lastTime;
-
-  if (elapsed < FPS_INTERVAL) return;
-  lastTime = now - (elapsed % FPS_INTERVAL);
-
-  if (!pinballCanvas || !pinballCtx) return;
-  const ctx = pinballCtx;
-  const VW = GAME_VWIDTH;
-  const VH = GAME_VHEIGHT;
-  const CH = pinballCanvas.clientHeight || pinballCanvas.height;
-  // BOARD_XSCALE로 물리 보드폭 = 캔버스폭 → fitScale 불필요
-  const _fitScale = 1.0;
-  const _vCH = CH;
-  window._RENDER_FIT_SCALE = 1.0;
-
-  // VAR 슬로우모션 제어
+function updatePhysicsStep(_vCH, VH) {
   let shouldRunPhysics = true;
   if (varChecking) {
     varTimer--;
@@ -130,21 +113,156 @@ function animatePinball(currentTime) {
     }
   }
 
-  // A. 카메라
   const activeBalls = pinballBalls.filter(b => !b.isFinished);
-
-  // 출구 근접 트리거: 선착순 1명 / 특정 1등은 거리 기반으로 발동
   if (pinballGameRunning && !exitZoomLeaderTriggered && activeBalls.length > 0) {
     if ((currentRule === 'first' && winCount === 1) || (currentRule === 'specific' && specificRank === 1)) {
       const _leader = activeBalls.reduce((a, b) => b.y > a.y ? b : a);
       if (_leader.y >= GOAL_Y - 100) {
-        triggerExitZoom(9999); // 골인까지 고정
+        triggerExitZoom(9999);
         exitZoomLeaderTriggered = true;
       }
     }
   }
 
   updateCamera(activeBalls, _vCH, VH);
+
+  pinballBumpers.forEach(b => b.update());
+  pinballSpinners.forEach(s => s.update());
+  pinballPegs.forEach(p => p.update());
+  pinballLaunchPads.forEach(lp => lp.update());
+  pinballSpikeTraps.forEach(trap => trap.update());
+  pinballItems.forEach(item => item.update());
+
+  if (pinballGameRunning && shouldRunPhysics) {
+    speedPadRotateTimer--;
+    if (speedPadRotateTimer <= 0) {
+      speedPadRotateTimer = 300;
+      pinballSpeedPads.forEach(pad => pad.rotateClockwise());
+      if (typeof pinballLog === 'function') pinballLog("⚡ 가속 패드 방향 즉시 회전!");
+    }
+
+    recoverCurrentMapIslandTunnel();
+
+    for (let _iter = 0; _iter < 2; _iter++) {
+      for (let i = 0; i < pinballBalls.length; i++) {
+        const b1 = pinballBalls[i];
+        for (let j = i + 1; j < pinballBalls.length; j++) {
+          const b2 = pinballBalls[j];
+          if (b1.isFinished && b2.isFinished) continue; 
+          const dx = b2.x - b1.x, dy = b2.y - b1.y;
+          const distSq = dx*dx + dy*dy;
+          const minD = b1.r + b2.r;
+          if (distSq < minD*minD && distSq > 0) {
+            const dist = Math.sqrt(distSq);
+            const nx = dx/dist, ny = dy/dist;
+            const ov = minD - dist;
+            b1.x -= nx*ov*0.52; b1.y -= ny*ov*0.52;
+            b2.x += nx*ov*0.52; b2.y += ny*ov*0.52;
+            const rv = (b1.vx-b2.vx)*nx + (b1.vy-b2.vy)*ny;
+            if (rv > 0) {
+              const imp = rv * (1.1 + b1.restitution * 1.5) * 0.65;
+              b1.vx -= nx*imp * 1.15; b1.vy -= ny*imp * 1.15;
+              b2.vx += nx*imp * 1.15; b2.vy += ny*imp * 1.15;
+              if (rv > 1 && typeof SoundSys !== 'undefined') SoundSys.playBallHit(rv);
+            }
+          }
+        }
+      }
+    }
+    resolveObstacleCollisions();
+  }
+
+  pinballBalls.forEach(ball => {
+    if (shouldRunPhysics) ball.update();
+  });
+
+  if (pinballGameRunning && shouldRunPhysics) {
+    const _aSort = [...pinballBalls.filter(b => !b.isFinished)].sort((a, b) => b.y - a.y);
+    if (_aSort.length >= 2) {
+      const _curOrd = _aSort.map(b => b.id);
+      if (prevRankOrder.length === _curOrd.length) {
+        _aSort.forEach((ball, i) => {
+          if (ball.overtakeCooldown > 0) { ball.overtakeCooldown--; return; }
+          const _pi = prevRankOrder.indexOf(ball.id);
+          if (_pi > i) {
+            ball.overtakeCooldown = 200;
+            overtakeParticles.push({
+              x: ball.x + ball.r + 4, y: ball.y - ball.r + 2,
+              vx: 0.5 + Math.random() * 0.4, vy: -0.9 - Math.random() * 0.4,
+              color: ball.color, life: 48, maxLife: 48, angle: -0.22
+            });
+          }
+        });
+      }
+      prevRankOrder = _curOrd;
+      const _lid = _aSort[0].id;
+      if (_lid !== currentLeaderId) { currentLeaderId = _lid; crownFlashTimer = 22; }
+    }
+    if (crownFlashTimer > 0) crownFlashTimer--;
+  }
+
+  overtakeParticles.forEach(p => {
+    const t = p.life / p.maxLife;
+    const _oa = t > 0.8 ? (1 - t) / 0.2 : t < 0.25 ? t / 0.25 : 1.0;
+    ctx.save();
+    ctx.globalAlpha = _oa;
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.angle);
+    ctx.fillStyle = p.color;
+    ctx.shadowBlur = 6 * QUALITY; ctx.shadowColor = p.color;
+    ctx.font = 'bold 11px Outfit, Noto Sans KR, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('역전!', 0, 0);
+    ctx.restore();
+  });
+
+  pinballNearMissSparks = pinballNearMissSparks.filter(s => {
+    
+    return s.life > 0;
+  });
+
+  pinballConfettiParticles = pinballConfettiParticles.filter(p => {
+    
+    return p.y < GOAL_Y + 500;
+  });
+
+  if (pinballGameRunning) {
+    _lbUpdateFrame++;
+    if (_lbUpdateFrame % 18 === 0) {
+      if (_DEVICE_MOBILE && typeof updateMobileMiniLB === 'function') updateMobileMiniLB();
+      if (!_DEVICE_MOBILE && typeof renderLeaderboard === 'function') renderLeaderboard();
+    }
+  }
+}
+
+
+function animatePinball(currentTime) {
+  pinballAnimId = requestAnimationFrame(animatePinball);
+
+  const now = currentTime || performance.now();
+  if (!lastTime) lastTime = now;
+  let frameTime = now - lastTime;
+
+  if (frameTime < FPS_INTERVAL) return;
+  lastTime = now - (frameTime % FPS_INTERVAL);
+
+  if (frameTime > 250) frameTime = 250;
+  accumulator += frameTime;
+
+  if (!pinballCanvas || !pinballCtx) return;
+  const ctx = pinballCtx;
+  const VW = GAME_VWIDTH;
+  const VH = GAME_VHEIGHT;
+  const CH = pinballCanvas.clientHeight || pinballCanvas.height;
+  const _vCH = CH;
+  window._RENDER_FIT_SCALE = 1.0;
+
+  while (accumulator >= FIXED_DT) {
+    updatePhysicsStep(_vCH, VH);
+    accumulator -= FIXED_DT;
+  }
+
+  // B. 배경
 
   // B. 배경
   const _th = MAPS[currentMapId]?.theme || {};
@@ -239,111 +357,30 @@ function animatePinball(currentTime) {
     const vis2 = p.y2 > visY0 - margin && p.y2 < visY1 + margin;
     if (vis1 || vis2) p.draw(ctx);
   });
-  pinballBumpers.forEach(b => {
-    b.update();
-    if (b.y + b.r > visY0 - margin && b.y - b.r < visY1 + margin) b.draw(ctx);
+  pinballBumpers.forEach(b => { if (b.y + b.r > visY0 - margin && b.y - b.r < visY1 + margin) b.draw(ctx);
   });
-  pinballSpinners.forEach(s => {
-    s.update();
-    if (s.y + s.r > visY0 - margin && s.y - s.r < visY1 + margin) s.draw(ctx);
+  pinballSpinners.forEach(s => { if (s.y + s.r > visY0 - margin && s.y - s.r < visY1 + margin) s.draw(ctx);
   });
   pinballPegs.forEach(p => {
     if (p.y + p.r > visY0 - 20 && p.y - p.r < visY1 + 20) {
-      p.update();
+      
       p.draw(ctx);
     }
   });
-  pinballLaunchPads.forEach(lp => {
-    lp.update();
-    if (lp.y + lp.h > visY0 - margin && lp.y < visY1 + margin) lp.draw(ctx);
+  pinballLaunchPads.forEach(lp => { if (lp.y + lp.h > visY0 - margin && lp.y < visY1 + margin) lp.draw(ctx);
   });
   pinballSpeedPads.forEach(pad => {
     if (pad.y + pad.h/2 > visY0 - margin && pad.y - pad.h/2 < visY1 + margin) pad.draw(ctx);
   });
-  pinballSpikeTraps.forEach(trap => {
-    trap.update();
-    if (trap.y > visY0 - margin && trap.y < visY1 + margin) trap.draw(ctx);
+  pinballSpikeTraps.forEach(trap => { if (trap.y > visY0 - margin && trap.y < visY1 + margin) trap.draw(ctx);
   });
-  pinballItems.forEach(item => {
-    item.update();
-    if (item.y > visY0 - margin && item.y < visY1 + margin) item.draw(ctx);
+  pinballItems.forEach(item => { if (item.y > visY0 - margin && item.y < visY1 + margin) item.draw(ctx);
   });
 
-  // 구슬 물리
-  if (pinballGameRunning && shouldRunPhysics) {
-    speedPadRotateTimer--;
-    if (speedPadRotateTimer <= 0) {
-      speedPadRotateTimer = 300;
-      pinballSpeedPads.forEach(pad => pad.rotateClockwise());
-      pinballLog("⚡ 가속 패드 방향 즉시 회전!");
-    }
-
-    // 맵 고유 섬 터널링 복구 — maps/neon.js
-    recoverCurrentMapIslandTunnel();
-
-    // E-1. 구슬 간 충돌
-    for (let _iter = 0; _iter < 2; _iter++) {
-      for (let i = 0; i < pinballBalls.length; i++) {
-        const b1 = pinballBalls[i];
-        for (let j = i + 1; j < pinballBalls.length; j++) {
-          const b2 = pinballBalls[j];
-          if (b1.isFinished && b2.isFinished) continue; // [Optimization] Skip collisions between finished balls
-          const dx = b2.x - b1.x, dy = b2.y - b1.y;
-          const distSq = dx*dx + dy*dy;
-          const minD = b1.r + b2.r;
-          if (distSq < minD*minD && distSq > 0) {
-            const dist = Math.sqrt(distSq);
-            const nx = dx/dist, ny = dy/dist;
-            const ov = minD - dist;
-            b1.x -= nx*ov*0.52; b1.y -= ny*ov*0.52;
-            b2.x += nx*ov*0.52; b2.y += ny*ov*0.52;
-            const rv = (b1.vx-b2.vx)*nx + (b1.vy-b2.vy)*ny;
-            if (rv > 0) {
-              const imp = rv * (1.1 + b1.restitution * 1.5) * 0.65;
-              b1.vx -= nx*imp * 1.15; b1.vy -= ny*imp * 1.15;
-              b2.vx += nx*imp * 1.15; b2.vy += ny*imp * 1.15;
-              if (rv > 1 && typeof SoundSys !== 'undefined') SoundSys.playBallHit(rv);
-            }
-          }
-        }
-      }
-    }
-
-    // E-2. 장애물 충돌 — collision.js
-    resolveObstacleCollisions();
-  }
-
-  // 구슬 업데이트 & 드로잉
+  // 구슬 드로잉
   pinballBalls.forEach(ball => {
-    if (shouldRunPhysics) ball.update();
     ball.draw(ctx);
   });
-
-  // 역전 감지 및 왕관/역전 이펙트
-  if (pinballGameRunning && shouldRunPhysics) {
-    const _aSort = [...pinballBalls.filter(b => !b.isFinished)].sort((a, b) => b.y - a.y);
-    if (_aSort.length >= 2) {
-      const _curOrd = _aSort.map(b => b.id);
-      if (prevRankOrder.length === _curOrd.length) {
-        _aSort.forEach((ball, i) => {
-          if (ball.overtakeCooldown > 0) { ball.overtakeCooldown--; return; }
-          const _pi = prevRankOrder.indexOf(ball.id);
-          if (_pi > i) {
-            ball.overtakeCooldown = 200;
-            overtakeParticles.push({
-              x: ball.x + ball.r + 4, y: ball.y - ball.r + 2,
-              vx: 0.5 + Math.random() * 0.4, vy: -0.9 - Math.random() * 0.4,
-              color: ball.color, life: 48, maxLife: 48, angle: -0.22
-            });
-          }
-        });
-      }
-      prevRankOrder = _curOrd;
-      const _lid = _aSort[0].id;
-      if (_lid !== currentLeaderId) { currentLeaderId = _lid; crownFlashTimer = 22; }
-    }
-    if (crownFlashTimer > 0) crownFlashTimer--;
-  }
 
   // 역전! 파티클 드로잉
   overtakeParticles = overtakeParticles.filter(p => {
@@ -362,15 +399,6 @@ function animatePinball(currentTime) {
     ctx.restore();
     return p.life > 0;
   });
-
-  // LB 주기 업데이트: 모바일 미니LB + PC 실시간 리더보드 (~0.5초마다)
-  if (pinballGameRunning) {
-    _lbUpdateFrame++;
-    if (_lbUpdateFrame % 18 === 0) {
-      if (_DEVICE_MOBILE && typeof updateMobileMiniLB === 'function') updateMobileMiniLB();
-      if (!_DEVICE_MOBILE && typeof renderLeaderboard === 'function') renderLeaderboard();
-    }
-  }
 
   // 모드별 순위 인디케이터
   if (pinballGameRunning) {
@@ -511,7 +539,7 @@ function animatePinball(currentTime) {
       ctx.fill();
       ctx.restore();
     });
-    pinballNearMissSparks = pinballNearMissSparks.filter(s => s.life > 0);
+    
   }
 
   // 컨페티
@@ -527,7 +555,7 @@ function animatePinball(currentTime) {
       ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r);
       ctx.restore();
     });
-    pinballConfettiParticles = pinballConfettiParticles.filter(p => p.y < GOAL_Y + 500);
+    
   }
 
   // VAR 판독 오버레이
