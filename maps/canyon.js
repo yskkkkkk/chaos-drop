@@ -129,7 +129,7 @@ function _zc_applyPhysics(ball) {
       const cx = (wBounds.lx + wBounds.rx) / 2;
       ball.vx += (cx - ball.x) * 0.01; // 역류 시 벽에 끼지 않도록 중앙으로 밀어줌
       
-      if (Math.random() < 0.1) spawnNearMissSparks(ball.x, ball.y, '#00c8ff');
+      if (Math.random() < 0.02) spawnNearMissSparks(ball.x, ball.y, '#00c8ff');
     }
   });
 }
