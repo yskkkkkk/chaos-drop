@@ -192,7 +192,7 @@ MAPS['your-map-id'] = {
 | `pinballAccelLane` | `number` | 가속 레인 인덱스 (0·1·2) |
 | `wallProfile` | `{y,lx,rx}[]` | 가변 벽 프로파일 |
 | `funnelLeftX` / `funnelRightX` | `number` | 깔때기 시작 X 좌표 |
-| `freezeModeEnabled` | `boolean` | Freeze Mode 활성 여부 |
+| `gimmickEnabled` | `boolean` | 맵 기믹(FREEZE MODE / UPSTREAM SURGE) 활성 여부 |
 
 ### 장애물 배열 (init에서 채워야 함)
 | 변수 | 담는 클래스 |

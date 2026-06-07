@@ -16,9 +16,10 @@
     *   *60Hz = 초당 60회 물리 연산 (정상)* vs *144Hz = 초당 144회 물리 연산 (2.4배 속행)*
 
 ### 3. 해결 방안 (Resolution)
-*   **60FPS 제한 장치 (Frame Rate Limiter)** 도입:
-    *   시스템 고해상도 타이머(`performance.now()` / `currentTime`)를 기반으로 밀리초 단위를 정밀 체크하여, 이전 프레임에서 정확히 **`16.67ms (1000ms / 60)`**가 경과했을 때만 물리 엔진과 드로잉을 전진시키는 루프 제한 기술을 도입했습니다.
-    *   누적된 시간차의 잔여 오차(`elapsed % fpsInterval`)를 빼주는 정밀 보정 방식을 활용하여, 프레임 드랍이 있는 환경에서도 일정한 등속성을 유지합니다.
+*   **고정 타임스텝 누산기 (Fixed-Timestep Accumulator)** 도입:
+    *   `requestAnimationFrame` 콜백에서 경과 시간(`frameTime`)을 누산기(`accumulator`)에 더하고, `while (accumulator >= FIXED_DT)` 루프 안에서 물리 연산(`updatePhysicsStep`)을 `FIXED_DT(16.67ms)` 단위로 정확히 소진합니다.
+    *   물리 연산과 렌더링이 분리되어, 144Hz 모니터에서 물리는 여전히 60fps 단위로만 진행되고 렌더링은 144fps로 부드럽게 동작합니다.
+    *   초기 구현에서 렌더도 함께 스킵하는 프레임 리미터(`if (frameTime < FPS_INTERVAL) return`)를 사용했으나, 고주사율 환경에서 렌더 스킵에 의한 시각적 뚝뚝거림이 발생하여 누산기 방식으로 교체되었습니다.
 
 ---
 
