@@ -15,7 +15,8 @@
 
 2. **Low-end QUALITY mode (저사양 렌더링 모드)**
    * 대상 파일: `ui.js`, `style.css`, `constants.js`, `ball.js`, `entities.js`
-   * 내용: 환경 설정에서 '저사양 모드' 활성화 시, V8 엔진 GC 압박과 GPU 병목을 유발하는 `shadowBlur`, `shadowColor` 등 글로우 효과를 강제 비활성화.
+   * 내용: V8 엔진 GC 압박과 GPU 병목을 유발하는 `shadowBlur`, `shadowColor` 등 글로우 효과를 강제 비활성화.
+   * ⚠️ **변경 사항**: UI 수동 토글(ON/OFF 버튼)은 제거됨. `game.js` 내 실시간 FPS 모니터링이 45fps 이하 지속 감지 시 `LOW_END_MODE`를 자동으로 활성화하는 방식만 유지.
 
 3. **`isFinished` mutual exclusion (물리 연산 배제)**
    * 대상 파일: `game.js`
