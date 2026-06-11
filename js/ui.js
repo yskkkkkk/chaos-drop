@@ -34,15 +34,17 @@ function renderMemberTags() {
 }
 
 function addMember(name) {
-  const trimmed = name.trim();
-  if (!trimmed) return;
-  memberList.push(trimmed);
-  renderMemberTags();
-  updateSpecificRankSelect();
+  addMembersFromText(name);
 }
 
 function addMembersFromText(csv) {
-  const names = csv.split(/[,\n\r]+/).map(n => n.trim()).filter(n => n.length > 0);
+  const names = sanitizeMemberNames(csv, memberList.length);
+  if (names.length === 0) {
+    if (memberList.length >= MEMBER_COUNT_MAX && String(csv).trim()) {
+      pinballLog(`⚠️ 참가 인원은 최대 ${MEMBER_COUNT_MAX}명까지 가능합니다.`);
+    }
+    return;
+  }
   names.forEach(n => memberList.push(n));
   renderMemberTags();
   updateSpecificRankSelect();
