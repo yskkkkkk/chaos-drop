@@ -106,16 +106,10 @@ function updatePcHud() {
     return `<li class="hud-row${isTop ? ' is-top' : ''}${b.isFinished ? ' finished' : ' progress'}">
         <span class="hud-row-rank">${rank}</span>
         <span class="hud-row-dot" style="background:${b.color}; color:${b.color};"></span>
-        <span class="hud-row-name">${escapeHudText(b.name)}</span>
+        <span class="hud-row-name">${escapeHtml(b.name)}</span>
         ${timeStr}
       </li>`;
   }).join('');
-}
-
-function escapeHudText(s) {
-  return String(s).replace(/[&<>"']/g, c => (
-    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
-  ));
 }
 
 // ── 사운드(음소거) — 기존 SoundSys / 패널 버튼과 동기화 ──────
