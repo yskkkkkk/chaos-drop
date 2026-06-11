@@ -45,7 +45,6 @@ const TUNNEL_DECEL_MULT  = 0.88;
 
 // ── 2. 프레임 레이트 및 물리 루프 시간 제한 ──────────────────
 const TARGET_FPS    = 60;
-const FPS_INTERVAL  = 1000 / TARGET_FPS;
 
 // ── 3. 구슬(RacingBall) 고유 물리 파라미터 ────────────────────
 const BALL_GRAVITY       = 0.13;

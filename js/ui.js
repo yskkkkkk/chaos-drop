@@ -34,15 +34,17 @@ function renderMemberTags() {
 }
 
 function addMember(name) {
-  const trimmed = name.trim();
-  if (!trimmed) return;
-  memberList.push(trimmed);
-  renderMemberTags();
-  updateSpecificRankSelect();
+  addMembersFromText(name);
 }
 
 function addMembersFromText(csv) {
-  const names = csv.split(/[,\n\r]+/).map(n => n.trim()).filter(n => n.length > 0);
+  const names = sanitizeMemberNames(csv, memberList.length);
+  if (names.length === 0) {
+    if (memberList.length >= MEMBER_COUNT_MAX && String(csv).trim()) {
+      pinballLog(`⚠️ 참가 인원은 최대 ${MEMBER_COUNT_MAX}명까지 가능합니다.`);
+    }
+    return;
+  }
   names.forEach(n => memberList.push(n));
   renderMemberTags();
   updateSpecificRankSelect();
@@ -762,7 +764,7 @@ function updateMobileMiniLB() {
         return '<div class="mobile-mini-lb-row" style="' + dim + '">' +
           '<span>' + medals[i] + '</span>' +
           '<span class="mobile-mini-dot" style="background:' + b.color + ';"></span>' +
-          '<span>' + b.name + '</span>' +
+          '<span>' + escapeHtml(b.name) + '</span>' +
           '</div>';
       }).join('') + '<div class="mobile-mini-lb-tap-hint">탭하여 순위 보기 ↗</div>';
 
@@ -782,7 +784,7 @@ function updateMobileMiniLB() {
         return '<div style="display:flex;align-items:center;gap:10px;padding:9px 6px;border-bottom:1px solid rgba(255,255,255,0.05);">' +
           '<span style="font-weight:800;width:32px;color:' + (isTop ? 'var(--accent)' : '#9ca3af') + ';">#' + rank + '</span>' +
           '<span class="mobile-mini-dot" style="background:' + b.color + ';box-shadow:0 0 5px ' + b.color + ';width:9px;height:9px;"></span>' +
-          '<span style="font-weight:700;flex:1;font-size:0.9rem;' + (b.isFinished ? '' : 'opacity:0.78;') + '">' + b.name + '</span>' +
+          '<span style="font-weight:700;flex:1;font-size:0.9rem;' + (b.isFinished ? '' : 'opacity:0.78;') + '">' + escapeHtml(b.name) + '</span>' +
           timeStr +
           '</div>';
       }).join('');
