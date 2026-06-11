@@ -21,22 +21,9 @@ function _pegLowerBound(targetY) {
   return lo;
 }
 
+// 이진 탐색 보간 — Canyon 맵 기준 프로파일 ~125개 정점을 O(log n)으로 조회
 function getWallAtY(y) {
-  if (!wallProfile || wallProfile.length === 0) return { lx: 0, rx: GAME_VWIDTH };
-  if (y <= wallProfile[0].y) return wallProfile[0];
-  if (y >= wallProfile[wallProfile.length - 1].y) return wallProfile[wallProfile.length - 1];
-
-  for (let i = 0; i < wallProfile.length - 1; i++) {
-    const v0 = wallProfile[i], v1 = wallProfile[i + 1];
-    if (y >= v0.y && y <= v1.y) {
-      const t = (y - v0.y) / (v1.y - v0.y);
-      return {
-        lx: v0.lx + t * (v1.lx - v0.lx),
-        rx: v0.rx + t * (v1.rx - v0.rx)
-      };
-    }
-  }
-  return wallProfile[wallProfile.length - 1];
+  return interpolateWallAtY(wallProfile, y, GAME_VWIDTH);
 }
 
 function collideBallWithSegment(ball, x1, y1, x2, y2) {
