@@ -34,7 +34,7 @@
   <!-- 홀로그램 제어 패널 카드 (UI) -->
   <div class="pinball-control-panel">
     <div class="panel-row panel-row--header">
-      <div class="panel-brand-title"><i data-lucide="gamepad-2"></i> Pinball Rivals</div>
+      <div class="panel-brand-title">Pinball Rivals</div>
       <button id="btn-sound-toggle" class="badge sound-badge active" title="Toggle Sound"><i data-lucide="volume-2" class="icon-sm"></i> SOUND ON</button>
     </div>
 
@@ -42,8 +42,8 @@
     <div class="panel-row map-select-row" data-ms="1">
       <div class="map-select-label">맵 선택</div>
       <div class="map-segment" role="tablist" aria-label="맵 선택">
-        <button type="button" class="map-seg-btn active" data-map="neon" role="tab" aria-selected="true"><i data-lucide="zap" class="icon-sm"></i> Neon</button>
-        <button type="button" class="map-seg-btn" data-map="canyon" role="tab" aria-selected="false"><i data-lucide="mountain-snow" class="icon-sm"></i> Canyon</button>
+        <button type="button" class="map-seg-btn active" data-map="neon" role="tab" aria-selected="true">Neon</button>
+        <button type="button" class="map-seg-btn" data-map="canyon" role="tab" aria-selected="false">Canyon</button>
       </div>
     </div>
 
@@ -52,9 +52,9 @@
       <div class="panel-row panel-row--mb2">
         <div class="panel-section-title panel-title-flush">참전 팀원 명단 <span id="member-count" class="member-count">0명</span></div>
         <div style="display: flex; gap: 4px;">
-          <button id="btn-lotto-preset" class="shuffle-btn" style="padding: 4px 8px;" title="로또 6/45 프리셋" aria-label="로또 프리셋"><i data-lucide="coins" class="icon-sm"></i> 6/45</button>
-          <button id="btn-shuffle-members" class="shuffle-btn" style="padding: 4px 8px;" title="명단 섞기" aria-label="명단 섞기"><i data-lucide="shuffle" class="icon-sm"></i> 섞기</button>
-          <button id="btn-clear-members" class="shuffle-btn shuffle-btn--danger" style="padding: 4px 8px;" title="전체 삭제" aria-label="명단 전체 삭제"><i data-lucide="trash-2" class="icon-sm"></i> 지우기</button>
+          <button id="btn-lotto-preset" class="shuffle-btn" style="padding: 4px 8px;" title="로또 6/45 프리셋" aria-label="로또 프리셋">6/45</button>
+          <button id="btn-shuffle-members" class="shuffle-btn" style="padding: 4px 8px;" title="명단 섞기" aria-label="명단 섞기">섞기</button>
+          <button id="btn-clear-members" class="shuffle-btn shuffle-btn--danger" style="padding: 4px 8px;" title="전체 삭제" aria-label="명단 전체 삭제">지우기</button>
         </div>
       </div>
       <!-- 태그(칩) 방식 이름 입력 -->
@@ -139,8 +139,8 @@
 
     <!-- 조작 버튼들 — Step 2 -->
     <div class="panel-grid-buttons" data-ms="2">
-      <button id="btn-pinball-launch" class="panel-btn btn-orange"><i data-lucide="zap" class="icon-sm"></i> 경주 시작</button>
-      <button id="btn-pinball-reset" class="panel-btn btn-reset"><i data-lucide="rotate-ccw" class="icon-sm"></i> 다시 세팅</button>
+      <button id="btn-pinball-launch" class="panel-btn btn-orange">경주 시작</button>
+      <button id="btn-pinball-reset" class="panel-btn btn-reset">다시 세팅</button>
     </div>
 
     <!-- 실시간 리더보드 테이블 -->
@@ -180,7 +180,7 @@
   </div>
 
   <!-- 팝업 닫기 후 플로팅 홈 버튼 -->
-  <button id="btn-float-home" class="float-home-btn" style="display:none"><i data-lucide="home" class="icon-sm"></i> 홈으로 이동</button>
+  <button id="btn-float-home" class="float-home-btn" style="display:none">홈으로 이동</button>
 
   <!-- ════════ PC 인게임 HUD (데스크탑 전용 · 경주 중 표시) ════════ -->
   <div id="pc-game-hud" class="pc-hud">
@@ -228,10 +228,10 @@
     <div id="mobile-full-lb" class="mobile-full-lb">
       <div class="mobile-full-lb-header">
         <span class="mobile-full-lb-title">RACE RANK</span>
-        <button id="btn-mobile-close-full" class="mobile-close-btn"><i data-lucide="x" class="icon-sm"></i> 닫기</button>
+        <button id="btn-mobile-close-full" class="mobile-close-btn">✕ 닫기</button>
       </div>
       <div id="mobile-full-lb-body"></div>
-      <button id="btn-mobile-reset" class="mobile-reset-btn"><i data-lucide="home" class="icon-sm"></i> 홈으로 이동</button>
+      <button id="btn-mobile-reset" class="mobile-reset-btn">홈으로 이동</button>
     </div>
   </div>
 
