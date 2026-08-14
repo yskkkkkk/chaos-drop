@@ -7,7 +7,7 @@
   
   <!-- Open Graph (카카오톡, SNS 공유 미리보기) -->
   <meta property="og:title" content="Pinball Rivals">
-  <meta property="og:description" content="우당탕탕 무작위 핀볼 당첨 레이싱 게임! 지금 바로 참가자를 입력하고 굴려보세요.">
+  <meta property="og:description" content="무작위 핀볼 당첨 레이싱 게임. 참가자를 입력하고 굴려보세요.">
   <meta property="og:image" content="https://yskkkkkk.github.io/chaos-drop/assets/og-image.png">
   <meta property="og:url" content="https://yskkkkkk.github.io/chaos-drop/">
   <meta property="og:type" content="website">
@@ -34,16 +34,16 @@
   <!-- 홀로그램 제어 패널 카드 (UI) -->
   <div class="pinball-control-panel">
     <div class="panel-row panel-row--header">
-      <div class="panel-brand-title">🎯 Pinball Rivals</div>
-      <button id="btn-sound-toggle" class="badge sound-badge active" title="Toggle Sound">🔊 SOUND ON</button>
+      <div class="panel-brand-title">Pinball Rivals</div>
+      <button id="btn-sound-toggle" class="badge sound-badge active" title="Toggle Sound"><i data-lucide="volume-2" class="icon-sm"></i> SOUND ON</button>
     </div>
 
     <!-- 맵 선택 세그먼트 — Step 1 -->
     <div class="panel-row map-select-row" data-ms="1">
       <div class="map-select-label">맵 선택</div>
       <div class="map-segment" role="tablist" aria-label="맵 선택">
-        <button type="button" class="map-seg-btn active" data-map="neon" role="tab" aria-selected="true">🌀 Neon</button>
-        <button type="button" class="map-seg-btn" data-map="canyon" role="tab" aria-selected="false">⛰️ Canyon</button>
+        <button type="button" class="map-seg-btn active" data-map="neon" role="tab" aria-selected="true">Neon</button>
+        <button type="button" class="map-seg-btn" data-map="canyon" role="tab" aria-selected="false">Canyon</button>
       </div>
     </div>
 
@@ -52,9 +52,9 @@
       <div class="panel-row panel-row--mb2">
         <div class="panel-section-title panel-title-flush">참전 팀원 명단 <span id="member-count" class="member-count">0명</span></div>
         <div style="display: flex; gap: 4px;">
-          <button id="btn-lotto-preset" class="shuffle-btn" style="padding: 4px 8px;" title="로또 6/45 프리셋" aria-label="로또 프리셋"><span class="shuffle-ico">💰</span> 6/45</button>
-          <button id="btn-shuffle-members" class="shuffle-btn" style="padding: 4px 8px;" title="명단 섞기" aria-label="명단 섞기"><span class="shuffle-ico">🔀</span> 섞기</button>
-          <button id="btn-clear-members" class="shuffle-btn shuffle-btn--danger" style="padding: 4px 8px;" title="전체 삭제" aria-label="명단 전체 삭제">🗑</button>
+          <button id="btn-lotto-preset" class="shuffle-btn" style="padding: 4px 8px;" title="로또 6/45 프리셋" aria-label="로또 프리셋">6/45</button>
+          <button id="btn-shuffle-members" class="shuffle-btn" style="padding: 4px 8px;" title="명단 섞기" aria-label="명단 섞기">섞기</button>
+          <button id="btn-clear-members" class="shuffle-btn shuffle-btn--danger" style="padding: 4px 8px;" title="전체 삭제" aria-label="명단 전체 삭제">지우기</button>
         </div>
       </div>
       <!-- 태그(칩) 방식 이름 입력 -->
@@ -72,7 +72,7 @@
         
         <!-- 게임 중 규칙을 덮어버리는 오버레이 인디케이터 -->
         <div id="active-rule-indicator" class="active-rule-indicator" style="display: none;">
-          <span id="active-rule-icon" class="rule-icon">👑</span>
+          <span id="active-rule-icon" class="rule-icon"><i data-lucide="crown"></i></span>
           <div class="rule-text-group">
             <div id="active-rule-title" class="rule-title">선착순 당첨</div>
             <div id="active-rule-desc" class="rule-desc">가장 먼저 도착하는 N명</div>
@@ -81,15 +81,15 @@
 
         <label class="rule-radio-item">
           <input type="radio" name="pinball-rule" value="first" checked>
-          👑 선착순 당첨 <span id="lbl-first-desc" class="rule-desc">(2명까지)</span>
+          선착순 당첨 <span id="lbl-first-desc" class="rule-desc">(2명까지)</span>
         </label>
         <label class="rule-radio-item">
           <input type="radio" name="pinball-rule" value="last">
-          🛡️ 후착순 당첨 <span id="lbl-last-desc" class="rule-desc">(2명까지)</span>
+          후착순 당첨 <span id="lbl-last-desc" class="rule-desc">(2명까지)</span>
         </label>
         <label class="rule-radio-item">
           <input type="radio" name="pinball-rule" value="specific">
-          🎯 특정 순위 당첨 <span id="lbl-specific-desc" class="rule-desc">(1등 단독)</span>
+          특정 순위 당첨 <span id="lbl-specific-desc" class="rule-desc">(1등 단독)</span>
         </label>
       </div>
     </div>
@@ -139,7 +139,7 @@
 
     <!-- 조작 버튼들 — Step 2 -->
     <div class="panel-grid-buttons" data-ms="2">
-      <button id="btn-pinball-launch" class="panel-btn btn-orange">⚡ 경주 시작</button>
+      <button id="btn-pinball-launch" class="panel-btn btn-orange">경주 시작</button>
       <button id="btn-pinball-reset" class="panel-btn btn-reset">다시 세팅</button>
     </div>
 
@@ -155,7 +155,7 @@
 
   <!-- 공중 플로팅 당첨 팝업 모달 -->
   <div id="pinball-result-modal" class="pinball-modal">
-    <div class="modal-icon" id="modal-icon">🏆☕🎉</div>
+    <div class="modal-icon" id="modal-icon"></div>
     <div class="modal-winner-badge" id="modal-rule-title">Synapse Attention Winner</div>
     <h2 class="modal-winner-names" id="pinball-winner-text">홍길동, 아무개</h2>
     <p class="modal-subtext" id="modal-subtext">축하합니다!</p>
@@ -163,14 +163,14 @@
   </div>
 
   <!-- 팝업 닫기 후 플로팅 홈 버튼 -->
-  <button id="btn-float-home" class="float-home-btn" style="display:none">🏠 홈으로 이동</button>
+  <button id="btn-float-home" class="float-home-btn" style="display:none">홈으로 이동</button>
 
   <!-- ════════ PC 인게임 HUD (데스크탑 전용 · 경주 중 표시) ════════ -->
   <div id="pc-game-hud" class="pc-hud">
 
     <!-- ① 당첨 조건 (목표) -->
     <div class="hud-goal" id="hud-goal">
-      <span class="hud-goal-icon" id="hud-goal-icon">👑</span>
+      <span class="hud-goal-icon" id="hud-goal-icon"><i data-lucide="crown"></i></span>
       <span class="hud-goal-main">
         <span class="hud-goal-eyebrow">이번 판 목표</span>
         <span class="hud-goal-text" id="hud-goal-text">선착순 2명 당첨</span>
@@ -185,8 +185,8 @@
 
     <!-- ③④ 정지 / 음소거 컨트롤 -->
     <div class="hud-controls">
-      <button id="hud-btn-mute" class="hud-icon-btn hud-icon-btn--square" title="음소거" aria-label="사운드 음소거">🔊</button>
-      <button id="hud-btn-quit" class="hud-icon-btn hud-icon-btn--quit" title="경주 종료하고 돌아가기" aria-label="경주 종료"><span>⏹</span> 정지</button>
+      <button id="hud-btn-mute" class="hud-icon-btn hud-icon-btn--square" title="음소거" aria-label="사운드 음소거"><i data-lucide="volume-x"></i></button>
+      <button id="hud-btn-quit" class="hud-icon-btn hud-icon-btn--quit" title="경주 종료하고 돌아가기" aria-label="경주 종료"><i data-lucide="square"></i></button>
     </div>
   </div>
 
@@ -214,17 +214,18 @@
         <button id="btn-mobile-close-full" class="mobile-close-btn">✕ 닫기</button>
       </div>
       <div id="mobile-full-lb-body"></div>
-      <button id="btn-mobile-reset" class="mobile-reset-btn">🏠 홈으로 이동</button>
+      <button id="btn-mobile-reset" class="mobile-reset-btn">홈으로 이동</button>
     </div>
   </div>
 
   <!-- 모바일 화면 회전 안내 (세로 모드 요청) -->
   <div id="mobile-rotate-overlay">
-    <div class="rotate-icon">📱</div>
+    <div class="rotate-icon"><i data-lucide="smartphone" style="width: 3rem; height: 3rem;"></i></div>
     <div class="rotate-msg">화면을 세로로 돌려주세요</div>
   </div>
 
   <!-- ── 스크립트 파일 로드 ───────────────────────────────── -->
+  <script src="https://unpkg.com/lucide@latest"></script>
   <script src="js/utils.js?v=1.0.0"></script>
   <script src="js/constants.js?v=1.1.0"></script>
   <script src="js/entities.js?v=1.1.0"></script>

@@ -194,7 +194,7 @@ function resolveObstacleCollisions() {
         ball.vx *= 0.5;
         ball.portalCooldown = 50;
         pinballLog(`${ball.name} → ${port.name}!`);
-        if (typeof window.addCommentary === 'function') window.addCommentary(`🌀 ${ball.name} → ${port.name}!`);
+        if (typeof window.addCommentary === 'function') window.addCommentary(`${ball.name} → ${port.name}!`);
       }
     }
 
@@ -248,8 +248,8 @@ function resolveObstacleCollisions() {
         if (item.type === 'shield') {
           ball.shieldTimer = 300; // 5초 무적
           ball.shieldActive = true;
-          if (typeof pinballLog === 'function') pinballLog(`🛡 ${ball.name} 무적 아이템 획득! (5초)`);
-          if (typeof window.addCommentary === 'function') window.addCommentary(`🛡 ${ball.name} 무적!`);
+          if (typeof pinballLog === 'function') pinballLog(`${ball.name} 무적 아이템 획득! (5초)`);
+          if (typeof window.addCommentary === 'function') window.addCommentary(`${ball.name} 무적!`);
         } else {
           if (!ball.boosterActive) {
             ball.vx *= 1.5;
@@ -257,8 +257,8 @@ function resolveObstacleCollisions() {
           }
           ball.boosterTimer = 300;
           ball.boosterActive = true;
-          if (typeof pinballLog === 'function') pinballLog(`⚡ ${ball.name} 부스터 획득! (5초)`);
-          if (typeof window.addCommentary === 'function') window.addCommentary(`⚡ ${ball.name} 부스터!`);
+          if (typeof pinballLog === 'function') pinballLog(`${ball.name} 부스터 획득! (5초)`);
+          if (typeof window.addCommentary === 'function') window.addCommentary(`${ball.name} 부스터!`);
         }
       }
     }
@@ -291,8 +291,8 @@ function resolveObstacleCollisions() {
           ball.vy = 0.2;
           ball.immuneTimer = 60;
           spawnNearMissSparks(ball.x, ball.y, '#00ff99');
-          if (typeof pinballLog === 'function') pinballLog(`💀 ${ball.name} 창살 소멸 → 리스폰!`);
-          if (typeof window.addCommentary === 'function') window.addCommentary(`💀 ${ball.name} 리스폰!`);
+          if (typeof pinballLog === 'function') pinballLog(`${ball.name} 창살 소멸 → 리스폰!`);
+          if (typeof window.addCommentary === 'function') window.addCommentary(`${ball.name} 리스폰!`);
           break;
         }
       }

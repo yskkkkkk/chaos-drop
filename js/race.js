@@ -69,7 +69,7 @@ function registerFinishedBall(ball) {
     varTimer = 140;
     camDramaTarget = ball;
     camDramaTimer = 145;
-    pinballLog("🔍 PHOTO FINISH! INITIATING ULTRA VAR SCAN...");
+    pinballLog("PHOTO FINISH! INITIATING ULTRA VAR SCAN...");
   } else {
     checkWinningConditions();
   }
@@ -145,12 +145,12 @@ function showWinningPopup(winners) {
   });
 
   if (isLottoGame && currentRule === 'first' && winCount === 6) {
-    if (iconEl) iconEl.innerText = '🍀💰🍀';
+    if (iconEl) iconEl.innerHTML = '<i data-lucide="coins" style="width: 4rem; height: 4rem; color: #ff9900;"></i>';
     badgeEl.innerText = '행운번호';
     badgeEl.style.color = '#ff9900';
     if (subtextEl) subtextEl.style.display = 'none'; // "축하합니다!" 문구 숨김
   } else {
-    if (iconEl) iconEl.innerText = '🏆☕🎉';
+    if (iconEl) iconEl.innerHTML = '<i data-lucide="trophy" style="width: 4rem; height: 4rem; color: var(--accent);"></i>';
     if (subtextEl) {
       subtextEl.style.display = 'block';
       subtextEl.innerText = '축하합니다!';
@@ -166,7 +166,7 @@ function showWinningPopup(winners) {
       badgeEl.style.color = '#00f0ff';
     }
   }
-
+  if (typeof lucide !== 'undefined') lucide.createIcons({root: modal});
   modal.style.display = 'block';
   pinballLog(`WINNERS ANNOUNCED: ${names}`);
 }
