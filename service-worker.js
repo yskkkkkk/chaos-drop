@@ -1,8 +1,9 @@
-const CACHE_NAME = 'pinball-rivals-cache-v3';
+const CACHE_NAME = 'pinball-rivals-cache-v4';
 const urlsToCache = [
   './',
   './index.html',
   './css/style.css',
+  './js/utils.js',
   './js/constants.js',
   './js/entities.js',
   './js/ball.js',

@@ -7,7 +7,7 @@
 
 function spawnNearMissSparks(x, y, color) {
   const sparkColors = [color, '#ffffff', '#ff9900', '#ff3366'];
-  for (let i = 0; i < Math.max(4, Math.floor(18 * QUALITY)); i++) {
+  for (let i = 0; i < Math.max(2, Math.floor(6 * QUALITY)); i++) {
     pinballNearMissSparks.push({
       x: x,
       y: y,
