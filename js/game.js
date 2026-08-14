@@ -152,7 +152,7 @@ function updatePhysicsStep(_vCH, VH) {
     if (speedPadRotateTimer <= 0) {
       speedPadRotateTimer = 300;
       pinballSpeedPads.forEach(pad => pad.rotateClockwise());
-      if (typeof pinballLog === 'function') pinballLog("⚡ 가속 패드 방향 즉시 회전!");
+      if (typeof pinballLog === 'function') pinballLog("가속 패드 방향 즉시 회전!");
     }
 
     recoverCurrentMapIslandTunnel();
@@ -263,11 +263,11 @@ function animatePinball(currentTime) {
       
       if (lowFpsFrames > 60) { // 약 1~2초간 렉이 지속될 때
         LOW_END_MODE = true;
-        if (typeof pinballLog === 'function') pinballLog("⚠️ 성능 저하 감지: 네온 글로우 효과가 자동으로 차단되었습니다.");
+        if (typeof pinballLog === 'function') pinballLog("성능 저하 감지: 네온 글로우 효과가 자동으로 차단되었습니다.");
         
         // 화면 중앙 하단에 임시 토스트 알림 띄우기
         const optToast = document.createElement('div');
-        optToast.innerText = "⚠️ 렉 방지: 자동 최적화 가동 (글로우 꺼짐)";
+        optToast.innerText = "렉 방지: 자동 최적화 가동 (글로우 꺼짐)";
         optToast.style.cssText = "position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:rgba(255,80,80,0.95); color:#fff; padding:10px 20px; border-radius:20px; font-weight:700; font-size:13px; font-family:Outfit, sans-serif; box-shadow:0 4px 15px rgba(255,0,0,0.3); z-index:9999; pointer-events:none; transition:opacity 0.5s ease;";
         document.body.appendChild(optToast);
         setTimeout(() => {
@@ -613,7 +613,7 @@ function animatePinball(currentTime) {
     ctx.shadowBlur = LOW_END_MODE ? 0 : (8 * QUALITY);
     ctx.shadowColor = '#ff3366';
     ctx.textAlign = 'center';
-    ctx.fillText('🔍 VAR PHOTO FINISH 판독 중...', VW / 2, visY0 + 130);
+    ctx.fillText('VAR PHOTO FINISH 판독 중...', VW / 2, visY0 + 130);
     ctx.restore();
   }
 

@@ -29,15 +29,16 @@ function setHudGoal() {
   if (!icon || !text) return;
 
   if (currentRule === 'first') {
-    icon.textContent = '👑';
+    icon.innerHTML = '<i data-lucide="crown"></i>';
     text.textContent = `선착순 ${winCount}명 당첨`;
   } else if (currentRule === 'last') {
-    icon.textContent = '🛡️';
+    icon.innerHTML = '<i data-lucide="shield"></i>';
     text.textContent = `후착순 ${winCount}명 당첨`;
   } else if (currentRule === 'specific') {
-    icon.textContent = '🎯';
+    icon.innerHTML = '<i data-lucide="target"></i>';
     text.textContent = `${specificRank}등 단독 당첨`;
   }
+  if (typeof lucide !== 'undefined') lucide.createIcons({root: document.getElementById('hud-goal')});
 }
 
 // ── 실시간 순위 렌더 (당첨 인원수만큼 노출) ──────────────────
@@ -53,9 +54,10 @@ function updatePcHud() {
   
   if (quitBtn) {
     quitBtn.innerHTML = !isGameFinished
-      ? '<span>⏹</span> 정지'
-      : '<span>🏠</span> 처음으로';
+      ? '<i data-lucide="square"></i>'
+      : '<i data-lucide="home"></i>';
     quitBtn.classList.toggle('hud-icon-btn--home', isGameFinished);
+    if (typeof lucide !== 'undefined') lucide.createIcons({root: quitBtn});
   }
 
   const list = document.getElementById('hud-board-list');
@@ -127,14 +129,16 @@ function isSoundMuted() {
 function syncSoundButtons(muted) {
   const panelBtn = document.getElementById('btn-sound-toggle');
   if (panelBtn) {
-    panelBtn.textContent = muted ? '🔇 SOUND OFF' : '🔊 SOUND ON';
+    panelBtn.innerHTML = muted ? '<i data-lucide="volume-x" class="icon-sm"></i> SOUND OFF' : '<i data-lucide="volume-2" class="icon-sm"></i> SOUND ON';
     panelBtn.className = muted ? 'badge sound-badge muted' : 'badge sound-badge active';
+    if (typeof lucide !== 'undefined') lucide.createIcons({root: panelBtn});
   }
   const hudBtn = document.getElementById('hud-btn-mute');
   if (hudBtn) {
-    hudBtn.textContent = muted ? '🔇' : '🔊';
+    hudBtn.innerHTML = muted ? '<i data-lucide="volume-x"></i>' : '<i data-lucide="volume-2"></i>';
     hudBtn.classList.toggle('muted', muted);
     hudBtn.setAttribute('title', muted ? '음소거 해제' : '음소거');
+    if (typeof lucide !== 'undefined') lucide.createIcons({root: hudBtn});
   }
 }
 // 다른 모듈(ui.js)에서도 호출 가능하게 노출

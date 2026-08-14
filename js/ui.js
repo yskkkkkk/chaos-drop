@@ -316,21 +316,22 @@ function launchPinballRacing() {
   const desc = document.getElementById('active-rule-desc');
   if (indicator && icon && title && desc) {
     if (currentRule === 'first') {
-      icon.textContent = '👑';
+      icon.innerHTML = '<i data-lucide="crown"></i>';
       title.textContent = '선착순 생존';
       title.style.color = 'var(--accent)';
       desc.textContent = `가장 먼저 도착하는 ${winCount}명`;
     } else if (currentRule === 'last') {
-      icon.textContent = '🛡️';
+      icon.innerHTML = '<i data-lucide="shield"></i>';
       title.textContent = '후착순 생존';
       title.style.color = '#33ff57';
       desc.textContent = `끝까지 살아남는 ${winCount}명`;
     } else if (currentRule === 'specific') {
-      icon.textContent = '🎯';
+      icon.innerHTML = '<i data-lucide="target"></i>';
       title.textContent = '특정 순위 단독';
       title.style.color = '#ff3366';
       desc.textContent = `정확히 ${specificRank}등으로 도착하는 1명`;
     }
+    if (typeof lucide !== 'undefined') lucide.createIcons({root: indicator});
     indicator.style.display = 'flex';
   }
   const modal = document.getElementById('pinball-result-modal');
@@ -424,8 +425,9 @@ window.addEventListener('DOMContentLoaded', () => {
         if (typeof syncSoundButtons === 'function') {
           syncSoundButtons(muted);
         } else {
-          soundBtn.textContent = muted ? '🔇 SOUND OFF' : '🔊 SOUND ON';
+          soundBtn.innerHTML = muted ? '<i data-lucide="volume-x" class="icon-sm"></i> SOUND OFF' : '<i data-lucide="volume-2" class="icon-sm"></i> SOUND ON';
           soundBtn.className = muted ? 'badge sound-badge muted' : 'badge sound-badge active';
+          if (typeof lucide !== 'undefined') lucide.createIcons({root: soundBtn});
         }
       }
     });
@@ -619,7 +621,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     updatePreviewBalls();
     updateSpecificRankSelect();
-    pinballLog("✅ 로또 6/45 프리셋 적용! (45명 / 선착순 6명)");
+    pinballLog("로또 6/45 프리셋 적용 (45명 / 선착순 6명)");
   });
 
   const btnLaunch = document.getElementById('btn-pinball-launch');
@@ -652,7 +654,7 @@ window.addEventListener('DOMContentLoaded', () => {
       switchMap(nextId);
       resetPinball();
       if (pinballAnimId === null) animatePinball();
-      pinballLog(`🗺 맵 전환 → ${MAPS[nextId]?.label}`);
+      pinballLog(`맵 전환 → ${MAPS[nextId]?.label}`);
     });
   });
 
@@ -721,6 +723,8 @@ window.addEventListener('DOMContentLoaded', () => {
       if (!_fhint.contains(e.target)) hideToast();
     });
   }
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
 });
 
 // ── 모바일 UI 함수 ──────────────────────────────────────────
@@ -753,7 +757,7 @@ function updateMobileMiniLB() {
     .sort((a, b) => b.y - a.y);
   const allRanked = [...finished, ...active];
 
-  const medals = ['🥇', '🥈', '🥉'];
+  const medals = ['1st', '2nd', '3rd'];
   const top3 = allRanked.slice(0, 3);
   miniLb.innerHTML = top3.length === 0
     ? '<div class="mobile-mini-lb-row" style="color:rgba(255,255,255,0.35);">대기 중...</div>'

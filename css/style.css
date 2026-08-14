@@ -9,6 +9,28 @@
   --text-muted: #9ca3af;
 }
 
+/* Lucide Icons Styles */
+i[data-lucide] {
+  vertical-align: middle;
+  width: 1.2rem;
+  height: 1.2rem;
+}
+.icon-sm {
+  width: 1.1rem !important;
+  height: 1.1rem !important;
+  margin-right: 4px;
+}
+.icon-lg {
+  width: 2.5rem !important;
+  height: 2.5rem !important;
+  margin-bottom: 8px;
+}
+.hud-icon-btn i[data-lucide] {
+  margin-right: 0;
+  width: 1.4rem !important;
+  height: 1.4rem !important;
+}
+
 html {
   height: 100%;
 }
@@ -118,7 +140,7 @@ body {
   opacity: 0.35;
   cursor: not-allowed;
 }
-.map-seg-btn.locked::after { content: " 🔒"; font-size: 0.6rem; }
+.map-seg-btn.locked::after { content: " (Locked)"; font-size: 0.6rem; }
 
 /* 셔플 아이콘 버튼 + 인원수 텍스트 */
 .member-count {
