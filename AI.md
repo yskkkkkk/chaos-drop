@@ -60,13 +60,23 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
+## 5. No Redundant Documentation
+
+**Say each thing once. Pick the one place it belongs.**
+
+- Don't restate in a script/code comment what a nearby README, doc, or docstring already says. Comments explain *why*, not what's already documented elsewhere.
+- Don't pad a README with a section for every possible subtopic. One short paragraph that answers "what is this, why does it exist, how do I use it" beats five headed sections.
+- Commit messages and PR descriptions: state what changed and why in as few lines as it takes. Skip emoji headers, restating the diff line-by-line, and "✅ done / ⚠️ note" bullet theater.
+- Before adding a comment, doc section, or PR paragraph, ask: does this information already exist somewhere else nearby? If yes, link or skip it instead of duplicating it.
+- If a file you wrote could lose a third of its lines with no loss of information, it needs another pass.
+
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
 
 ---
 
-## 5. 🚨 PROJECT ABSOLUTE CORE RULE (가장 중요한 핵심 원칙) 🚨
+## 6. 🚨 PROJECT ABSOLUTE CORE RULE (가장 중요한 핵심 원칙) 🚨
 
 **100% Deterministic Fixed-Timestep Physics (모든 환경에서 동일한 60프레임 고정 물리 연산 보장)**
 
